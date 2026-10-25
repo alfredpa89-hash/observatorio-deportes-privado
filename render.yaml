@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: observatorio-deportes-privado
+    runtime: node
+    plan: free
+    autoDeployTrigger: "off"
+    buildCommand: npx --yes pnpm@11.25.0 --dir cloud install --frozen-lockfile --ignore-scripts --prod
+    startCommand: node cloud/server.mjs
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      - key: NODE_OPTIONS
+        value: "--max-old-space-size=300"
+      - key: OBSERVATORIO_PUBLIC_URL
+        sync: false
+      - key: OBSERVATORIO_OWNER_ID
+        sync: false
+      - key: OBSERVATORIO_STORAGE_SECRET
+        generateValue: true
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_PUBLISHABLE_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false

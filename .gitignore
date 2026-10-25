@@ -1,0 +1,12 @@
+data/
+.test-tmp/
+.pnpm-store/
+node_modules/
+cloud/node_modules/
+.env
+.env.*
+*.dpapi
+*.log
+*.tmp
+cloud/private/
+cloud/source/
