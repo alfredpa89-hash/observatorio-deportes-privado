@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "license": "REEMPLAZAR por la autorizacion o licencia de tus registros personales",
+  "games": [
+    {
+      "id": "REEMPLAZAR-ID-PARTIDO",
+      "league": "nba",
+      "season": "2025/2026",
+      "date": "2026-01-01T00:00:00Z",
+      "home": "REEMPLAZAR-LOCAL",
+      "away": "REEMPLAZAR-VISITANTE",
+      "finished": true,
+      "preseason": false,
+      "phase": "regular",
+      "overtime": false,
+      "source": "REEMPLAZAR-FUENTE",
+      "sourceUrl": "https://example.com/reemplazar-fuente",
+      "rosterComplete": false,
+      "periods": {
+        "home": { "q1": null, "q2": null, "q3": null, "q4": null, "ot": null, "ft": null },
+        "away": { "q1": null, "q2": null, "q3": null, "q4": null, "ot": null, "ft": null }
+      },
+      "players": [
+        {
+          "playerId": "REEMPLAZAR-ID-JUGADOR",
+          "name": "REEMPLAZAR-NOMBRE",
+          "team": "REEMPLAZAR-LOCAL",
+          "periods": {
+            "q1": { "minutes": null, "points": null, "rebounds": null, "assists": null, "threes": null },
+            "q2": { "minutes": null, "points": null, "rebounds": null, "assists": null, "threes": null },
+            "q3": { "minutes": null, "points": null, "rebounds": null, "assists": null, "threes": null },
+            "q4": { "minutes": null, "points": null, "rebounds": null, "assists": null, "threes": null },
+            "ft": { "minutes": null, "points": null, "rebounds": null, "assists": null, "threes": null }
+          }
+        }
+      ]
+    }
+  ]
+}
