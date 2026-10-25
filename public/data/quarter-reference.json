@@ -1,0 +1,2453 @@
+{
+  "schema": 1,
+  "games": [
+    {
+      "id": "nba-official:0022501090",
+      "league": "nba",
+      "season": "2025/2026",
+      "date": "2026-03-30T02:00:00.000Z",
+      "home": "Denver Nuggets",
+      "away": "Golden State Warriors",
+      "finished": true,
+      "preseason": false,
+      "referenceOnly": true,
+      "source": "NBA official gamebook",
+      "sourceUrl": "https://statsdmz.nba.com/pdfs/20260329/20260329_GSWDEN_book.pdf",
+      "attribution": "Copyright (c) 2025-2026 NBA Properties, INC. All Rights Reserved",
+      "notice": "Muestra tecnica privada de un partido; excluida de frecuencias, pronosticos y prueba de octubre. No es un feed autorizado.",
+      "periods": {
+        "home": {
+          "q1": 23,
+          "q2": 23,
+          "q3": 40,
+          "q4": 30,
+          "ft": 116,
+          "ot": 0
+        },
+        "away": {
+          "q1": 28,
+          "q2": 25,
+          "q3": 21,
+          "q4": 19,
+          "ft": 93,
+          "ot": 0
+        }
+      },
+      "players": [
+        {
+          "playerId": "nba-gamebook:0022501090:away:15",
+          "name": "Gui Santos",
+          "team": "Golden State Warriors",
+          "side": "away",
+          "periods": {
+            "q1": {
+              "minutes": 8.366666666666667,
+              "points": 5,
+              "rebounds": 3,
+              "assists": 1,
+              "threes": 1,
+              "participated": true
+            },
+            "q2": {
+              "minutes": 7.65,
+              "points": 2,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0,
+              "participated": true
+            },
+            "q3": {
+              "minutes": 8.416666666666666,
+              "points": 2,
+              "rebounds": 4,
+              "assists": 1,
+              "threes": 0,
+              "participated": true
+            },
+            "q4": {
+              "minutes": 8.083333333333334,
+              "points": 0,
+              "rebounds": 3,
+              "assists": 1,
+              "threes": 0,
+              "participated": true
+            },
+            "ft": {
+              "minutes": 32.516666666666666,
+              "points": 9,
+              "rebounds": 10,
+              "assists": 3,
+              "threes": 1,
+              "participated": true
+            }
+          }
+        },
+        {
+          "playerId": "nba-gamebook:0022501090:away:23",
+          "name": "Draymond Green",
+          "team": "Golden State Warriors",
+          "side": "away",
+          "periods": {
+            "q1": {
+              "minutes": 8.683333333333334,
+              "points": 8,
+              "rebounds": 1,
+              "assists": 3,
+              "threes": 2,
+              "participated": true
+            },
+            "q2": {
+              "minutes": 7.666666666666667,
+              "points": 2,
+              "rebounds": 0,
+              "assists": 2,
+              "threes": 0,
+              "participated": true
+            },
+            "q3": {
+              "minutes": 9.183333333333334,
+              "points": 3,
+              "rebounds": 1,
+              "assists": 3,
+              "threes": 0,
+              "participated": true
+            },
+            "q4": {
+              "minutes": 4.016666666666667,
+              "points": 0,
+              "rebounds": 2,
+              "assists": 0,
+              "threes": 0,
+              "participated": true
+            },
+            "ft": {
+              "minutes": 29.55,
+              "points": 13,
+              "rebounds": 4,
+              "assists": 8,
+              "threes": 2,
+              "participated": true
+            }
+          }
+        },
+        {
+          "playerId": "nba-gamebook:0022501090:away:7",
+          "name": "Kristaps Porzingis",
+          "team": "Golden State Warriors",
+          "side": "away",
+          "periods": {
+            "q1": {
+              "minutes": 8.4,
+              "points": 6,
+              "rebounds": 2,
+              "assists": 2,
+              "threes": 2,
+              "participated": true
+            },
+            "q2": {
+              "minutes": 7.75,
+              "points": 8,
+              "rebounds": 1,
+              "assists": 0,
+              "threes": 2,
+              "participated": true
+            },
+            "q3": {
+              "minutes": 7.416666666666667,
+              "points": 9,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 1,
+              "participated": true
+            },
+            "q4": {
+              "minutes": 5.083333333333333,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0,
+              "participated": true
+            },
+            "ft": {
+              "minutes": 28.65,
+              "points": 23,
+              "rebounds": 3,
+              "assists": 2,
+              "threes": 5,
+              "participated": true
+            }
+          }
+        },
+        {
+          "playerId": "nba-gamebook:0022501090:away:8",
+          "name": "De'Anthony Melton",
+          "team": "Golden State Warriors",
+          "side": "away",
+          "periods": {
+            "q1": {
+              "minutes": 5.083333333333333,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 1,
+              "threes": 0,
+              "participated": true
+            },
+            "q2": {
+              "minutes": 5.3,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0,
+              "participated": true
+            },
+            "q3": {
+              "minutes": 8.216666666666667,
+              "points": 0,
+              "rebounds": 1,
+              "assists": 0,
+              "threes": 0,
+              "participated": true
+            },
+            "q4": {
+              "minutes": 6.733333333333333,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 2,
+              "threes": 0,
+              "participated": true
+            },
+            "ft": {
+              "minutes": 25.333333333333332,
+              "points": 0,
+              "rebounds": 1,
+              "assists": 3,
+              "threes": 0,
+              "participated": true
+            }
+          }
+        },
+        {
+          "playerId": "nba-gamebook:0022501090:away:2",
+          "name": "Brandin Podziemski",
+          "team": "Golden State Warriors",
+          "side": "away",
+          "periods": {
+            "q1": {
+              "minutes": 7.816666666666666,
+              "points": 4,
+              "rebounds": 2,
+              "assists": 1,
+              "threes": 0,
+              "participated": true
+            },
+            "q2": {
+              "minutes": 9.066666666666666,
+              "points": 5,
+              "rebounds": 2,
+              "assists": 1,
+              "threes": 1,
+              "participated": true
+            },
+            "q3": {
+              "minutes": 8.666666666666666,
+              "points": 5,
+              "rebounds": 1,
+              "assists": 0,
+              "threes": 1,
+              "participated": true
+            },
+            "q4": {
+              "minutes": 6.2,
+              "points": 9,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 3,
+              "participated": true
+            },
+            "ft": {
+              "minutes": 31.75,
+              "points": 23,
+              "rebounds": 5,
+              "assists": 2,
+              "threes": 5,
+              "participated": true
+            }
+          }
+        },
+        {
+          "playerId": "nba-gamebook:0022501090:away:0",
+          "name": "Gary Payton II",
+          "team": "Golden State Warriors",
+          "side": "away",
+          "periods": {
+            "q1": {
+              "minutes": 4.183333333333334,
+              "points": 3,
+              "rebounds": 2,
+              "assists": 0,
+              "threes": 0,
+              "participated": true
+            },
+            "q2": {
+              "minutes": 8.1,
+              "points": 6,
+              "rebounds": 2,
+              "assists": 1,
+              "threes": 0,
+              "participated": true
+            },
+            "q3": {
+              "minutes": 5.166666666666667,
+              "points": 2,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0,
+              "participated": true
+            },
+            "q4": {
+              "minutes": 3.533333333333333,
+              "points": 5,
+              "rebounds": 1,
+              "assists": 0,
+              "threes": 1,
+              "participated": true
+            },
+            "ft": {
+              "minutes": 20.983333333333334,
+              "points": 16,
+              "rebounds": 5,
+              "assists": 1,
+              "threes": 1,
+              "participated": true
+            }
+          }
+        },
+        {
+          "playerId": "nba-gamebook:0022501090:away:18",
+          "name": "LJ Cryer",
+          "team": "Golden State Warriors",
+          "side": "away",
+          "periods": {
+            "q1": {
+              "minutes": 4.183333333333334,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0,
+              "participated": true
+            },
+            "q2": {
+              "minutes": 2.7,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0,
+              "participated": true
+            },
+            "q3": {
+              "minutes": 3.3333333333333335,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0,
+              "participated": true
+            },
+            "q4": {
+              "minutes": 5.8,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 2,
+              "threes": 0,
+              "participated": true
+            },
+            "ft": {
+              "minutes": 16.016666666666666,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 2,
+              "threes": 0,
+              "participated": true
+            }
+          }
+        },
+        {
+          "playerId": "nba-gamebook:0022501090:away:61",
+          "name": "Pat Spencer",
+          "team": "Golden State Warriors",
+          "side": "away",
+          "periods": {
+            "q1": {
+              "minutes": 3.6,
+              "points": 2,
+              "rebounds": 0,
+              "assists": 1,
+              "threes": 0,
+              "participated": true
+            },
+            "q2": {
+              "minutes": 7.983333333333333,
+              "points": 2,
+              "rebounds": 3,
+              "assists": 5,
+              "threes": 0,
+              "participated": true
+            },
+            "q3": {
+              "minutes": 3.783333333333333,
+              "points": 0,
+              "rebounds": 1,
+              "assists": 1,
+              "threes": 0,
+              "participated": true
+            },
+            "q4": {
+              "minutes": 8.8,
+              "points": 3,
+              "rebounds": 1,
+              "assists": 1,
+              "threes": 0,
+              "participated": true
+            },
+            "ft": {
+              "minutes": 24.166666666666668,
+              "points": 7,
+              "rebounds": 5,
+              "assists": 8,
+              "threes": 0,
+              "participated": true
+            }
+          }
+        },
+        {
+          "playerId": "nba-gamebook:0022501090:away:19",
+          "name": "Nate Williams",
+          "team": "Golden State Warriors",
+          "side": "away",
+          "periods": {
+            "q1": {
+              "minutes": 3.05,
+              "points": 0,
+              "rebounds": 2,
+              "assists": 0,
+              "threes": 0,
+              "participated": true
+            },
+            "q2": {
+              "minutes": 2.466666666666667,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0,
+              "participated": true
+            },
+            "q3": {
+              "minutes": 1.9666666666666666,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0,
+              "participated": true
+            },
+            "q4": {
+              "minutes": 3.9166666666666665,
+              "points": 0,
+              "rebounds": 1,
+              "assists": 0,
+              "threes": 0,
+              "participated": true
+            },
+            "ft": {
+              "minutes": 11.4,
+              "points": 0,
+              "rebounds": 3,
+              "assists": 0,
+              "threes": 0,
+              "participated": true
+            }
+          }
+        },
+        {
+          "playerId": "nba-gamebook:0022501090:away:21",
+          "name": "Quinten Post",
+          "team": "Golden State Warriors",
+          "side": "away",
+          "periods": {
+            "q1": {
+              "minutes": 3.316666666666667,
+              "points": 0,
+              "rebounds": 1,
+              "assists": 0,
+              "threes": 0,
+              "participated": true
+            },
+            "q2": {
+              "minutes": 1.3166666666666667,
+              "points": 0,
+              "rebounds": 1,
+              "assists": 0,
+              "threes": 0,
+              "participated": true
+            },
+            "q3": {
+              "minutes": 0,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0,
+              "participated": false
+            },
+            "q4": {
+              "minutes": 0,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0,
+              "participated": false
+            },
+            "ft": {
+              "minutes": 4.633333333333334,
+              "points": 0,
+              "rebounds": 2,
+              "assists": 0,
+              "threes": 0,
+              "participated": true
+            }
+          }
+        },
+        {
+          "playerId": "nba-gamebook:0022501090:away:31",
+          "name": "Seth Curry",
+          "team": "Golden State Warriors",
+          "side": "away",
+          "periods": {
+            "q1": {
+              "minutes": 3.316666666666667,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0,
+              "participated": true
+            },
+            "q2": {
+              "minutes": 0,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0,
+              "participated": false
+            },
+            "q3": {
+              "minutes": 3.85,
+              "points": 0,
+              "rebounds": 1,
+              "assists": 0,
+              "threes": 0,
+              "participated": true
+            },
+            "q4": {
+              "minutes": 0,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0,
+              "participated": false
+            },
+            "ft": {
+              "minutes": 7.166666666666667,
+              "points": 0,
+              "rebounds": 1,
+              "assists": 0,
+              "threes": 0,
+              "participated": true
+            }
+          }
+        },
+        {
+          "playerId": "nba-gamebook:0022501090:away:33",
+          "name": "Malevy Leons",
+          "team": "Golden State Warriors",
+          "side": "away",
+          "periods": {
+            "q1": {
+              "minutes": 0,
+              "points": null,
+              "rebounds": null,
+              "assists": null,
+              "threes": null,
+              "participated": false
+            },
+            "q2": {
+              "minutes": 0,
+              "points": null,
+              "rebounds": null,
+              "assists": null,
+              "threes": null,
+              "participated": false
+            },
+            "q3": {
+              "minutes": 0,
+              "points": null,
+              "rebounds": null,
+              "assists": null,
+              "threes": null,
+              "participated": false
+            },
+            "q4": {
+              "minutes": 3.9166666666666665,
+              "points": 2,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0,
+              "participated": true
+            },
+            "ft": {
+              "minutes": 3.9166666666666665,
+              "points": 2,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0,
+              "participated": true
+            }
+          }
+        },
+        {
+          "playerId": "nba-gamebook:0022501090:away:77",
+          "name": "Omer Yurtseven",
+          "team": "Golden State Warriors",
+          "side": "away",
+          "periods": {
+            "q1": {
+              "minutes": 0,
+              "points": null,
+              "rebounds": null,
+              "assists": null,
+              "threes": null,
+              "participated": false
+            },
+            "q2": {
+              "minutes": 0,
+              "points": null,
+              "rebounds": null,
+              "assists": null,
+              "threes": null,
+              "participated": false
+            },
+            "q3": {
+              "minutes": 0,
+              "points": null,
+              "rebounds": null,
+              "assists": null,
+              "threes": null,
+              "participated": false
+            },
+            "q4": {
+              "minutes": 3.9166666666666665,
+              "points": 0,
+              "rebounds": 2,
+              "assists": 0,
+              "threes": 0,
+              "participated": true
+            },
+            "ft": {
+              "minutes": 3.9166666666666665,
+              "points": 0,
+              "rebounds": 2,
+              "assists": 0,
+              "threes": 0,
+              "participated": true
+            }
+          }
+        },
+        {
+          "playerId": "nba-gamebook:0022501090:home:23",
+          "name": "Cameron Johnson",
+          "team": "Denver Nuggets",
+          "side": "home",
+          "periods": {
+            "q1": {
+              "minutes": 6.933333333333334,
+              "points": 3,
+              "rebounds": 0,
+              "assists": 2,
+              "threes": 1,
+              "participated": true
+            },
+            "q2": {
+              "minutes": 8.2,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 1,
+              "threes": 0,
+              "participated": true
+            },
+            "q3": {
+              "minutes": 4,
+              "points": 3,
+              "rebounds": 1,
+              "assists": 0,
+              "threes": 1,
+              "participated": true
+            },
+            "q4": {
+              "minutes": 0,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0,
+              "participated": false
+            },
+            "ft": {
+              "minutes": 19.133333333333333,
+              "points": 6,
+              "rebounds": 1,
+              "assists": 3,
+              "threes": 2,
+              "participated": true
+            }
+          }
+        },
+        {
+          "playerId": "nba-gamebook:0022501090:home:8",
+          "name": "Peyton Watson",
+          "team": "Denver Nuggets",
+          "side": "home",
+          "periods": {
+            "q1": {
+              "minutes": 6.016666666666667,
+              "points": 3,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 1,
+              "participated": true
+            },
+            "q2": {
+              "minutes": 4.25,
+              "points": 4,
+              "rebounds": 1,
+              "assists": 2,
+              "threes": 0,
+              "participated": true
+            },
+            "q3": {
+              "minutes": 6.2,
+              "points": 3,
+              "rebounds": 1,
+              "assists": 1,
+              "threes": 1,
+              "participated": true
+            },
+            "q4": {
+              "minutes": 5.8,
+              "points": 0,
+              "rebounds": 4,
+              "assists": 2,
+              "threes": 0,
+              "participated": true
+            },
+            "ft": {
+              "minutes": 22.266666666666666,
+              "points": 10,
+              "rebounds": 6,
+              "assists": 5,
+              "threes": 2,
+              "participated": true
+            }
+          }
+        },
+        {
+          "playerId": "nba-gamebook:0022501090:home:15",
+          "name": "Nikola Jokic",
+          "team": "Denver Nuggets",
+          "side": "home",
+          "periods": {
+            "q1": {
+              "minutes": 12,
+              "points": 7,
+              "rebounds": 3,
+              "assists": 4,
+              "threes": 1,
+              "participated": true
+            },
+            "q2": {
+              "minutes": 7.183333333333334,
+              "points": 8,
+              "rebounds": 5,
+              "assists": 0,
+              "threes": 1,
+              "participated": true
+            },
+            "q3": {
+              "minutes": 12,
+              "points": 10,
+              "rebounds": 5,
+              "assists": 4,
+              "threes": 2,
+              "participated": true
+            },
+            "q4": {
+              "minutes": 4.95,
+              "points": 0,
+              "rebounds": 2,
+              "assists": 0,
+              "threes": 0,
+              "participated": true
+            },
+            "ft": {
+              "minutes": 36.13333333333333,
+              "points": 25,
+              "rebounds": 15,
+              "assists": 8,
+              "threes": 4,
+              "participated": true
+            }
+          }
+        },
+        {
+          "playerId": "nba-gamebook:0022501090:home:0",
+          "name": "Christian Braun",
+          "team": "Denver Nuggets",
+          "side": "home",
+          "periods": {
+            "q1": {
+              "minutes": 8.683333333333334,
+              "points": 2,
+              "rebounds": 1,
+              "assists": 0,
+              "threes": 0,
+              "participated": true
+            },
+            "q2": {
+              "minutes": 7.183333333333334,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0,
+              "participated": true
+            },
+            "q3": {
+              "minutes": 12,
+              "points": 6,
+              "rebounds": 2,
+              "assists": 0,
+              "threes": 0,
+              "participated": true
+            },
+            "q4": {
+              "minutes": 4.95,
+              "points": 4,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0,
+              "participated": true
+            },
+            "ft": {
+              "minutes": 32.81666666666667,
+              "points": 12,
+              "rebounds": 3,
+              "assists": 0,
+              "threes": 0,
+              "participated": true
+            }
+          }
+        },
+        {
+          "playerId": "nba-gamebook:0022501090:home:27",
+          "name": "Jamal Murray",
+          "team": "Denver Nuggets",
+          "side": "home",
+          "periods": {
+            "q1": {
+              "minutes": 10.15,
+              "points": 6,
+              "rebounds": 5,
+              "assists": 2,
+              "threes": 0,
+              "participated": true
+            },
+            "q2": {
+              "minutes": 9.866666666666667,
+              "points": 3,
+              "rebounds": 0,
+              "assists": 1,
+              "threes": 0,
+              "participated": true
+            },
+            "q3": {
+              "minutes": 9.316666666666666,
+              "points": 3,
+              "rebounds": 1,
+              "assists": 4,
+              "threes": 1,
+              "participated": true
+            },
+            "q4": {
+              "minutes": 5.116666666666666,
+              "points": 8,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 1,
+              "participated": true
+            },
+            "ft": {
+              "minutes": 34.45,
+              "points": 20,
+              "rebounds": 6,
+              "assists": 7,
+              "threes": 2,
+              "participated": true
+            }
+          }
+        },
+        {
+          "playerId": "nba-gamebook:0022501090:home:10",
+          "name": "Tim Hardaway Jr.",
+          "team": "Denver Nuggets",
+          "side": "home",
+          "periods": {
+            "q1": {
+              "minutes": 6.916666666666667,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0,
+              "participated": true
+            },
+            "q2": {
+              "minutes": 6.083333333333333,
+              "points": 3,
+              "rebounds": 2,
+              "assists": 1,
+              "threes": 1,
+              "participated": true
+            },
+            "q3": {
+              "minutes": 8,
+              "points": 10,
+              "rebounds": 1,
+              "assists": 1,
+              "threes": 2,
+              "participated": true
+            },
+            "q4": {
+              "minutes": 5.116666666666666,
+              "points": 3,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 1,
+              "participated": true
+            },
+            "ft": {
+              "minutes": 26.116666666666667,
+              "points": 16,
+              "rebounds": 3,
+              "assists": 2,
+              "threes": 4,
+              "participated": true
+            }
+          }
+        },
+        {
+          "playerId": "nba-gamebook:0022501090:home:21",
+          "name": "Spencer Jones",
+          "team": "Denver Nuggets",
+          "side": "home",
+          "periods": {
+            "q1": {
+              "minutes": 5.983333333333333,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 1,
+              "threes": 0,
+              "participated": true
+            },
+            "q2": {
+              "minutes": 0,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0,
+              "participated": false
+            },
+            "q3": {
+              "minutes": 0,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0,
+              "participated": false
+            },
+            "q4": {
+              "minutes": 0,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0,
+              "participated": false
+            },
+            "ft": {
+              "minutes": 5.983333333333333,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 1,
+              "threes": 0,
+              "participated": true
+            }
+          }
+        },
+        {
+          "playerId": "nba-gamebook:0022501090:home:11",
+          "name": "Bruce Brown",
+          "team": "Denver Nuggets",
+          "side": "home",
+          "periods": {
+            "q1": {
+              "minutes": 3.316666666666667,
+              "points": 2,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0,
+              "participated": true
+            },
+            "q2": {
+              "minutes": 8.616666666666667,
+              "points": 5,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 1,
+              "participated": true
+            },
+            "q3": {
+              "minutes": 2.683333333333333,
+              "points": 2,
+              "rebounds": 1,
+              "assists": 0,
+              "threes": 0,
+              "participated": true
+            },
+            "q4": {
+              "minutes": 10.066666666666666,
+              "points": 6,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 2,
+              "participated": true
+            },
+            "ft": {
+              "minutes": 24.683333333333334,
+              "points": 15,
+              "rebounds": 1,
+              "assists": 0,
+              "threes": 3,
+              "participated": true
+            }
+          }
+        },
+        {
+          "playerId": "nba-gamebook:0022501090:home:14",
+          "name": "DaRon Holmes II",
+          "team": "Denver Nuggets",
+          "side": "home",
+          "periods": {
+            "q1": {
+              "minutes": 0,
+              "points": null,
+              "rebounds": null,
+              "assists": null,
+              "threes": null,
+              "participated": false
+            },
+            "q2": {
+              "minutes": 0,
+              "points": null,
+              "rebounds": null,
+              "assists": null,
+              "threes": null,
+              "participated": false
+            },
+            "q3": {
+              "minutes": 0,
+              "points": null,
+              "rebounds": null,
+              "assists": null,
+              "threes": null,
+              "participated": false
+            },
+            "q4": {
+              "minutes": 1.9333333333333333,
+              "points": 5,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 1,
+              "participated": true
+            },
+            "ft": {
+              "minutes": 1.9333333333333333,
+              "points": 5,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 1,
+              "participated": true
+            }
+          }
+        },
+        {
+          "playerId": "nba-gamebook:0022501090:home:1",
+          "name": "Curtis Jones",
+          "team": "Denver Nuggets",
+          "side": "home",
+          "periods": {
+            "q1": {
+              "minutes": 0,
+              "points": null,
+              "rebounds": null,
+              "assists": null,
+              "threes": null,
+              "participated": false
+            },
+            "q2": {
+              "minutes": 0,
+              "points": null,
+              "rebounds": null,
+              "assists": null,
+              "threes": null,
+              "participated": false
+            },
+            "q3": {
+              "minutes": 0,
+              "points": null,
+              "rebounds": null,
+              "assists": null,
+              "threes": null,
+              "participated": false
+            },
+            "q4": {
+              "minutes": 1.9333333333333333,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 1,
+              "threes": 0,
+              "participated": true
+            },
+            "ft": {
+              "minutes": 1.9333333333333333,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 1,
+              "threes": 0,
+              "participated": true
+            }
+          }
+        },
+        {
+          "playerId": "nba-gamebook:0022501090:home:5",
+          "name": "Tyus Jones",
+          "team": "Denver Nuggets",
+          "side": "home",
+          "periods": {
+            "q1": {
+              "minutes": 0,
+              "points": null,
+              "rebounds": null,
+              "assists": null,
+              "threes": null,
+              "participated": false
+            },
+            "q2": {
+              "minutes": 0,
+              "points": null,
+              "rebounds": null,
+              "assists": null,
+              "threes": null,
+              "participated": false
+            },
+            "q3": {
+              "minutes": 0,
+              "points": null,
+              "rebounds": null,
+              "assists": null,
+              "threes": null,
+              "participated": false
+            },
+            "q4": {
+              "minutes": 1.9333333333333333,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 1,
+              "threes": 0,
+              "participated": true
+            },
+            "ft": {
+              "minutes": 1.9333333333333333,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 1,
+              "threes": 0,
+              "participated": true
+            }
+          }
+        },
+        {
+          "playerId": "nba-gamebook:0022501090:home:22",
+          "name": "Zeke Nnaji",
+          "team": "Denver Nuggets",
+          "side": "home",
+          "periods": {
+            "q1": {
+              "minutes": 0,
+              "points": null,
+              "rebounds": null,
+              "assists": null,
+              "threes": null,
+              "participated": false
+            },
+            "q2": {
+              "minutes": 4.816666666666666,
+              "points": 0,
+              "rebounds": 1,
+              "assists": 0,
+              "threes": 0,
+              "participated": true
+            },
+            "q3": {
+              "minutes": 3.1166666666666667,
+              "points": 0,
+              "rebounds": 1,
+              "assists": 0,
+              "threes": 0,
+              "participated": true
+            },
+            "q4": {
+              "minutes": 0,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0,
+              "participated": false
+            },
+            "ft": {
+              "minutes": 7.933333333333334,
+              "points": 0,
+              "rebounds": 2,
+              "assists": 0,
+              "threes": 0,
+              "participated": true
+            }
+          }
+        },
+        {
+          "playerId": "nba-gamebook:0022501090:home:24",
+          "name": "Jalen Pickett",
+          "team": "Denver Nuggets",
+          "side": "home",
+          "periods": {
+            "q1": {
+              "minutes": 0,
+              "points": null,
+              "rebounds": null,
+              "assists": null,
+              "threes": null,
+              "participated": false
+            },
+            "q2": {
+              "minutes": 0,
+              "points": null,
+              "rebounds": null,
+              "assists": null,
+              "threes": null,
+              "participated": false
+            },
+            "q3": {
+              "minutes": 0,
+              "points": null,
+              "rebounds": null,
+              "assists": null,
+              "threes": null,
+              "participated": false
+            },
+            "q4": {
+              "minutes": 1.9333333333333333,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0,
+              "participated": true
+            },
+            "ft": {
+              "minutes": 1.9333333333333333,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0,
+              "participated": true
+            }
+          }
+        },
+        {
+          "playerId": "nba-gamebook:0022501090:home:3",
+          "name": "Julian Strawther",
+          "team": "Denver Nuggets",
+          "side": "home",
+          "periods": {
+            "q1": {
+              "minutes": 0,
+              "points": null,
+              "rebounds": null,
+              "assists": null,
+              "threes": null,
+              "participated": false
+            },
+            "q2": {
+              "minutes": 3.8,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0,
+              "participated": true
+            },
+            "q3": {
+              "minutes": 2.683333333333333,
+              "points": 3,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 1,
+              "participated": true
+            },
+            "q4": {
+              "minutes": 11.15,
+              "points": 4,
+              "rebounds": 2,
+              "assists": 2,
+              "threes": 0,
+              "participated": true
+            },
+            "ft": {
+              "minutes": 17.633333333333333,
+              "points": 7,
+              "rebounds": 2,
+              "assists": 2,
+              "threes": 1,
+              "participated": true
+            }
+          }
+        },
+        {
+          "playerId": "nba-gamebook:0022501090:home:17",
+          "name": "Jonas Valanciunas",
+          "team": "Denver Nuggets",
+          "side": "home",
+          "periods": {
+            "q1": {
+              "minutes": 0,
+              "points": null,
+              "rebounds": null,
+              "assists": null,
+              "threes": null,
+              "participated": false
+            },
+            "q2": {
+              "minutes": 0,
+              "points": null,
+              "rebounds": null,
+              "assists": null,
+              "threes": null,
+              "participated": false
+            },
+            "q3": {
+              "minutes": 0,
+              "points": null,
+              "rebounds": null,
+              "assists": null,
+              "threes": null,
+              "participated": false
+            },
+            "q4": {
+              "minutes": 5.116666666666666,
+              "points": 0,
+              "rebounds": 1,
+              "assists": 1,
+              "threes": 0,
+              "participated": true
+            },
+            "ft": {
+              "minutes": 5.116666666666666,
+              "points": 0,
+              "rebounds": 1,
+              "assists": 1,
+              "threes": 0,
+              "participated": true
+            }
+          }
+        }
+      ],
+      "rosterComplete": true
+    },
+    {
+      "id": "acb-official:104665",
+      "league": "endesa",
+      "season": "2025/2026",
+      "date": "2026-03-22T18:00:00.000Z",
+      "home": "Barça",
+      "away": "Real Madrid",
+      "finished": true,
+      "preseason": false,
+      "referenceOnly": true,
+      "source": "ACB Live",
+      "sourceUrl": "https://live.acb.com/es/partidos/barca-vs-real-madrid-104665/estadisticas",
+      "attribution": "Fuente: ACB Live. Derechos reservados a sus titulares.",
+      "notice": "Muestra tecnica privada de un partido; no es un feed autorizado. Excluida de frecuencias, pronosticos y prueba de octubre.",
+      "periods": {
+        "home": {
+          "ot": 0,
+          "ft": 76,
+          "q1": 18,
+          "q2": 15,
+          "q3": 20,
+          "q4": 23
+        },
+        "away": {
+          "ot": 0,
+          "ft": 95,
+          "q1": 15,
+          "q2": 36,
+          "q3": 20,
+          "q4": 24
+        }
+      },
+      "players": [
+        {
+          "playerId": "acb:30003361",
+          "name": "Kevin Punter",
+          "team": "Barça",
+          "side": "home",
+          "periods": {
+            "ft": {
+              "minutes": 26.433333333333334,
+              "points": 9,
+              "rebounds": 1,
+              "assists": 2,
+              "threes": 1
+            },
+            "q1": {
+              "minutes": 6.733333333333333,
+              "points": 0,
+              "rebounds": 1,
+              "assists": 1,
+              "threes": 0
+            },
+            "q2": {
+              "minutes": 8.566666666666666,
+              "points": 4,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0
+            },
+            "q3": {
+              "minutes": 3.6166666666666667,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0
+            },
+            "q4": {
+              "minutes": 7.516666666666667,
+              "points": 5,
+              "rebounds": 0,
+              "assists": 1,
+              "threes": 1
+            }
+          }
+        },
+        {
+          "playerId": "acb:30001949",
+          "name": "Jan Vesely",
+          "team": "Barça",
+          "side": "home",
+          "periods": {
+            "ft": {
+              "minutes": 22.7,
+              "points": 15,
+              "rebounds": 2,
+              "assists": 0,
+              "threes": 1
+            },
+            "q1": {
+              "minutes": 6.733333333333333,
+              "points": 6,
+              "rebounds": 1,
+              "assists": 0,
+              "threes": 0
+            },
+            "q2": {
+              "minutes": 7.283333333333333,
+              "points": 5,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 1
+            },
+            "q3": {
+              "minutes": 3.0166666666666666,
+              "points": 0,
+              "rebounds": 1,
+              "assists": 0,
+              "threes": 0
+            },
+            "q4": {
+              "minutes": 5.666666666666667,
+              "points": 4,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0
+            }
+          }
+        },
+        {
+          "playerId": "acb:20202163",
+          "name": "Tomas Satoransky",
+          "team": "Barça",
+          "side": "home",
+          "periods": {
+            "ft": {
+              "minutes": 24.716666666666665,
+              "points": 5,
+              "rebounds": 2,
+              "assists": 4,
+              "threes": 1
+            },
+            "q1": {
+              "minutes": 8.15,
+              "points": 2,
+              "rebounds": 1,
+              "assists": 0,
+              "threes": 0
+            },
+            "q2": {
+              "minutes": 7.283333333333333,
+              "points": 3,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 1
+            },
+            "q3": {
+              "minutes": 3.6166666666666667,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 1,
+              "threes": 0
+            },
+            "q4": {
+              "minutes": 5.666666666666667,
+              "points": 0,
+              "rebounds": 1,
+              "assists": 3,
+              "threes": 0
+            }
+          }
+        },
+        {
+          "playerId": "acb:30003977",
+          "name": "William Clyburn",
+          "team": "Barça",
+          "side": "home",
+          "periods": {
+            "ft": {
+              "minutes": 28.466666666666665,
+              "points": 14,
+              "rebounds": 4,
+              "assists": 3,
+              "threes": 2
+            },
+            "q1": {
+              "minutes": 8.15,
+              "points": 5,
+              "rebounds": 2,
+              "assists": 1,
+              "threes": 1
+            },
+            "q2": {
+              "minutes": 5.916666666666667,
+              "points": 0,
+              "rebounds": 1,
+              "assists": 1,
+              "threes": 0
+            },
+            "q3": {
+              "minutes": 10,
+              "points": 9,
+              "rebounds": 1,
+              "assists": 0,
+              "threes": 1
+            },
+            "q4": {
+              "minutes": 4.4,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 1,
+              "threes": 0
+            }
+          }
+        },
+        {
+          "playerId": "acb:20212265",
+          "name": "Joel Parra",
+          "team": "Barça",
+          "side": "home",
+          "periods": {
+            "ft": {
+              "minutes": 25.3,
+              "points": 11,
+              "rebounds": 4,
+              "assists": 1,
+              "threes": 3
+            },
+            "q1": {
+              "minutes": 7.45,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0
+            },
+            "q2": {
+              "minutes": 5.916666666666667,
+              "points": 3,
+              "rebounds": 1,
+              "assists": 0,
+              "threes": 1
+            },
+            "q3": {
+              "minutes": 1.9333333333333333,
+              "points": 3,
+              "rebounds": 1,
+              "assists": 0,
+              "threes": 1
+            },
+            "q4": {
+              "minutes": 10,
+              "points": 5,
+              "rebounds": 2,
+              "assists": 1,
+              "threes": 1
+            }
+          }
+        },
+        {
+          "playerId": "acb:30000108",
+          "name": "Juan Marcos",
+          "team": "Barça",
+          "side": "home",
+          "periods": {
+            "ft": {
+              "minutes": 12.15,
+              "points": 3,
+              "rebounds": 1,
+              "assists": 1,
+              "threes": 1
+            },
+            "q1": {
+              "minutes": 1.85,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0
+            },
+            "q2": {
+              "minutes": 1.4333333333333333,
+              "points": 0,
+              "rebounds": 1,
+              "assists": 0,
+              "threes": 0
+            },
+            "q3": {
+              "minutes": 6.383333333333334,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0
+            },
+            "q4": {
+              "minutes": 2.4833333333333334,
+              "points": 3,
+              "rebounds": 0,
+              "assists": 1,
+              "threes": 1
+            }
+          }
+        },
+        {
+          "playerId": "acb:30003948",
+          "name": "Myles Cale",
+          "team": "Barça",
+          "side": "home",
+          "periods": {
+            "ft": {
+              "minutes": 8.416666666666666,
+              "points": 0,
+              "rebounds": 1,
+              "assists": 0,
+              "threes": 0
+            },
+            "q1": {
+              "minutes": 1.85,
+              "points": 0,
+              "rebounds": 1,
+              "assists": 0,
+              "threes": 0
+            },
+            "q2": {
+              "minutes": 4.083333333333333,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0
+            },
+            "q3": {
+              "minutes": 0,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0
+            },
+            "q4": {
+              "minutes": 2.4833333333333334,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0
+            }
+          }
+        },
+        {
+          "playerId": "acb:20209919",
+          "name": "Darío Brizuela",
+          "team": "Barça",
+          "side": "home",
+          "periods": {
+            "ft": {
+              "minutes": 16.7,
+              "points": 7,
+              "rebounds": 2,
+              "assists": 1,
+              "threes": 0
+            },
+            "q1": {
+              "minutes": 3.2666666666666666,
+              "points": 1,
+              "rebounds": 1,
+              "assists": 0,
+              "threes": 0
+            },
+            "q2": {
+              "minutes": 2.716666666666667,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0
+            },
+            "q3": {
+              "minutes": 6.383333333333334,
+              "points": 2,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0
+            },
+            "q4": {
+              "minutes": 4.333333333333333,
+              "points": 4,
+              "rebounds": 1,
+              "assists": 1,
+              "threes": 0
+            }
+          }
+        },
+        {
+          "playerId": "acb:20209187",
+          "name": "Guillermo Hernangómez",
+          "team": "Barça",
+          "side": "home",
+          "periods": {
+            "ft": {
+              "minutes": 11.316666666666666,
+              "points": 6,
+              "rebounds": 2,
+              "assists": 1,
+              "threes": 0
+            },
+            "q1": {
+              "minutes": 0,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0
+            },
+            "q2": {
+              "minutes": 0,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0
+            },
+            "q3": {
+              "minutes": 6.983333333333333,
+              "points": 4,
+              "rebounds": 1,
+              "assists": 1,
+              "threes": 0
+            },
+            "q4": {
+              "minutes": 4.333333333333333,
+              "points": 2,
+              "rebounds": 1,
+              "assists": 0,
+              "threes": 0
+            }
+          }
+        },
+        {
+          "playerId": "acb:30000037",
+          "name": "Youssoupha Fall",
+          "team": "Barça",
+          "side": "home",
+          "periods": {
+            "ft": {
+              "minutes": 5.983333333333333,
+              "points": 4,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0
+            },
+            "q1": {
+              "minutes": 3.2666666666666666,
+              "points": 4,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0
+            },
+            "q2": {
+              "minutes": 2.716666666666667,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0
+            },
+            "q3": {
+              "minutes": 0,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0
+            },
+            "q4": {
+              "minutes": 0,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0
+            }
+          }
+        },
+        {
+          "playerId": "acb:20203955",
+          "name": "Tornike Shengelia",
+          "team": "Barça",
+          "side": "home",
+          "periods": {
+            "ft": {
+              "minutes": 14.7,
+              "points": 2,
+              "rebounds": 2,
+              "assists": 3,
+              "threes": 0
+            },
+            "q1": {
+              "minutes": 2.55,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 2,
+              "threes": 0
+            },
+            "q2": {
+              "minutes": 4.083333333333333,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0
+            },
+            "q3": {
+              "minutes": 8.066666666666666,
+              "points": 2,
+              "rebounds": 2,
+              "assists": 1,
+              "threes": 0
+            },
+            "q4": {
+              "minutes": 0,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0
+            }
+          }
+        },
+        {
+          "playerId": "acb:30004065",
+          "name": "Nikola Kusturica",
+          "team": "Barça",
+          "side": "home",
+          "periods": {
+            "ft": {
+              "minutes": 3.1166666666666667,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0
+            },
+            "q1": {
+              "minutes": 0,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0
+            },
+            "q2": {
+              "minutes": 0,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0
+            },
+            "q3": {
+              "minutes": 0,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0
+            },
+            "q4": {
+              "minutes": 3.1166666666666667,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0
+            }
+          }
+        },
+        {
+          "playerId": "acb:20210088",
+          "name": "Alberto Abalde",
+          "team": "Real Madrid",
+          "side": "away",
+          "periods": {
+            "ft": {
+              "minutes": 8.633333333333333,
+              "points": 3,
+              "rebounds": 1,
+              "assists": 0,
+              "threes": 1
+            },
+            "q1": {
+              "minutes": 6.733333333333333,
+              "points": 3,
+              "rebounds": 1,
+              "assists": 0,
+              "threes": 1
+            },
+            "q2": {
+              "minutes": 0,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0
+            },
+            "q3": {
+              "minutes": 1.9,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0
+            },
+            "q4": {
+              "minutes": 0,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0
+            }
+          }
+        },
+        {
+          "playerId": "acb:20211331",
+          "name": "Facundo Campazzo",
+          "team": "Real Madrid",
+          "side": "away",
+          "periods": {
+            "ft": {
+              "minutes": 17.666666666666668,
+              "points": 15,
+              "rebounds": 2,
+              "assists": 5,
+              "threes": 3
+            },
+            "q1": {
+              "minutes": 6.733333333333333,
+              "points": 2,
+              "rebounds": 1,
+              "assists": 1,
+              "threes": 0
+            },
+            "q2": {
+              "minutes": 4.55,
+              "points": 6,
+              "rebounds": 0,
+              "assists": 2,
+              "threes": 2
+            },
+            "q3": {
+              "minutes": 6.383333333333334,
+              "points": 7,
+              "rebounds": 1,
+              "assists": 2,
+              "threes": 1
+            },
+            "q4": {
+              "minutes": 0,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0
+            }
+          }
+        },
+        {
+          "playerId": "acb:20210501",
+          "name": "Mario Hezonja",
+          "team": "Real Madrid",
+          "side": "away",
+          "periods": {
+            "ft": {
+              "minutes": 18.266666666666666,
+              "points": 13,
+              "rebounds": 5,
+              "assists": 1,
+              "threes": 3
+            },
+            "q1": {
+              "minutes": 7.45,
+              "points": 4,
+              "rebounds": 2,
+              "assists": 0,
+              "threes": 0
+            },
+            "q2": {
+              "minutes": 2.75,
+              "points": 6,
+              "rebounds": 1,
+              "assists": 0,
+              "threes": 2
+            },
+            "q3": {
+              "minutes": 8.066666666666666,
+              "points": 3,
+              "rebounds": 2,
+              "assists": 1,
+              "threes": 1
+            },
+            "q4": {
+              "minutes": 0,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0
+            }
+          }
+        },
+        {
+          "playerId": "acb:20212952",
+          "name": "Gabriel Deck",
+          "team": "Real Madrid",
+          "side": "away",
+          "periods": {
+            "ft": {
+              "minutes": 18.266666666666666,
+              "points": 4,
+              "rebounds": 1,
+              "assists": 0,
+              "threes": 0
+            },
+            "q1": {
+              "minutes": 7.45,
+              "points": 2,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0
+            },
+            "q2": {
+              "minutes": 2.75,
+              "points": 0,
+              "rebounds": 1,
+              "assists": 0,
+              "threes": 0
+            },
+            "q3": {
+              "minutes": 8.066666666666666,
+              "points": 2,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0
+            },
+            "q4": {
+              "minutes": 0,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0
+            }
+          }
+        },
+        {
+          "playerId": "acb:20209407",
+          "name": "Walter Tavares",
+          "team": "Real Madrid",
+          "side": "away",
+          "periods": {
+            "ft": {
+              "minutes": 19.35,
+              "points": 5,
+              "rebounds": 7,
+              "assists": 0,
+              "threes": 0
+            },
+            "q1": {
+              "minutes": 6.733333333333333,
+              "points": 2,
+              "rebounds": 2,
+              "assists": 0,
+              "threes": 0
+            },
+            "q2": {
+              "minutes": 4.55,
+              "points": 0,
+              "rebounds": 4,
+              "assists": 0,
+              "threes": 0
+            },
+            "q3": {
+              "minutes": 8.066666666666666,
+              "points": 3,
+              "rebounds": 1,
+              "assists": 0,
+              "threes": 0
+            },
+            "q4": {
+              "minutes": 0,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0
+            }
+          }
+        },
+        {
+          "playerId": "acb:30004061",
+          "name": "Trey Lyles",
+          "team": "Real Madrid",
+          "side": "away",
+          "periods": {
+            "ft": {
+              "minutes": 21.733333333333334,
+              "points": 11,
+              "rebounds": 5,
+              "assists": 2,
+              "threes": 2
+            },
+            "q1": {
+              "minutes": 2.55,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0
+            },
+            "q2": {
+              "minutes": 7.25,
+              "points": 8,
+              "rebounds": 3,
+              "assists": 1,
+              "threes": 2
+            },
+            "q3": {
+              "minutes": 1.9333333333333333,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0
+            },
+            "q4": {
+              "minutes": 10,
+              "points": 3,
+              "rebounds": 2,
+              "assists": 1,
+              "threes": 0
+            }
+          }
+        },
+        {
+          "playerId": "acb:30003980",
+          "name": "Gabriele Procida",
+          "team": "Real Madrid",
+          "side": "away",
+          "periods": {
+            "ft": {
+              "minutes": 21.733333333333334,
+              "points": 14,
+              "rebounds": 2,
+              "assists": 0,
+              "threes": 2
+            },
+            "q1": {
+              "minutes": 2.55,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0
+            },
+            "q2": {
+              "minutes": 7.25,
+              "points": 7,
+              "rebounds": 1,
+              "assists": 0,
+              "threes": 1
+            },
+            "q3": {
+              "minutes": 1.9333333333333333,
+              "points": 3,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 1
+            },
+            "q4": {
+              "minutes": 10,
+              "points": 4,
+              "rebounds": 1,
+              "assists": 0,
+              "threes": 0
+            }
+          }
+        },
+        {
+          "playerId": "acb:30003979",
+          "name": "Theo Maledon",
+          "team": "Real Madrid",
+          "side": "away",
+          "periods": {
+            "ft": {
+              "minutes": 22.333333333333332,
+              "points": 11,
+              "rebounds": 4,
+              "assists": 4,
+              "threes": 0
+            },
+            "q1": {
+              "minutes": 3.2666666666666666,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0
+            },
+            "q2": {
+              "minutes": 5.45,
+              "points": 4,
+              "rebounds": 1,
+              "assists": 2,
+              "threes": 0
+            },
+            "q3": {
+              "minutes": 3.6166666666666667,
+              "points": 0,
+              "rebounds": 1,
+              "assists": 1,
+              "threes": 0
+            },
+            "q4": {
+              "minutes": 10,
+              "points": 7,
+              "rebounds": 2,
+              "assists": 1,
+              "threes": 0
+            }
+          }
+        },
+        {
+          "playerId": "acb:20212174",
+          "name": "Usman Garuba",
+          "team": "Real Madrid",
+          "side": "away",
+          "periods": {
+            "ft": {
+              "minutes": 7.6,
+              "points": 6,
+              "rebounds": 3,
+              "assists": 2,
+              "threes": 0
+            },
+            "q1": {
+              "minutes": 0,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0
+            },
+            "q2": {
+              "minutes": 0,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0
+            },
+            "q3": {
+              "minutes": 1.9333333333333333,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 1,
+              "threes": 0
+            },
+            "q4": {
+              "minutes": 5.666666666666667,
+              "points": 6,
+              "rebounds": 3,
+              "assists": 1,
+              "threes": 0
+            }
+          }
+        },
+        {
+          "playerId": "acb:20201774",
+          "name": "Sergio Llull",
+          "team": "Real Madrid",
+          "side": "away",
+          "periods": {
+            "ft": {
+              "minutes": 11.466666666666667,
+              "points": 3,
+              "rebounds": 0,
+              "assists": 2,
+              "threes": 1
+            },
+            "q1": {
+              "minutes": 0,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0
+            },
+            "q2": {
+              "minutes": 5.916666666666667,
+              "points": 3,
+              "rebounds": 0,
+              "assists": 2,
+              "threes": 1
+            },
+            "q3": {
+              "minutes": 0,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0
+            },
+            "q4": {
+              "minutes": 5.55,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0
+            }
+          }
+        },
+        {
+          "playerId": "acb:30001114",
+          "name": "Andres Feliz",
+          "team": "Real Madrid",
+          "side": "away",
+          "periods": {
+            "ft": {
+              "minutes": 19.9,
+              "points": 4,
+              "rebounds": 1,
+              "assists": 1,
+              "threes": 0
+            },
+            "q1": {
+              "minutes": 3.2666666666666666,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0
+            },
+            "q2": {
+              "minutes": 4.083333333333333,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0
+            },
+            "q3": {
+              "minutes": 8.1,
+              "points": 2,
+              "rebounds": 1,
+              "assists": 0,
+              "threes": 0
+            },
+            "q4": {
+              "minutes": 4.45,
+              "points": 2,
+              "rebounds": 0,
+              "assists": 1,
+              "threes": 0
+            }
+          }
+        },
+        {
+          "playerId": "acb:30004910",
+          "name": "Oleksii Len",
+          "team": "Real Madrid",
+          "side": "away",
+          "periods": {
+            "ft": {
+              "minutes": 13.05,
+              "points": 6,
+              "rebounds": 6,
+              "assists": 0,
+              "threes": 0
+            },
+            "q1": {
+              "minutes": 3.2666666666666666,
+              "points": 2,
+              "rebounds": 2,
+              "assists": 0,
+              "threes": 0
+            },
+            "q2": {
+              "minutes": 5.45,
+              "points": 2,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0
+            },
+            "q3": {
+              "minutes": 0,
+              "points": 0,
+              "rebounds": 0,
+              "assists": 0,
+              "threes": 0
+            },
+            "q4": {
+              "minutes": 4.333333333333333,
+              "points": 2,
+              "rebounds": 4,
+              "assists": 0,
+              "threes": 0
+            }
+          }
+        }
+      ],
+      "rosterComplete": true
+    }
+  ]
+}
