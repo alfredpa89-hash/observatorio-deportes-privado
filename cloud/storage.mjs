@@ -87,7 +87,7 @@ function limited(limit = 4) {
 }
 
 export function createCloudStorage(config, { fetch: request = globalThis.fetch } = {}) {
-  const cipher = stateCipher(config.encryptionKey), transfer = limited();
+  const cipher = stateCipher(config.encryptionKey), transfer = limited(), download = limited(16);
   const headers = { apikey: config.serviceKey, authorization: `Bearer ${config.serviceKey}` };
   const known = new Set(); let revision = null, conflicted = false, committedRoot = null;
   let lastSaved = null;
@@ -99,7 +99,7 @@ export function createCloudStorage(config, { fetch: request = globalThis.fetch }
   const object = id => `/storage/v1/object/${config.bucket}/parts/${id}.bin`;
   async function readBlob(id) {
     if (!validHash(id)) throw failure('Identificador de historial no valido.');
-    return transfer(async () => {
+    return download(async () => {
       const response = await call(object(id));
       if (!response.ok) throw failure('Falta un fragmento del historial privado. No se iniciara con datos vacios.');
       const bytes = cipher.open(Buffer.from(await response.arrayBuffer()));
