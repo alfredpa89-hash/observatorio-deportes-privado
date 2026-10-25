@@ -1,0 +1,60 @@
+{
+  "reviewedOn": "2026-10-11",
+  "notice": "Muestra parcial revisada manualmente el 11/10/2026, no calendario ni estadisticas completas de la liga. Referencias de clubes solo para consulta: no alimentan el modelo ni la prueba. No se actualizan automaticamente.",
+  "games": [
+    {
+      "id": "reference:el:2026-10-08:madrid-partizan",
+      "league": "euroleague", "season": "2026/2027",
+      "date": "2026-10-08T18:45:00.000Z", "timeKnown": true,
+      "home": "Real Madrid", "away": "Partizan",
+      "homePoints": 86, "awayPoints": 76, "finished": true,
+      "stats": { "home": { "firstQuarterPoints": 27, "halfTimePoints": 53 }, "away": { "firstQuarterPoints": 19, "halfTimePoints": 37 } },
+      "source": "Real Madrid", "sourceUrl": "https://www.realmadrid.com/es-ES/noticias/baloncesto/primer-equipo/cronicas/cronica-real-madrid-partizan-08-10-2026/",
+      "reviewedOn": "2026-10-11", "referenceOnly": true
+    },
+    {
+      "id": "reference:el:2026-10-09:barcelona-zalgiris",
+      "league": "euroleague", "season": "2026/2027",
+      "date": "2026-10-10T04:59:59.999Z", "timeKnown": false,
+      "home": "FC Barcelona", "away": "Zalgiris Kaunas",
+      "homePoints": 81, "awayPoints": 88, "finished": true,
+      "stats": { "home": { "firstQuarterPoints": 18, "halfTimePoints": 41 }, "away": { "firstQuarterPoints": 23, "halfTimePoints": 39 } },
+      "source": "FC Barcelona", "sourceUrl": "https://www.fcbarcelona.com/en/basketball/first-team/news/4589625/barca-81-88-zalgiris-kaunas-victory-slips-away",
+      "reviewedOn": "2026-10-11", "referenceOnly": true
+    },
+    {
+      "id": "reference:el:2026-10-09:olympiacos-efes",
+      "league": "euroleague", "season": "2026/2027",
+      "date": "2026-10-10T04:59:59.999Z", "timeKnown": false,
+      "home": "Olympiacos", "away": "Anadolu Efes",
+      "homePoints": 89, "awayPoints": 66, "finished": true,
+      "stats": { "home": { "firstQuarterPoints": 26, "halfTimePoints": 35 }, "away": { "firstQuarterPoints": 16, "halfTimePoints": 31 } },
+      "source": "Olympiacos BC", "sourceUrl": "https://www.olympiacosbc.gr/en/news/games/19779-a-winning-start-at-the-sunel-arena.html",
+      "reviewedOn": "2026-10-11", "referenceOnly": true
+    },
+    {
+      "id": "reference:el:2026-10-13:milan-madrid",
+      "league": "euroleague", "season": "2026/2027",
+      "date": "2026-10-13T18:30:00.000Z", "timeKnown": true,
+      "home": "EA7 Emporio Armani Milan", "away": "Real Madrid", "finished": false,
+      "source": "Calendario Real Madrid", "sourceUrl": "https://www.realmadrid.com/es-ES/noticias/baloncesto/primer-equipo/actualidad/el-calendario-del-real-madrid-para-la-euroliga-2026-27-29-07-2026",
+      "reviewedOn": "2026-10-11", "referenceOnly": true
+    },
+    {
+      "id": "reference:el:2026-10-15:madrid-asvel",
+      "league": "euroleague", "season": "2026/2027",
+      "date": "2026-10-15T19:00:00.000Z", "timeKnown": true,
+      "home": "Real Madrid", "away": "ASVEL", "finished": false,
+      "source": "Calendario Real Madrid", "sourceUrl": "https://www.realmadrid.com/es-ES/noticias/baloncesto/primer-equipo/actualidad/el-calendario-del-real-madrid-para-la-euroliga-2026-27-29-07-2026",
+      "reviewedOn": "2026-10-11", "referenceOnly": true
+    }
+  ],
+  "players": [
+    { "matchId": "reference:el:2026-10-09:barcelona-zalgiris", "name": "Justin Robinson", "team": "FC Barcelona", "minutes": null, "values": { "points": 20, "rebounds": null, "assists": null, "threes": null } },
+    { "matchId": "reference:el:2026-10-09:barcelona-zalgiris", "name": "Punter", "team": "FC Barcelona", "minutes": null, "values": { "points": 9, "rebounds": null, "assists": null, "threes": null } },
+    { "matchId": "reference:el:2026-10-09:barcelona-zalgiris", "name": "Carsen Edwards", "team": "Zalgiris Kaunas", "minutes": null, "values": { "points": 19, "rebounds": null, "assists": null, "threes": null } },
+    { "matchId": "reference:el:2026-10-09:barcelona-zalgiris", "name": "Sleva", "team": "Zalgiris Kaunas", "minutes": null, "values": { "points": 14, "rebounds": null, "assists": null, "threes": null } },
+    { "matchId": "reference:el:2026-10-09:barcelona-zalgiris", "name": "Valanciunas", "team": "Zalgiris Kaunas", "minutes": null, "values": { "points": 12, "rebounds": null, "assists": null, "threes": null } },
+    { "matchId": "reference:el:2026-10-09:olympiacos-efes", "name": "Jean Montero", "team": "Olympiacos", "minutes": null, "values": { "points": 16, "rebounds": 4, "assists": 2, "threes": null } }
+  ]
+}
