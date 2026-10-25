@@ -1,0 +1,26 @@
+#tennis-workspace { min-width: 0; }
+#tennis-workspace .basket-views { overflow-x: auto; max-width: 100%; }
+#tennis-workspace .basket-views button { white-space: nowrap; flex-shrink: 0; }
+.tennis-filters, .tennis-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 12px; align-items: end; margin: 16px 0; }
+.tennis-filters { padding-bottom: 16px; border-bottom: 1px solid #dce3e1; }
+.tennis-filter-details > summary { display: none; }
+#tennis-workspace .field { min-width: 0; }
+#tennis-workspace input, #tennis-workspace select { width: 100%; min-width: 0; max-width: 100%; }
+.tennis-panel h3 { margin: 22px 0 12px; font-size: 17px; letter-spacing: 0; }
+.tennis-panel .basket-kpis { margin: 16px 0; }
+.tennis-panel .table-scroll { max-width: 100%; }
+.tennis-panel table { min-width: 580px; }
+.tennis-panel th, .tennis-panel td { white-space: normal; overflow-wrap: anywhere; }
+.tennis-panel td:first-child { min-width: 110px; }
+.tennis-row-actions { display: flex; gap: 6px; }
+.tennis-actions button { min-height: 42px; height: auto; white-space: normal; }
+#tennis-workspace .app-message:empty { display: none; }
+#tennis-workspace .player-lab-warnings { font-size: 13px; line-height: 1.6; }
+@media (max-width: 640px) {
+  .tennis-filter-details > summary { display: list-item; padding: 14px 0; font-weight: 600; cursor: pointer; }
+  .tennis-filters, .tennis-actions { grid-template-columns: minmax(0, 1fr); }
+  #tennis-workspace .sport-data-band { align-items: stretch; flex-direction: column; }
+  #tennis-workspace .sport-data-band button { width: 100%; }
+  #tennis-workspace .basket-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #tennis-workspace .basket-kpis strong { overflow-wrap: anywhere; }
+}

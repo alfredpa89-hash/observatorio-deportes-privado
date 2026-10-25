@@ -1,0 +1,531 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f7f7">
+  <title>Observatorio Deportes | Investigación prepartido</title>
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/experience.css">
+  <link rel="stylesheet" href="/football-players.css">
+  <link rel="stylesheet" href="/footystats.css">
+  <link rel="stylesheet" href="/tennis-lab.css">
+  <link rel="stylesheet" href="/data-control.css">
+  <link rel="stylesheet" href="/relevant-context.css">
+  <script src="/vendor/lucide.min.js" defer></script>
+  <script type="module" src="/app.js"></script>
+  <script type="module" src="/sports.js"></script>
+  <script type="module" src="/profiles.js"></script>
+  <script type="module" src="/football-players.js"></script>
+  <script type="module" src="/footystats.js"></script>
+  <script type="module" src="/basketball.js"></script>
+  <script type="module" src="/basketball-research.js"></script>
+  <script type="module" src="/basketball-periods.js"></script>
+  <script type="module" src="/basketball-daily.js"></script>
+  <script type="module" src="/experience.js"></script>
+  <script type="module" src="/tennis-lab.js"></script>
+  <script type="module" src="/data-control.js"></script>
+  <script type="module" src="/live-data.js"></script>
+  <script type="module" src="/credentials.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Ir al contenido</a>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand" aria-label="Observatorio Deportes">
+        <span class="brand-mark" aria-hidden="true"><span></span></span>
+        <div><strong>Observatorio</strong><small>DEPORTES</small></div>
+      </div>
+      <div class="topbar-right">
+        <a class="button button-secondary icon-button" href="/resumen-2026-10-21.html" title="Partidos destacados del 21 de octubre" aria-label="Partidos destacados del 21 de octubre"><i data-lucide="calendar-days" aria-hidden="true"></i></a>
+        <button id="open-data-control" class="button button-secondary icon-button" type="button" title="Centro de datos" aria-label="Centro de datos"><i data-lucide="database" aria-hidden="true"></i></button>
+        <span id="source-status" class="source-status">Datos locales</span>
+        <span id="quota-status" class="quota-status" hidden></span>
+        <button id="toggle-sources" class="button button-secondary" type="button" aria-expanded="false" aria-controls="sources-panel">Fuentes de datos</button>
+      </div>
+    </header>
+
+    <aside class="sidebar" aria-label="Navegación principal">
+      <span class="sidebar-label">INVESTIGAR</span>
+      <nav class="sports-nav" role="tablist" aria-label="Deporte" aria-orientation="vertical">
+        <button id="sport-basketball" class="sport-tab" type="button" role="tab" tabindex="-1" aria-selected="false" aria-controls="basketball-workspace" data-sport="basketball"><i data-lucide="chart-no-axes-combined" aria-hidden="true"></i><span>Baloncesto</span></button>
+        <button id="sport-nba" class="sport-tab" type="button" role="tab" tabindex="-1" aria-selected="false" aria-controls="sports-workspace" data-sport="nba"><i data-lucide="history" aria-hidden="true"></i><span>Archivo NBA</span></button>
+        <button id="sport-football" class="sport-tab active" type="button" role="tab" aria-selected="true" aria-controls="football-workspace" data-sport="football"><i data-lucide="goal" aria-hidden="true"></i><span>Fútbol</span></button>
+        <button id="sport-tennis" class="sport-tab" type="button" role="tab" tabindex="-1" aria-selected="false" aria-controls="sports-workspace" data-sport="tennis"><i data-lucide="circle-dot" aria-hidden="true"></i><span>Tenis</span></button>
+      </nav>
+      <div class="sidebar-bottom"><i data-lucide="lock-keyhole" aria-hidden="true"></i><div><strong>Espacio personal</strong><span>Datos guardados en este equipo</span></div></div>
+    </aside>
+
+    <section id="sources-panel" class="sources-panel" hidden aria-label="Fuentes de datos">
+      <div class="sources-inner">
+        <div class="source-block">
+          <h2>API-Football</h2>
+          <p>API-Sports / API-Football. El acceso a temporadas depende del plan conectado.</p>
+          <form id="key-form" class="inline-form">
+            <label class="sr-only" for="api-key">Clave de API-Football</label>
+            <input id="api-key" type="password" autocomplete="off" placeholder="Clave de API-Football" required>
+            <button class="button button-primary" type="submit">Conectar</button>
+            <button id="football-verify" class="button button-secondary icon-button" type="button" title="Comprobar conexion y plan" aria-label="Comprobar conexion y plan"><i data-lucide="refresh-cw" aria-hidden="true"></i></button>
+          </form>
+          <p id="football-access-status" class="table-note" role="status" aria-live="polite">API sin conectar</p>
+          <small>Guardado opcional cifrado con tu usuario de Windows, fuera del proyecto y de los respaldos.</small>
+          <small><a href="https://dashboard.api-football.com/register" target="_blank" rel="noopener">Crear cuenta gratuita de API-Football</a> · <a href="https://dashboard.api-football.com" target="_blank" rel="noopener">Mi cuenta y clave</a></small>
+        </div>
+        <section id="footystats" class="source-block source-block-footystats" aria-labelledby="fs-title">
+          <div class="fs-heading"><h2 id="fs-title">FootyStats API</h2><span id="fs-badge" class="status-pill unconnected">Sin conectar</span></div>
+          <form id="fs-key-form" class="inline-form fs-key-form">
+            <div class="field"><label for="fs-key">Clave de FootyStats API</label><input id="fs-key" type="password" autocomplete="off" spellcheck="false" maxlength="200" placeholder="Tu clave de FootyStats" required></div>
+            <button id="fs-connect" class="button button-primary" type="submit"><i data-lucide="plug" aria-hidden="true"></i>Conectar FootyStats</button>
+            <button id="fs-disconnect" class="button button-secondary icon-button" type="button" title="Desconectar FootyStats" aria-label="Desconectar FootyStats" disabled><i data-lucide="unplug" aria-hidden="true"></i></button>
+          </form>
+          <small>Guardado opcional con cifrado de Windows. La clave no se incorpora a partidos, informes ni navegador.</small>
+          <p id="fs-status" class="table-note" role="status" aria-live="polite">FootyStats sin conectar. API-Football permanece independiente.</p>
+          <div id="fs-controls" hidden>
+            <div class="fs-sync-controls"><button id="fs-sync" class="button button-primary" type="button"><i data-lucide="cloud-download" aria-hidden="true"></i>Cargar ligas FootyStats</button><span id="fs-sync-status" class="table-note"></span></div>
+            <div class="fs-catalog-controls"><div class="field"><label for="fs-catalog-mode">Catalogo</label><select id="fs-catalog-mode"><option value="selected">Ligas elegidas en mi cuenta</option><option value="all">Catalogo completo del proveedor</option></select></div><button id="fs-catalog-refresh" class="button button-secondary icon-button" type="button" title="Consultar catalogo de FootyStats" aria-label="Consultar catalogo de FootyStats"><i data-lucide="refresh-cw" aria-hidden="true"></i></button><span id="fs-quota" class="table-note"></span></div>
+            <form id="fs-audit-form" class="fs-audit-form">
+              <div class="field"><label for="fs-league">Competicion FootyStats</label><select id="fs-league" required></select></div>
+              <div class="field"><label for="fs-season">Temporada</label><select id="fs-season" required></select></div>
+              <div class="field"><label for="fs-page">Pagina de partidos</label><input id="fs-page" type="number" min="1" max="100" value="1" required></div>
+              <button id="fs-audit" class="button button-primary" type="submit"><i data-lucide="scan-search" aria-hidden="true"></i>Comprobar datos</button>
+            </form>
+            <p id="fs-catalog-note" class="table-note"></p>
+          </div>
+          <p id="fs-message" class="source-message" role="status" aria-live="polite"></p>
+          <details id="fs-coverage-details"><summary>Cobertura de nuestras 27 competiciones</summary><div class="fs-sync-controls"><button id="fs-coverage-export" class="button button-secondary" type="button" disabled><i data-lucide="download" aria-hidden="true"></i>Descargar cobertura de ligas</button><span class="table-note">Campos informados por el proveedor; los valores incoherentes no se usan en los analisis.</span></div><div class="table-scroll"><table><thead><tr><th>Competicion</th><th>Temporada actual</th><th>Acceso actual</th><th>Historial FootyStats guardado</th><th>Goles 1T / corners 1T informados</th></tr></thead><tbody id="fs-league-coverage"></tbody></table></div></details>
+          <div id="fs-report" hidden>
+            <div class="fs-heading fs-report-heading"><h3 id="fs-report-title">Muestra de cobertura</h3><button id="fs-export" class="button button-secondary icon-button" type="button" title="Descargar informe JSON" aria-label="Descargar informe JSON"><i data-lucide="download" aria-hidden="true"></i></button></div>
+            <p id="fs-report-meta" class="table-note"></p>
+            <div class="fs-report-grid">
+              <div><h4>Equipos y partidos</h4><div class="table-scroll"><table><thead><tr><th>Dato</th><th>Informados / muestra</th><th>Observacion</th></tr></thead><tbody id="fs-match-coverage"></tbody></table></div></div>
+              <div><h4>Jugadores: acumulados de temporada</h4><div class="table-scroll"><table><thead><tr><th>Dato</th><th>Informados / muestra</th><th>Observacion</th></tr></thead><tbody id="fs-player-coverage"></tbody></table></div></div>
+            </div>
+            <div id="fs-individual-report" hidden><h4>Consulta individual: temporada</h4><div class="table-scroll"><table><thead><tr><th>Dato</th><th>Informados / muestra</th><th>Observacion</th></tr></thead><tbody id="fs-individual-coverage"></tbody></table></div></div>
+            <details><summary>Partidos de la muestra</summary><div class="table-scroll"><table><thead><tr><th>Fecha</th><th>Encuentro</th><th>Goles</th><th>Goles 1T</th><th>Corners</th><th>Corners 1T</th></tr></thead><tbody id="fs-match-sample"></tbody></table></div></details>
+            <details><summary>Jugadores y porteros de la muestra</summary><div class="table-scroll"><table><thead><tr><th>Jugador</th><th>Posicion</th><th>Minutos</th><th>Goles</th><th>Asistencias</th><th>Atajadas totales</th><th>Atajadas / partido</th></tr></thead><tbody id="fs-player-sample"></tbody></table></div></details>
+            <ul id="fs-report-notes" class="fs-notes"></ul>
+          </div>
+          <small><a href="https://footystats.org/api/u/api-settings" target="_blank" rel="noopener noreferrer">Mi acceso FootyStats</a> | <a href="https://footystats.org/api/documentations" target="_blank" rel="noopener noreferrer">Documentacion oficial</a></small>
+        </section>
+        <div class="source-block source-block-import">
+          <h2>Importar CSV</h2>
+          <p>Admite columnas de Football-Data.co.uk o encabezados como home, away, home_goals y away_goals.</p>
+          <form id="import-form" class="import-form">
+            <input id="csv-file" type="file" accept=".csv,text/csv" required aria-label="Archivo CSV">
+            <input id="import-league" type="text" placeholder="Nombre de la liga" aria-label="Liga del archivo" required>
+            <input id="import-season" type="text" placeholder="Temporada" aria-label="Temporada del archivo" required>
+            <select id="import-timezone" aria-label="Zona horaria de las horas del CSV"><option value="auto">Zona horaria: automática</option><option value="America/Guayaquil">Guayaquil</option><option value="Europe/London">Londres</option><option value="UTC">UTC</option></select>
+            <button class="button button-secondary" type="submit">Importar</button>
+          </form>
+        </div>
+        <div class="source-block source-block-europe">
+          <h2>Ligas gratuitas sin clave</h2>
+          <p>Football-Data.co.uk: cinco grandes ligas europeas, Championship, Eredivisie, Primeira Liga, MLS, Liga MX, Brasil y Argentina. OpenFootball: históricos parciales de Colombia, Ecuador, Paraguay y Serie B de Brasil de 2025. La cobertura de estadísticas varía según el archivo.</p>
+          <form id="europe-form" class="inline-form">
+            <select id="europe-division" aria-label="Liga gratuita"><option value="E0">Premier League</option><option value="SP1">La Liga</option><option value="D1">Bundesliga</option><option value="I1">Serie A</option><option value="F1">Ligue 1</option><option value="USA">MLS</option><option value="MEX">Liga MX</option><option value="BRA">Brasileirão Serie A</option><option value="ARG">Liga Profesional Argentina</option><option value="COL">Primera A Colombia</option><option value="ECU">LigaPro Ecuador</option></select>
+            <select id="europe-season" aria-label="Temporada de la liga gratuita"><option value="2627">2026/2027</option><option value="2526">2025/2026</option><option value="2425">2024/2025</option></select>
+            <button class="button button-secondary" type="submit">Cargar</button>
+          </form>
+          <small><a id="free-source-link" href="https://football-data.co.uk/downloadm.php" target="_blank" rel="noopener">Fuente y archivos originales</a></small>
+        </div>
+      </div>
+      <p id="source-message" class="source-message" role="status" aria-live="polite"></p>
+    </section>
+
+    <main id="main-content" tabindex="-1">
+      <section class="workspace-head">
+        <div><span class="section-kicker">INVESTIGACIÓN PREPARTIDO</span><h1 id="workspace-title">Análisis de encuentros</h1></div>
+        <p class="workspace-date" id="workspace-date"></p>
+      </section>
+      <div class="research-mode segmented" role="group" aria-label="Tipo de consulta">
+        <button id="view-match" class="segment active" type="button" aria-pressed="true">Encuentros</button>
+        <button id="view-individual" class="segment" type="button" aria-pressed="false">Individual</button>
+        <button id="view-football-players" class="segment" type="button" aria-pressed="false" aria-controls="football-players-workspace">Jugadores</button>
+      </div>
+      <div id="football-source-controls" class="fs-source-controls"><div class="field"><label for="football-source-mode">Fuente de futbol</label><select id="football-source-mode"><option value="combined">Fuentes combinadas</option><option value="api-football">Solo API-Football</option><option value="footystats">Solo FootyStats</option></select></div><p id="football-source-note" class="table-note"></p></div>
+      <section id="football-players-workspace" hidden role="tabpanel" aria-labelledby="sport-football">
+        <div class="fp-layout">
+          <aside class="fp-leagues" aria-label="Competiciones de futbol">
+            <label for="fp-league-search">Competiciones</label>
+            <select id="fp-league-mode" aria-label="Fuentes de las competiciones"><option value="players">API y jugadores</option><option value="all">Todas las fuentes</option></select>
+            <div class="fp-search"><i data-lucide="search" aria-hidden="true"></i><input id="fp-league-search" type="search" placeholder="Liga o pais" autocomplete="off"></div>
+            <nav id="fp-league-list" aria-label="Ligas guardadas"></nav>
+            <details id="fp-pending" class="fp-pending" hidden><summary id="fp-pending-title">Competiciones por cargar</summary><nav id="fp-pending-list" aria-label="Competiciones sin historial descargado"></nav></details>
+            <button id="fp-find-league" class="button button-secondary" type="button"><i data-lucide="plus" aria-hidden="true"></i>Buscar otra liga</button>
+          </aside>
+          <div class="fp-main">
+            <header class="fp-heading"><div><span class="section-kicker">FUTBOL / JUGADORES</span><h2 id="fp-title">Rendimiento individual</h2><p id="fp-source"></p></div><div class="basket-actions"><button id="fp-refresh" class="button button-secondary icon-button" type="button" title="Actualizar datos guardados" aria-label="Actualizar datos guardados"><i data-lucide="refresh-cw" aria-hidden="true"></i></button><button id="fp-export" class="button button-secondary icon-button" type="button" title="Exportar ranking CSV" aria-label="Exportar ranking CSV" disabled><i data-lucide="download" aria-hidden="true"></i></button></div></header>
+            <form id="fp-filters" class="fp-filters">
+              <div class="field"><label for="fp-season">Temporada</label><select id="fp-season"></select></div>
+              <div class="field"><label for="fp-team">Equipo</label><select id="fp-team"><option value="">Todos</option></select></div>
+              <div class="field"><label for="fp-window">Participaciones</label><select id="fp-window"><option value="season">Temporada</option><option value="5">Ultimas 5</option><option value="10" selected>Ultimas 10</option><option value="15">Ultimas 15</option><option value="20">Ultimas 20</option><option value="25">Ultimas 25</option><option value="30">Ultimas 30</option></select></div>
+              <div class="field"><label for="fp-cutoff">Fecha de corte</label><input id="fp-cutoff" type="date" required></div>
+              <div class="field"><label for="fp-metric">Ordenar por</label><select id="fp-metric"></select></div>
+              <div class="field"><label for="fp-basis">Valores</label><select id="fp-basis"><option value="total">Total</option><option value="average">Por partido</option><option value="per90">Por 90 min</option></select></div>
+            </form>
+            <p id="fp-message" class="app-message" role="status" aria-live="polite"></p>
+            <div class="fp-coverage-strip"><span id="fp-records">Sin registros individuales</span><span id="fp-connection" class="status-pill unconnected">API sin conectar</span></div>
+            <details id="fp-data" class="fp-data"><summary><i data-lucide="database" aria-hidden="true"></i>Datos y cobertura</summary>
+              <form id="fp-api-search-form" class="fp-api-search-form"><div class="field"><label for="fp-api-search">Liga o torneo en API-Football</label><input id="fp-api-search" type="search" placeholder="Eredivisie, Champions, Portugal..." list="league-hints" minlength="2" required autocomplete="off"></div><button id="fp-api-find" class="button button-secondary" type="submit"><i data-lucide="search" aria-hidden="true"></i>Buscar</button></form>
+              <div id="fp-api-selection" class="fp-api-selection" hidden><div class="field"><label for="fp-api-league">Competicion API</label><select id="fp-api-league"></select></div><div class="field"><label for="fp-api-season">Temporada API (ano de inicio)</label><select id="fp-api-season"></select></div><button id="fp-api-load" class="button button-primary" type="button"><i data-lucide="cloud-download" aria-hidden="true"></i>Cargar temporada</button></div>
+              <p id="fp-api-access" class="table-note"></p>
+              <div class="fp-data-actions"><button id="fp-connect" class="button button-secondary" type="button"><i data-lucide="plug" aria-hidden="true"></i>Conectar API-Football</button><button id="fp-load" class="button button-primary" type="button"><i data-lucide="cloud-download" aria-hidden="true"></i>Cargar jugadores del equipo</button><button id="fp-load-league" class="button button-secondary" type="button"><i data-lucide="users-round" aria-hidden="true"></i>Ampliar jugadores de la liga</button><label class="field" for="fp-load-window">Ventana por equipo<select id="fp-load-window"><option value="5">5</option><option value="10" selected>10</option><option value="15">15</option><option value="20">20</option><option value="25">25</option><option value="30">30</option></select></label></div>
+              <p id="fp-load-note" class="table-note"></p>
+              <form id="fp-import" class="fp-import"><label for="fp-file">Registros individuales CSV</label><input id="fp-file" type="file" accept=".csv,text/csv" required><button class="button button-secondary" type="submit"><i data-lucide="upload" aria-hidden="true"></i>Importar</button><a href="/templates/football-players.csv" download>Plantilla CSV</a></form>
+              <div class="table-scroll"><table class="fp-coverage"><thead><tr><th>Estadistica</th><th>Con datos / registros</th><th>Cobertura de la muestra</th></tr></thead><tbody id="fp-coverage-body"></tbody></table></div>
+              <p class="table-note">API-Football: cobertura por liga y temporada, sujeta al plan. Los archivos gratuitos de equipos no incluyen rendimientos individuales. No se extraen datos de SofaScore.</p>
+            </details>
+            <section id="fp-directory-panel">
+              <div class="fp-list-tools"><div class="field"><label for="fp-player-search">Jugador o equipo</label><input id="fp-player-search" type="search" placeholder="Buscar en los registros guardados" autocomplete="off"></div><div class="field"><label for="fp-position">Posicion</label><select id="fp-position"><option value="">Todas</option><option value="G">Porteros</option><option value="D">Defensas</option><option value="M">Mediocampistas</option><option value="F">Delanteros</option></select></div><div class="field"><label for="fp-min-games">Min. participaciones</label><input id="fp-min-games" type="number" min="1" max="100" step="1" value="1"></div></div>
+              <div class="fp-section-heading"><h3>Ranking de jugadores</h3><span id="fp-ranking-context"></span></div>
+              <div id="fp-empty" class="fp-empty" hidden><i data-lucide="users-round" aria-hidden="true"></i><div><h3 id="fp-empty-title">Sin registros individuales</h3><p id="fp-empty-note"></p><button id="fp-empty-data" class="button button-secondary" type="button"><i data-lucide="database" aria-hidden="true"></i>Abrir datos y cobertura</button></div></div>
+              <div id="fp-ranking-scroll" class="table-scroll"><table class="fp-ranking"><thead id="fp-ranking-head"></thead><tbody id="fp-ranking-body"></tbody></table></div>
+              <div class="archive-pagination"><span id="fp-page-count"></span><div><label for="fp-page-size">Filas</label><select id="fp-page-size"><option value="10">10</option><option value="25">25</option><option value="50">50</option></select><button id="fp-prev" class="button button-secondary icon-button" type="button" title="Pagina anterior" aria-label="Pagina anterior"><i data-lucide="chevron-left" aria-hidden="true"></i></button><button id="fp-next" class="button button-secondary icon-button" type="button" title="Pagina siguiente" aria-label="Pagina siguiente"><i data-lucide="chevron-right" aria-hidden="true"></i></button></div></div>
+              <p id="fp-directory-note" class="table-note"></p>
+              <details id="fp-assist-leaders" class="fp-data"><summary><i data-lucide="medal" aria-hidden="true"></i>Asistentes del torneo</summary><div class="fp-data-actions"><button id="fp-assist-load" class="button button-secondary" type="button"><i data-lucide="cloud-download" aria-hidden="true"></i>Consultar ranking API</button><span id="fp-assist-context" class="table-note"></span></div><div id="fp-assist-scroll" class="table-scroll" hidden><table class="fp-assist-table"><thead><tr><th>Pos. proveedor</th><th>Jugador</th><th>Equipo</th><th>Asistencias</th><th>Participaciones</th><th>Minutos</th></tr></thead><tbody id="fp-assist-body"></tbody></table></div><p id="fp-assist-note" class="table-note"></p></details>
+            </section>
+            <section id="fp-profile" hidden>
+              <button id="fp-back" class="button button-secondary" type="button"><i data-lucide="arrow-left" aria-hidden="true"></i>Volver al ranking</button>
+              <header class="fp-player-heading"><div id="fp-avatar" class="fp-avatar"></div><div><h3 id="fp-player-name"></h3><p id="fp-player-context"></p><span id="fp-player-rating"></span></div></header>
+              <div class="fp-player-kpis"><div><span>Participaciones</span><strong id="fp-player-games"></strong></div><div><span>Minutos totales (con datos)</span><strong id="fp-player-minutes"></strong></div><div><span id="fp-player-goals-label">Goles</span><strong id="fp-player-goals"></strong></div><div><span>Asistencias</span><strong id="fp-player-assists"></strong></div></div>
+              <h4>Rendimiento de la muestra</h4><div class="table-scroll"><table class="fp-summary"><thead><tr><th>Estadistica</th><th>Total</th><th>Por partido</th><th>Por 90 min</th><th>Con datos</th><th>Con dato y minutos</th></tr></thead><tbody id="fp-summary-body"></tbody></table></div>
+              <div class="fp-section-heading"><h4>Partidos y frecuencias</h4><select id="fp-profile-metric" aria-label="Estadistica del jugador"></select></div>
+              <div id="fp-trend" class="fp-trend" role="img" aria-label="Historial del jugador"></div>
+              <div id="fp-markets"></div>
+              <p id="fp-profile-note" class="table-note"></p>
+              <h4>Participaciones anteriores</h4><div class="table-scroll"><table class="fp-history"><thead id="fp-history-head"></thead><tbody id="fp-history-body"></tbody></table></div>
+              <button id="fp-profile-export" class="button button-secondary" type="button"><i data-lucide="download" aria-hidden="true"></i>Exportar historial CSV</button>
+            </section>
+          </div>
+        </div>
+      </section>
+      <section id="fs-players-workspace" hidden role="tabpanel" aria-labelledby="view-football-players">
+        <h2>Jugadores / FootyStats</h2><p id="fs-players-scope" class="table-note">Acumulados de temporada. Sin historial individual por partido verificado.</p>
+        <div class="fs-player-controls"><div class="field"><label for="fs-player-dataset">Liga y temporada FootyStats</label><select id="fs-player-dataset"></select></div><div class="field"><label for="fs-player-search">Jugador o equipo</label><input id="fs-player-search" type="search" placeholder="Nombre" autocomplete="off"></div><div class="field"><label for="fs-player-position">Posicion</label><select id="fs-player-position"><option value="all">Todas</option><option value="goalkeeper">Porteros</option></select></div><div class="field"><label for="fs-player-order">Ordenar por</label><select id="fs-player-order"><option value="goals">Goles</option><option value="assists">Asistencias</option><option value="minutes">Minutos</option><option value="saves">Atajadas totales</option><option value="savesAvg">Atajadas / partido</option><option value="shotsAvg">Tiros / partido</option><option value="shotsOnTargetAvg">Tiros al arco / partido</option><option value="foulsAvg">Faltas / partido</option></select></div></div>
+        <p id="fs-players-count" class="table-note"></p>
+        <div class="table-scroll"><table><thead><tr><th>Jugador</th><th>Equipo informado</th><th>Posicion</th><th>PJ</th><th>Minutos</th><th>Goles</th><th>Asistencias</th><th>Amarillas</th><th>Rojas</th><th>Tiros / PJ</th><th>Al arco / PJ</th><th>Faltas / PJ</th><th>Atajadas</th><th>Atajadas / PJ</th></tr></thead><tbody id="fs-season-players"></tbody></table></div>
+        <div class="fs-player-pagination"><span id="fs-player-page"></span><button id="fs-player-prev" class="button button-secondary icon-button" type="button" title="Pagina anterior de jugadores FootyStats" aria-label="Pagina anterior de jugadores FootyStats"><i data-lucide="chevron-left" aria-hidden="true"></i></button><button id="fs-player-next" class="button button-secondary icon-button" type="button" title="Pagina siguiente de jugadores FootyStats" aria-label="Pagina siguiente de jugadores FootyStats"><i data-lucide="chevron-right" aria-hidden="true"></i></button></div>
+      </section>
+      <section id="individual-workspace" hidden role="tabpanel" aria-labelledby="sport-football">
+        <form id="profile-form" class="profile-controls">
+          <div class="field" id="profile-league-field"><label for="profile-league">Competición</label><select id="profile-league"></select></div>
+          <div class="field"><label for="profile-season">Temporada</label><select id="profile-season"></select></div>
+          <div class="field" id="profile-kind-field"><label for="profile-kind">Consultar</label><select id="profile-kind"><option value="team">Equipo</option><option value="player">Jugador</option></select></div>
+          <div class="field" id="profile-player-team-field" hidden><label for="profile-player-team">Equipo del jugador</label><select id="profile-player-team"><option value="">Todos</option></select></div>
+          <div class="field profile-name-field"><label id="profile-name-label" for="profile-name">Equipo</label><select id="profile-name"><option value="">Seleccionar</option></select></div>
+          <div class="field" id="profile-venue-field"><label for="profile-venue">Condición</label><select id="profile-venue"><option value="all">Todos</option><option value="home">Local</option><option value="away">Visitante</option></select></div>
+          <fieldset id="profile-history-field" class="field field-lookback"><legend>Historial</legend><div class="segmented"><button type="button" class="segment" data-profile-lookback="5" aria-pressed="false">5</button><button type="button" class="segment active" data-profile-lookback="10" aria-pressed="true">10</button><button type="button" class="segment" data-profile-lookback="15" aria-pressed="false">15</button><button type="button" class="segment" data-profile-lookback="20" aria-pressed="false">20</button><button type="button" class="segment" data-profile-lookback="25" hidden aria-pressed="false">25</button><button type="button" class="segment" data-profile-lookback="30" hidden aria-pressed="false">30</button></div></fieldset>
+          <div class="field field-cutoff"><label for="profile-cutoff">Fecha de corte</label><input id="profile-cutoff" type="date" required></div>
+          <div class="field" id="profile-category-field" hidden><label for="profile-category">Categoría</label><select id="profile-category"><option value="all">Todas las categorías</option><option value="grand-slam">Grand Slam</option><option value="masters-1000">ATP Masters 1000</option><option value="atp-500">ATP 500</option></select></div>
+          <div class="field" id="profile-surface-field" hidden><label for="profile-surface">Superficie</label><select id="profile-surface"><option value="all">Todas</option><option value="Hard">Dura</option><option value="Clay">Arcilla</option><option value="Grass">Hierba</option><option value="Carpet">Moqueta</option></select></div>
+          <button id="profile-analyze" class="button button-primary" type="submit" disabled>Ver estadísticas</button>
+          <button id="profile-load-nba" class="button button-secondary" type="button" hidden>Cargar jugadores del equipo</button>
+        </form>
+        <form id="profile-import-form" class="profile-import" hidden>
+          <label for="profile-file">Registros de jugadores CSV</label><input id="profile-file" type="file" accept=".csv,text/csv" required>
+          <button id="profile-import-button" class="button button-secondary" type="submit">Importar jugadores</button>
+          <a id="profile-template" class="text-link" href="/templates/nba-players.csv" download>Plantilla CSV</a>
+        </form>
+        <p id="profile-message" class="app-message" role="status" aria-live="polite"></p>
+        <p id="profile-empty" class="calendar-note">Selecciona un equipo o jugador.</p>
+        <div id="profile-report" hidden>
+          <section class="profile-heading"><div><span class="section-kicker" id="profile-context"></span><h2 id="profile-title"></h2></div><button id="profile-export" class="button button-secondary" type="button">Exportar CSV</button></section>
+          <div class="report-meta"><span id="profile-sample"></span><span id="profile-record"></span><span id="profile-btts" hidden></span><span id="profile-date"></span></div>
+          <section class="profile-summary-section"><h3>Promedios por partido</h3><div class="table-scroll"><table class="profile-summary"><thead id="profile-summary-head"></thead><tbody id="profile-summary-body"></tbody></table></div></section>
+          <section id="profile-football-scenarios" class="profile-scenario-section" hidden>
+            <h3>Escenarios del equipo</h3>
+            <div class="profile-scenario-controls"><div class="field"><label for="profile-ft-scenario-group">Estadística</label><select id="profile-ft-scenario-group"></select></div><div class="field" id="profile-ft-scenario-scope-field"><label for="profile-ft-scenario-scope">Conteo</label><select id="profile-ft-scenario-scope"><option value="total">Total del encuentro</option><option value="for">A favor del equipo</option><option value="against">En contra del equipo</option></select></div></div>
+            <label id="profile-ft-handicap-field" class="field handicap-line-field" hidden>Linea del equipo<select id="profile-ft-handicap-line" aria-label="Linea de handicap del equipo"></select></label><p id="profile-ft-handicap-note" class="table-note" hidden></p>
+            <div class="table-scroll"><table class="profile-scenario-table"><thead><tr><th>Escenario</th><th>Cumplidos / con datos</th><th>Prob. histórica</th><th>Intervalo 95%</th></tr></thead><tbody id="profile-ft-scenario-body"></tbody></table></div>
+            <form id="profile-ft-scenario-form" class="threshold-form" hidden><label for="profile-ft-scenario-line">Otro límite</label><input id="profile-ft-scenario-line" type="number" min="0.5" max="99.5" step="1" value="0.5" required><button type="submit" class="button button-secondary"><i data-lucide="plus" aria-hidden="true"></i>Añadir</button></form>
+            <p id="profile-scenario-note" class="table-note"></p><p id="profile-team-note" class="table-note"></p>
+          </section>
+          <section id="profile-half-section" class="profile-scenario-section" hidden>
+            <h3>Escenarios al descanso</h3><p id="profile-half-record" class="table-note"></p>
+            <div class="table-scroll"><table class="profile-summary"><thead><tr><th>Promedio por partido 1T</th><th>A favor (n)</th><th>En contra (n)</th><th>Total del encuentro (n)</th></tr></thead><tbody id="profile-half-summary-body"></tbody></table></div>
+            <div class="profile-scenario-controls"><div class="field"><label for="profile-ht-scenario-group">Estadística del primer tiempo</label><select id="profile-ht-scenario-group"></select></div><div class="field" id="profile-ht-scenario-scope-field"><label for="profile-ht-scenario-scope">Conteo</label><select id="profile-ht-scenario-scope"><option value="total">Total del encuentro</option><option value="for">A favor del equipo</option><option value="against">En contra del equipo</option></select></div></div>
+            <label id="profile-ht-handicap-field" class="field handicap-line-field" hidden>Linea del equipo 1T<select id="profile-ht-handicap-line" aria-label="Linea de handicap del equipo 1T"></select></label><p id="profile-ht-handicap-note" class="table-note" hidden></p>
+            <div class="table-scroll"><table class="profile-scenario-table"><thead><tr><th>Escenario</th><th>Cumplidos / con datos</th><th>Prob. histórica</th><th>Intervalo 95%</th></tr></thead><tbody id="profile-ht-scenario-body"></tbody></table></div>
+            <form id="profile-ht-scenario-form" class="threshold-form" hidden><label for="profile-ht-scenario-line">Otro límite 1T</label><input id="profile-ht-scenario-line" type="number" min="0.5" max="99.5" step="1" value="0.5" required><button type="submit" class="button button-secondary"><i data-lucide="plus" aria-hidden="true"></i>Añadir</button></form>
+          </section>
+          <section id="profile-frequency-section" class="profile-frequency-section"><div class="profile-section-heading"><h3>Frecuencia histórica</h3><select id="profile-metric" aria-label="Estadística del historial"></select></div>
+            <div class="table-scroll"><table class="profile-frequency"><thead><tr><th>Escenario</th><th>Cumplidos / con datos</th><th>Frecuencia</th></tr></thead><tbody id="profile-frequency-body"></tbody></table></div>
+            <form id="profile-line-form" class="threshold-form"><label for="profile-line">Límite</label><input id="profile-line" type="number" min="0.5" max="499.5" step="1" value="0.5" required><button class="button button-secondary" type="submit">Añadir límite</button></form>
+            <div id="profile-player-markets" hidden></div>
+            <p id="profile-note" class="table-note"></p>
+          </section>
+          <section class="profile-history-section"><h3>Partidos anteriores</h3><div class="table-scroll"><table class="profile-history"><thead id="profile-history-head"></thead><tbody id="profile-history-body"></tbody></table></div></section>
+        </div>
+      </section>
+      <div id="football-workspace" role="tabpanel" aria-labelledby="sport-football">
+      <section class="control-band" aria-label="Seleccion del partido">
+        <div class="control-grid">
+          <div class="field field-league"><label for="league-select">Competición</label><select id="league-select"><option value="">Selecciona una liga</option></select></div>
+          <div class="field field-season"><label for="season-select">Temporada</label><select id="season-select" disabled><option value="">Temporada</option></select></div>
+          <div class="field field-team"><label for="home-select">Local</label><select id="home-select" disabled><option value="">Equipo local</option></select></div>
+          <div class="field field-team"><label for="away-select">Visitante</label><select id="away-select" disabled><option value="">Equipo visitante</option></select></div>
+          <fieldset class="field field-lookback football-history-six"><legend>Historial</legend><div class="segmented" aria-label="Numero de partidos previos"><button type="button" class="segment" data-lookback="5" aria-pressed="false">5</button><button type="button" class="segment active" data-lookback="10" aria-pressed="true">10</button><button type="button" class="segment" data-lookback="15" aria-pressed="false">15</button><button type="button" class="segment" data-lookback="20" aria-pressed="false">20</button><button type="button" class="segment" data-lookback="25" aria-pressed="false">25</button><button type="button" class="segment" data-lookback="30" aria-pressed="false">30</button></div></fieldset>
+          <div class="field field-cutoff"><label for="cutoff-date">Fecha de corte</label><input id="cutoff-date" type="date" aria-label="Fecha de corte del historial"></div>
+          <button id="analyze-button" class="button button-primary analyze-button" type="button" disabled>Analizar partido</button>
+        </div>
+        <p id="league-history-note" class="table-note" role="status"></p>
+        <details id="league-source-details" hidden><summary>Historial y fuentes</summary><div class="table-scroll"><table><thead><tr><th>Fuente</th><th>Temporadas</th><th>Resultados guardados</th><th>Desde</th><th>Hasta</th></tr></thead><tbody id="league-source-body"></tbody></table></div></details>
+        <div id="football-league-lookup" class="lookup-line">
+          <label for="league-search">Buscar otra liga o torneo</label>
+          <div class="lookup-controls"><input id="league-search" type="search" placeholder="Eredivisie, Portugal, Libertadores..." autocomplete="off" list="league-hints"><datalist id="league-hints"><option value="Colombia"><option value="Ecuador"><option value="Perú"><option value="Chile"><option value="Uruguay"><option value="Paraguay"><option value="Brasil"><option value="Argentina"><option value="MLS"><option value="Liga MX"><option value="México"><option value="Premier League"><option value="La Liga"><option value="Bundesliga"><option value="Serie A"><option value="Ligue 1"><option value="Eredivisie"><option value="Primeira Liga"><option value="Champions League"><option value="Europa League"><option value="Conference League"><option value="Copa Libertadores"><option value="Copa Sudamericana"></datalist><button id="search-button" class="button button-secondary" type="button">Buscar</button></div>
+          <div id="search-results" class="search-results" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <div id="app-message" class="app-message" role="status" aria-live="polite"></div>
+
+      <section id="fixture-section" class="fixture-section" hidden>
+        <div class="fixture-heading"><h2>Lista de encuentros</h2><div class="fixture-actions"><select id="ranking-market" aria-label="Ordenar encuentros por probabilidad"></select><button id="list-button" class="button button-secondary" type="button">Calcular lista</button><button id="add-fixture-button" class="button button-secondary" type="button" aria-expanded="false" aria-controls="manual-fixture-form">Añadir encuentro</button></div></div>
+        <p id="calendar-note" class="calendar-note" role="status" aria-live="polite"></p>
+        <form id="manual-fixture-form" class="manual-fixture-form" hidden>
+          <div class="field"><label for="fixture-home">Local</label><select id="fixture-home" required></select></div>
+          <div class="field"><label for="fixture-away">Visitante</label><select id="fixture-away" required></select></div>
+          <div class="field"><label for="fixture-date">Fecha del encuentro</label><input id="fixture-date" type="date" required></div>
+          <div class="field"><label for="fixture-time">Hora en Guayaquil</label><input id="fixture-time" type="time" required></div>
+          <button class="button button-primary" type="submit">Guardar encuentro</button><button id="cancel-fixture-button" class="button button-secondary" type="button">Cancelar</button>
+        </form>
+        <div class="table-scroll"><table class="fixture-table"><thead><tr><th>Fecha</th><th>Encuentro</th><th>Ambos marcan</th><th>Over 1.5</th><th>Over 2.5</th><th>Over 3.5</th><th>Escenario elegido</th><th></th></tr></thead><tbody id="fixture-body"></tbody></table></div>
+      </section>
+
+      <section id="empty-state" class="empty-state">
+        <div class="empty-visual" aria-hidden="true"><span class="pitch-line"></span><span class="pitch-center"></span><span class="pitch-left"></span><span class="pitch-right"></span></div>
+        <div><h2>Elige un partido para investigar</h2><p id="football-empty-note">Carga una liga gratuita, conecta API-Football o importa un CSV.</p><button id="empty-connect" class="button button-secondary" type="button">Abrir fuentes de datos</button></div>
+      </section>
+
+      <div id="report" hidden>
+        <section class="match-band" aria-label="Resumen del partido">
+          <div class="match-team match-team-home"><img id="home-logo" alt="" hidden><span id="home-initial" class="team-initial"></span><div><small>LOCAL</small><h2 id="home-name"></h2></div></div>
+          <div class="match-center"><span>VS</span><small id="match-context"></small></div>
+          <div class="match-team match-team-away"><div><small>VISITANTE</small><h2 id="away-name"></h2></div><span id="away-initial" class="team-initial"></span><img id="away-logo" alt="" hidden></div>
+        </section>
+        <section class="report-meta" aria-label="Calidad de la muestra"><span id="report-sample"></span><span id="report-coverage"></span><span id="report-method">Estimación exploratoria</span><button id="export-button" type="button" class="button button-secondary">Exportar CSV</button></section>
+        <section class="averages-section" aria-label="Promedios del historial"><div class="table-scroll"><table class="averages-table"><thead><tr><th>Equipo</th><th>Goles</th><th>Córners</th><th>Tarjetas</th><th>Amarillas</th><th>Rojas</th><th>Fuera de juego</th><th>Faltas</th><th>Tiros al arco</th><th>Ganó / Empató / Perdió</th></tr></thead><tbody id="averages-body"></tbody></table></div><p class="table-note">Promedios a favor / en contra en los partidos con datos disponibles.</p></section>
+        <section class="report-main">
+          <div class="market-header"><div><span class="section-kicker">ESCENARIOS</span><h2>Probabilidades prepartido</h2></div><div id="market-tabs" class="market-tabs" role="tablist" aria-label="Tipo de escenario"></div></div>
+          <label id="handicap-line-field" class="field handicap-line-field" hidden>Linea de handicap<select id="handicap-line" aria-label="Linea de handicap"></select></label>
+          <div id="market-content" class="market-content"></div>
+          <form id="threshold-form" class="threshold-form"><label for="custom-line">Otro límite para este escenario</label><input id="custom-line" type="number" min="0.5" max="99.5" step="1" value="4.5"><button type="submit" class="button button-secondary">Añadir límite</button></form>
+          <p class="method-note">La frecuencia indica lo ocurrido en la muestra; el porcentaje es una estimación del próximo partido. Ninguno garantiza un resultado.</p>
+          <details class="method-details"><summary>Cálculo y calidad de datos</summary><p id="method-description"></p><ul id="quality-messages"></ul></details>
+        </section>
+        <section class="half-section" aria-label="Estadísticas y probabilidades del primer tiempo">
+          <div class="market-header"><div><span class="section-kicker">PRIMER TIEMPO</span><h2>Escenarios al descanso</h2></div><div id="half-market-tabs" class="market-tabs" role="tablist" aria-label="Escenarios del primer tiempo"></div></div>
+          <div class="table-scroll half-averages"><table><thead><tr><th>Equipo</th><th>Goles 1T</th><th>Partidos con datos</th><th>Córners 1T</th><th>Partidos con datos</th></tr></thead><tbody id="half-averages-body"></tbody></table></div>
+          <p class="table-note">Promedios a favor / en contra. Primer tiempo incluye el añadido antes del descanso.</p>
+          <label id="half-handicap-line-field" class="field handicap-line-field" hidden>Linea de handicap 1T<select id="half-handicap-line" aria-label="Linea de handicap 1T"></select></label>
+          <div id="half-market-content" class="market-content"></div>
+          <form id="half-handicap-form" class="threshold-form" hidden><label for="half-handicap-custom">Otra linea de handicap 1T</label><input id="half-handicap-custom" type="number" min="-10" max="10" step="0.25" value="-1" required><button type="submit" class="button button-secondary" title="Anadir linea de handicap 1T" aria-label="Anadir linea de handicap 1T"><i data-lucide="plus" aria-hidden="true"></i></button></form>
+        </section>
+        <section class="history-section">
+          <div class="history-heading"><span class="section-kicker">EVIDENCIA</span><h2>Partidos anteriores</h2></div>
+          <p class="table-note">Córners, tarjetas, rojas, fuera de juego, faltas y tiros al arco: a favor / en contra. Goles: marcador del encuentro.</p><div class="history-grid">
+            <div class="history-column"><div class="history-column-head"><h3 id="home-history-title"></h3><span id="home-history-count"></span></div><div class="table-scroll"><table><thead><tr><th>Fecha</th><th>Encuentro</th><th>Goles</th><th>Corn.</th><th>Tarj.</th><th>Rojas</th><th title="Fuera de juego">Offside</th><th>Faltas</th><th>Al arco</th><th>Goles 1T</th><th>Corn. 1T</th></tr></thead><tbody id="home-history-body"></tbody></table></div></div>
+            <div class="history-column"><div class="history-column-head"><h3 id="away-history-title"></h3><span id="away-history-count"></span></div><div class="table-scroll"><table><thead><tr><th>Fecha</th><th>Encuentro</th><th>Goles</th><th>Corn.</th><th>Tarj.</th><th>Rojas</th><th title="Fuera de juego">Offside</th><th>Faltas</th><th>Al arco</th><th>Goles 1T</th><th>Corn. 1T</th></tr></thead><tbody id="away-history-body"></tbody></table></div></div>
+          </div>
+        </section>
+        <section class="h2h-section"><div class="history-column-head"><h2>Enfrentamientos directos</h2><span id="h2h-count"></span></div><div id="h2h-list" class="h2h-list"></div></section>
+      </div>
+      </div>
+      <section id="basketball-workspace" role="tabpanel" aria-labelledby="sport-basketball" hidden>
+        <div class="basket-heading"><div><span class="section-kicker">NBA · EUROLIGA · ENDESA</span><h2>Baloncesto</h2><p id="bb-trial-status">Datos e historiales · Guayaquil</p></div><div class="basket-actions"><button id="bb-connect" class="button button-secondary" type="button" aria-expanded="false" aria-controls="bb-sources">Conectar API</button><button id="bb-refresh" class="button button-primary" type="button">Actualizar datos</button><button id="bb-start" class="button button-secondary" type="button" hidden>Iniciar prueba</button><button id="bb-export" class="button button-secondary icon-button" type="button" title="Exportar resultados" aria-label="Exportar resultados"><i data-lucide="download" aria-hidden="true"></i></button></div></div>
+        <nav class="basket-views" aria-label="Vista de baloncesto"><button type="button" class="segment active" data-basket-view="prematch" aria-pressed="true">Prepartido</button><button type="button" class="segment" data-basket-view="individual" aria-pressed="false">Individual</button><button type="button" class="segment" data-basket-view="calendar" aria-pressed="false">Encuentros</button><button type="button" class="segment" data-basket-view="players" aria-pressed="false">Jugadores</button><button type="button" class="segment" data-basket-view="daily" aria-pressed="false">Probabilidades del día</button><button type="button" class="segment" data-basket-view="evaluation" aria-pressed="false">Evaluación</button><button type="button" class="segment" data-basket-view="research" aria-pressed="false">Datos guardados</button></nav>
+        <p id="bb-message" class="app-message" role="status" aria-live="polite"></p>
+        <details class="method-details" id="bb-sources"><summary>Datos gratuitos y conexión</summary>
+          <form id="bb-key-form" class="basket-key"><label for="bb-key">Clave API-Sports / API-Basketball</label><input id="bb-key" type="password" autocomplete="off" minlength="16" maxlength="160" required><button class="button button-primary" type="submit">Conectar clave</button><a href="https://dashboard.api-football.com/register" target="_blank" rel="noopener noreferrer">Crear cuenta gratuita</a></form>
+          <p id="bb-connection">Sin clave. Los datos NBA guardados siguen disponibles.</p>
+          <form id="bb-import-form" class="sport-import-form"><label for="bb-csv">CSV personal de equipos</label><input id="bb-csv" type="file" accept=".csv,text/csv" required><button class="button button-secondary" type="submit">Importar CSV</button><a href="/templates/basketball.csv" download>Plantilla</a></form>
+          <p>Uso personal. Guardado opcional cifrado con tu usuario de Windows; las claves no van en la base de partidos ni en informes. No hay feed verificado de lesiones ni alineaciones.</p>
+        </details>
+        <div class="basket-filters"><div class="field"><label for="bb-league">Competición</label><select id="bb-league"><option value="euroleague">Euroliga</option><option value="nba">NBA · Regular</option><option value="endesa">Liga Endesa / ACB</option></select></div><div class="field"><label for="bb-season">Temporada</label><select id="bb-season"><option>2026/2027</option><option>2025/2026</option></select></div><div class="field"><label for="bb-depth">Historial por equipo</label><select id="bb-depth"><option value="5">5 partidos</option><option value="10">10 partidos</option><option value="15">15 partidos</option><option value="20" selected>20 partidos</option><option value="25">25 partidos</option><option value="30">30 partidos</option></select></div><div class="field"><label for="bb-cutoff">Corte en Guayaquil</label><input id="bb-cutoff" type="datetime-local" required></div></div>
+        <p id="bb-data-status" class="calendar-note"></p>
+        <div class="basket-kpis" id="bb-kpis"></div>
+        <section id="bb-prematch-view" class="basketball-prematch"></section>
+        <section id="bb-individual-view" class="basketball-team-profile" hidden></section>
+        <section id="bb-daily-view" hidden>
+          <div class="fixture-heading daily-heading"><div><span class="section-kicker">BALONCESTO PREPARTIDO</span><h3>Probabilidades del día</h3></div><div class="basket-actions"><button id="bd-prepare" type="button" class="button button-primary"><i data-lucide="list-checks" aria-hidden="true"></i>Preparar día</button><button id="bd-reload" type="button" class="button button-secondary icon-button" title="Leer pronósticos guardados" aria-label="Leer pronósticos guardados"><i data-lucide="refresh-cw" aria-hidden="true"></i></button><button id="bd-export" type="button" class="button button-secondary icon-button" title="Exportar lista visible" aria-label="Exportar lista visible"><i data-lucide="download" aria-hidden="true"></i></button></div></div>
+          <div class="daily-filters">
+            <div class="field"><label for="bd-day">Día en Guayaquil</label><input id="bd-day" type="date" required></div>
+            <div class="field"><label for="bd-league">Competición</label><select id="bd-league"><option value="all">Todas</option><option value="euroleague">Euroliga</option><option value="nba">NBA</option><option value="endesa">Liga Endesa</option></select></div>
+            <div class="field"><label for="bd-kind">Selecciones</label><select id="bd-kind"><option value="all">Equipos y jugadores</option><option value="team">Equipos</option><option value="player">Jugadores</option></select></div>
+            <div class="field"><label for="bd-market">Escenario</label><select id="bd-market"><option value="all">Todos</option><option value="winner">Ganador</option><option value="total">Total de puntos</option><option value="spread">Hándicap</option><option value="team-total">Total por equipo</option><option value="points">Jugador: puntos</option><option value="rebounds">Jugador: rebotes</option><option value="assists">Jugador: asistencias</option><option value="pra">Jugador: PRA</option><option value="threes">Jugador: triples</option></select></div>
+            <div class="field"><label for="bd-period">Período</label><select id="bd-period"><option value="all">Todos</option><option value="ft">Partido completo</option><option value="q1">Primer cuarto</option><option value="ht">Descanso</option></select></div>
+            <div class="field"><label for="bd-evidence">Respaldo de datos</label><select id="bd-evidence"><option value="all">Todo el historial disponible</option><option value="recent">Excluir antiguos y sin datos</option></select></div>
+            <div class="field daily-probability"><label for="bd-min">Probabilidad mínima <output id="bd-min-value" for="bd-min">60 %</output></label><input id="bd-min" type="range" min="0" max="95" step="5" value="60"></div>
+          </div>
+          <p id="bd-message" class="app-message" role="status" aria-live="polite"></p>
+          <div id="bd-kpis" class="basket-kpis"></div>
+          <div class="daily-list-heading"><h3>Mayor probabilidad estimada</h3><span id="bd-count" role="status" aria-live="polite"></span></div>
+          <p id="bd-freshness" class="calendar-note"></p>
+          <p class="table-note">Estimaciones experimentales, no apuestas seguras. Las selecciones del mismo partido no son independientes.</p>
+          <div id="bd-empty" class="daily-empty" hidden><i data-lucide="calendar-clock" aria-hidden="true"></i><div><h4 id="bd-empty-title">Sin estimaciones disponibles</h4><p id="bd-empty-note"></p></div></div>
+          <div id="bd-list" class="daily-list"></div>
+          <div class="archive-pagination"><div class="field"><label for="bd-size">Por página</label><select id="bd-size"><option value="10">10</option><option value="25">25</option><option value="50">50</option></select></div><div class="basket-actions"><button id="bd-prev" type="button" class="button button-secondary icon-button" title="Página anterior" aria-label="Página anterior"><i data-lucide="chevron-left" aria-hidden="true"></i></button><button id="bd-next" type="button" class="button button-secondary icon-button" title="Página siguiente" aria-label="Página siguiente"><i data-lucide="chevron-right" aria-hidden="true"></i></button></div></div>
+          <details class="method-details"><summary>Cobertura y líneas de investigación</summary><ul id="bd-coverage"></ul><div id="bd-lines" class="daily-lines"></div><p id="bd-notice"></p><p id="bd-exclusions"></p></details>
+          <details id="bd-issues-details" class="method-details" hidden><summary id="bd-issues-count">Pendientes de preparación</summary><ul id="bd-issues"></ul></details>
+        </section>
+        <section id="bb-research-view" hidden>
+          <div class="fixture-heading"><h3>Archivo de investigación</h3><button id="br-export" type="button" class="button button-secondary icon-button" title="Exportar archivo JSON" aria-label="Exportar archivo JSON"><i data-lucide="download" aria-hidden="true"></i></button></div>
+          <p class="calendar-note">Archivo privado, separado de la prueba de octubre. Endesa: datos descriptivos, modelo aún no validado.</p>
+          <div class="research-filters">
+            <div class="field"><label for="br-league">Competición</label><select id="br-league"><option value="euroleague">Euroliga</option><option value="nba">NBA · Temporada regular</option><option value="endesa">Liga Endesa / ACB</option></select></div>
+            <div class="field"><label for="br-season">Temporada</label><select id="br-season"><option>2026/2027</option><option>2025/2026</option><option>2024/2025</option><option>2023/2024</option><option>2022/2023</option></select></div>
+            <div class="field"><label for="br-depth">Historial</label><select id="br-depth"><option value="5">5 partidos</option><option value="10">10 partidos</option><option value="15">15 partidos</option><option value="20" selected>20 partidos</option><option value="25">25 partidos</option><option value="30">30 partidos</option></select></div>
+            <button id="br-sync" type="button" class="button button-primary">Cargar temporada</button><button id="br-access" type="button" class="button button-secondary">Verificar plan</button>
+          </div>
+          <div class="archive-status"><span id="br-feed-status" class="status-pill"></span><span id="br-season-status"></span></div>
+          <details class="method-details connection-details"><summary>Plan, conexión y últimas consultas</summary><p id="br-access-status" class="calendar-note"></p></details>
+          <p id="br-message" class="app-message" role="status" aria-live="polite"></p><div id="br-kpis" class="basket-kpis"></div>
+          <nav class="basket-views" aria-label="Archivo de investigación"><button type="button" class="segment active" data-research-view="data" aria-pressed="true">Partidos y jugadores</button><button type="button" class="segment" data-research-view="periods" aria-pressed="false">Por cuarto</button><button type="button" class="segment" data-research-view="availability" aria-pressed="false">Disponibilidad</button><button type="button" class="segment" data-research-view="forecasts" aria-pressed="false">Pronósticos y evaluación</button><button type="button" class="segment" data-research-view="plans" aria-pressed="false">Free vs Pro</button></nav>
+          <section id="br-periods-view" hidden>
+            <div class="fixture-heading"><h3>Estadísticas por cuarto</h3><div class="basket-actions"><button id="bp-reload" type="button" class="button button-secondary icon-button" title="Leer datos guardados" aria-label="Leer datos guardados"><i data-lucide="refresh-cw" aria-hidden="true"></i></button><button id="bp-export" type="button" class="button button-secondary icon-button" title="Exportar registros personales" aria-label="Exportar registros personales"><i data-lucide="download" aria-hidden="true"></i></button></div></div>
+            <p id="bp-status" class="calendar-note" role="status" aria-live="polite"></p>
+            <div class="period-tools">
+              <div class="field"><label for="bp-source">Registros</label><select id="bp-source"><option value="archive">Datos guardados</option><option value="reference">Muestras oficiales</option><option value="personal">Archivo personal</option></select></div>
+              <div class="field"><label for="bp-kind">Estadísticas de</label><select id="bp-kind"><option value="teams">Equipos</option><option value="players">Jugadores</option></select></div>
+              <div class="field"><label for="bp-period">Período</label><select id="bp-period"><option value="q1">Primer cuarto</option><option value="q2">Segundo cuarto</option><option value="q3">Tercer cuarto</option><option value="q4">Cuarto cuarto</option><option value="ht">Descanso</option><option value="ft">Final</option><option value="ot">Prórroga</option></select></div>
+              <div class="field"><label for="bp-team">Equipo</label><select id="bp-team"><option value="">Todos</option></select></div>
+              <div class="field"><label id="bp-entity-label" for="bp-entity">Equipo a estudiar</label><select id="bp-entity"></select></div>
+              <div class="field"><label for="bp-metric">Estadística</label><select id="bp-metric"></select></div>
+            </div>
+            <p id="bp-context" class="calendar-note"></p><div id="bp-kpis" class="basket-kpis"></div>
+            <div class="fixture-heading"><h3 id="bp-record-title">Registros individuales del período</h3><button id="bp-historical" type="button" class="button button-secondary"><i data-lucide="database" aria-hidden="true"></i>Histórico 2024/2025</button></div>
+            <div class="table-scroll"><table class="basket-table"><thead id="bp-record-head"></thead><tbody id="bp-records"></tbody></table></div>
+            <section id="bp-frequency-section"><h3>Frecuencias históricas: over, under y rangos</h3><p id="bp-frequency-note" class="calendar-note"></p><div id="bp-markets"></div></section>
+            <details class="method-details period-replay"><summary>Comprobación cronológica del historial</summary>
+              <form id="bp-replay-form" class="period-test-form"><div class="field"><label for="bp-line">Línea del período</label><input id="bp-line" type="number" min="0.5" max="499.5" step="1" value="20.5" required></div><button id="bp-replay" type="submit" class="button button-secondary"><i data-lucide="chart-no-axes-combined" aria-hidden="true"></i>Comprobar histórico</button></form>
+              <p class="calendar-note">Prueba retrospectiva independiente, no pronóstico sellado. Frecuencia suavizada y media de los 5 a 30 partidos anteriores, con al menos 5 valores disponibles. Excluye referencias oficiales, conflictos y partidos simultáneos. Disponibilidad histórica y lesiones no verificadas; no demuestra rentabilidad.</p>
+              <p id="bp-replay-status" class="calendar-note" role="status"></p><div id="bp-replay-kpis" class="basket-kpis"></div>
+              <div class="table-scroll"><table class="basket-table"><thead><tr><th>Fecha</th><th>Rival</th><th>n previo</th><th>Prob. over</th><th>Valor esperado</th><th>Valor real</th><th>Over ocurrió</th><th>Error absoluto</th></tr></thead><tbody id="bp-replay-rows"></tbody></table></div>
+              <div class="table-scroll"><table class="basket-table"><thead><tr><th>Intervalo</th><th>n</th><th>Probabilidad media</th><th>Frecuencia observada</th></tr></thead><tbody id="bp-calibration"></tbody></table></div>
+            </details>
+            <details class="method-details"><summary>Fuentes y cobertura real</summary><div class="table-scroll"><table class="basket-table"><thead><tr><th>Competición</th><th>Equipos con 4 cuartos · temporada</th><th>Muestras oficiales de jugadores</th><th>Fuente / acceso</th></tr></thead><tbody id="bp-coverage"></tbody></table></div><p class="calendar-note">Muestras técnicas privadas, no un feed completo ni autorización de descarga masiva. No entran en frecuencias ni modelos. Los datos actuales restringidos por el plan Free permanecen sin datos. Los registros de lesiones se mantienen separados, con fuente y vigencia.</p></details>
+            <details class="method-details"><summary>Control de calidad y diferencias entre fuentes</summary><p id="bp-quality-status" class="calendar-note"></p><div class="table-scroll"><table class="basket-table"><thead><tr><th>Encuentro / jugador</th><th>Comprobación</th><th>Observación</th></tr></thead><tbody id="bp-quality"></tbody></table></div></details>
+            <details class="method-details"><summary>Archivo personal por cuarto</summary>
+              <form id="bp-import-form" class="period-import-form"><div class="field"><label for="bp-file">Registros JSON</label><input id="bp-file" type="file" accept=".json,application/json" required></div><label class="period-rights"><input id="bp-rights" type="checkbox" required> Tengo autorización para utilizar estos registros en mi investigación personal.</label><button type="submit" class="button button-secondary"><i data-lucide="upload" aria-hidden="true"></i>Importar</button><a href="/templates/basketball-periods.json" download>Plantilla JSON</a></form>
+              <p class="calendar-note">Almacenamiento personal: este navegador, sin copia en el servidor. Sin claves API ni cambios en la prueba de octubre. Valores ausentes: null, no cero.</p>
+            </details>
+          </section>
+          <section id="br-data-view">
+            <nav class="data-tabs" role="tablist" aria-label="Datos del archivo"><button id="br-tab-teams" type="button" role="tab" aria-selected="true" aria-controls="br-teams-panel" data-archive-tab="teams" class="active">Equipos</button><button id="br-tab-games" type="button" role="tab" tabindex="-1" aria-selected="false" aria-controls="br-games-panel" data-archive-tab="games">Partidos</button><button id="br-tab-players" type="button" role="tab" tabindex="-1" aria-selected="false" aria-controls="br-players-panel" data-archive-tab="players">Jugadores</button></nav>
+            <div class="archive-tools">
+              <div class="field"><label for="br-filter-team">Equipo</label><select id="br-filter-team"><option value="">Todos los equipos</option></select></div>
+              <div class="field archive-search"><label for="br-filter-search">Buscar</label><input id="br-filter-search" type="search" placeholder="Nombre de equipo o jugador" autocomplete="off"></div>
+              <div class="field"><label for="br-sort">Ordenar por</label><select id="br-sort"></select></div>
+              <button id="br-clear-filters" type="button" class="button button-secondary icon-button" title="Limpiar filtros" aria-label="Limpiar filtros"><i data-lucide="filter-x" aria-hidden="true"></i></button>
+            </div>
+            <section id="br-teams-panel" role="tabpanel" aria-labelledby="br-tab-teams"><h3>Promedios de equipos</h3><div class="table-scroll"><table class="basket-table"><thead><tr><th>Equipo</th><th>Partidos</th><th>Victorias</th><th>Final: a favor / contra · n</th><th>1.er cuarto: a favor / contra · n</th><th>Descanso: a favor / contra · n</th></tr></thead><tbody id="br-teams"></tbody></table></div></section>
+            <section id="br-games-panel" role="tabpanel" aria-labelledby="br-tab-games" hidden><div class="fixture-heading"><h3>Resultados por período</h3><span class="calendar-note">Puntos local / visitante</span></div><div class="table-scroll"><table class="basket-table"><thead><tr><th>Fecha · Guayaquil</th><th>Encuentro</th><th>1Q</th><th>2Q</th><th>Descanso</th><th>3Q</th><th>4Q</th><th>Prórroga</th><th>Final</th><th>Fuente / calidad</th></tr></thead><tbody id="br-games"></tbody></table></div></section>
+            <section id="br-players-panel" role="tabpanel" aria-labelledby="br-tab-players" hidden><h3>Promedios individuales</h3><p class="calendar-note">Solo partidos con participación. Cada promedio incluye su muestra (n). Sin datos individuales por cuarto o descanso.</p><div class="table-scroll"><table class="basket-table"><thead><tr><th>Jugador</th><th>Equipo</th><th>Partidos</th><th>Minutos · n</th><th>Puntos · n</th><th>Rebotes · n</th><th>Asistencias · n</th><th>PRA · n</th><th>Triples · n</th><th>Último registro</th></tr></thead><tbody id="br-players"></tbody></table></div>
+              <h3>Analisis individual del historial</h3><div id="br-player-lab" class="basketball-player-lab"></div>
+            </section>
+            <div class="archive-pagination"><span id="br-filter-count" role="status" aria-live="polite"></span><div><label for="br-page-size">Por página</label><select id="br-page-size"><option value="25">25</option><option value="50">50</option><option value="100">100</option></select><button id="br-prev" type="button" class="button button-secondary icon-button" title="Página anterior" aria-label="Página anterior"><i data-lucide="chevron-left" aria-hidden="true"></i></button><button id="br-next" type="button" class="button button-secondary icon-button" title="Página siguiente" aria-label="Página siguiente"><i data-lucide="chevron-right" aria-hidden="true"></i></button></div></div>
+          </section>
+          <section id="br-availability-view" hidden>
+            <h3>Reportes de disponibilidad</h3><p class="calendar-note">Registro manual con fuente y vigencia. No disputar un partido no prueba una lesión. Las bajas no ajustan automáticamente los pronósticos de equipos.</p>
+            <div class="research-sources"><a href="https://official.nba.com/nba-injury-report-2025-26-season/" target="_blank" rel="noopener noreferrer">NBA · Reportes 2025/26 (verificar temporada)</a><a href="https://www.euroleaguebasketball.net/euroleague/news/" target="_blank" rel="noopener noreferrer">Euroliga · Noticias oficiales</a><a href="https://acb.com/es/liga?id=A01" target="_blank" rel="noopener noreferrer">ACB · Parte médico oficial</a></div>
+            <details class="availability-editor"><summary><i data-lucide="plus" aria-hidden="true"></i>Nuevo reporte</summary><form id="br-availability-form" class="research-form">
+              <div class="field"><label for="br-known-player">Jugador del archivo</label><select id="br-known-player"></select></div><div class="field"><label for="br-name">Nombre</label><input id="br-name" required maxlength="200"></div><div class="field"><label for="br-team">Equipo</label><input id="br-team" required maxlength="200"></div>
+              <div class="field"><label for="br-status">Estado reportado</label><select id="br-status"><option value="unknown">No verificado</option><option value="active">Disponible</option><option value="questionable">En duda</option><option value="out">Baja</option><option value="minutes_limit">Límite de minutos</option></select></div><div class="field"><label for="br-limit">Límite de minutos</label><input id="br-limit" type="number" min="0" max="68" step="0.5"></div><div class="field"><label for="br-report-fixture">Encuentro</label><select id="br-report-fixture"></select></div>
+              <div class="field research-wide"><label for="br-source">Fuente del reporte</label><input id="br-source" type="url" required placeholder="https://" maxlength="2000"></div><div class="field"><label for="br-published">Publicado · Guayaquil</label><input id="br-published" type="datetime-local" required></div><div class="field"><label for="br-expires">Vigente hasta · Guayaquil</label><input id="br-expires" type="datetime-local" required></div><div class="field"><label for="br-report-note">Observación</label><input id="br-report-note" maxlength="500"></div><button type="submit" class="button button-primary">Guardar reporte</button>
+            </form></details>
+            <div class="table-scroll"><table class="basket-table"><thead><tr><th>Jugador / equipo</th><th>Estado</th><th>Minutos límite</th><th>Publicado</th><th>Registrado</th><th>Vigencia</th><th>Fuente / observación</th></tr></thead><tbody id="br-availability"></tbody></table></div>
+          </section>
+          <section id="br-forecasts-view" hidden>
+            <h3>Pronósticos experimentales</h3><p class="calendar-note">Solo encuentros futuros con historial suficiente. Sin cuotas históricas ni rentabilidad. Las probabilidades individuales están condicionadas a jugar; un reporte en duda no estima la probabilidad de participar.</p>
+            <form id="br-forecast-form" class="research-form">
+              <div class="field research-wide"><label for="br-fixture">Encuentro futuro</label><select id="br-fixture" required></select></div><div class="field"><label for="br-mode">Escenarios</label><select id="br-mode"><option value="match">Equipos</option><option value="player">Jugador</option></select></div>
+              <div id="br-match-fields" class="research-form research-wide">
+                <div class="field"><label for="br-total">Total de puntos</label><input id="br-total" type="number" min="0.5" max="499.5" step="1" value="160.5"></div><div class="field"><label for="br-spread">Hándicap local</label><input id="br-spread" type="number" min="-99.5" max="99.5" step="0.5" value="-3.5"></div><div class="field"><label for="br-quarter">Total primer cuarto</label><input id="br-quarter" type="number" min="0.5" max="199.5" step="1" value="40.5"></div><div class="field"><label for="br-half">Total descanso</label><input id="br-half" type="number" min="0.5" max="299.5" step="1" value="80.5"></div><div class="field"><label for="br-team-total-side">Total de equipo</label><select id="br-team-total-side"><option value="home">Local</option><option value="away">Visitante</option></select></div><div class="field"><label for="br-team-total-line">Línea de equipo (opcional)</label><input id="br-team-total-line" type="number" min="0.5" max="299.5" step="1"></div>
+              </div>
+              <div id="br-player-fields" class="research-form research-wide" hidden>
+                <div class="field"><label for="br-forecast-player">Jugador</label><select id="br-forecast-player"></select></div><div class="field"><label for="br-metric">Estadística</label><select id="br-metric"><option value="points">Puntos</option><option value="rebounds">Rebotes</option><option value="assists">Asistencias</option><option value="pra">PRA</option><option value="threes">Triples</option></select></div><div class="field"><label for="br-line">Línea del jugador</label><input id="br-line" type="number" min="0.5" max="199.5" step="1" value="20.5"></div><div class="field"><label for="br-minutes">Minutos proyectados (opcional)</label><input id="br-minutes" type="number" min="1" max="68" step="0.5"></div>
+              </div><button id="br-seal" type="submit" class="button button-primary">Sellar pronóstico</button>
+            </form>
+            <h3>Registro previo al partido</h3><div class="table-scroll"><table class="basket-table"><thead><tr><th>Encuentro / jugador</th><th>Inicio</th><th>Sellado / versión</th><th>Escenario</th><th>Probabilidad</th><th>Resultado</th><th>Integridad</th></tr></thead><tbody id="br-forecasts"></tbody></table></div>
+            <h3>Evaluación del archivo</h3><p id="br-evaluation-note" class="calendar-note"></p><div class="table-scroll"><table class="basket-table"><thead><tr><th>Escenario</th><th>Muestra</th><th>Acierto</th><th>Brier</th><th>Log loss</th><th>Faltantes</th></tr></thead><tbody id="br-evaluation"></tbody></table></div>
+            <h3>Probabilidad anunciada frente a frecuencia observada</h3><div class="field research-calibration"><label for="br-calibration-group">Escenario</label><select id="br-calibration-group"></select></div><div class="table-scroll"><table class="basket-table"><thead><tr><th>Rango</th><th>Muestra</th><th>Probabilidad media</th><th>Frecuencia real</th><th>Intervalo 95 %</th></tr></thead><tbody id="br-calibration"></tbody></table></div>
+            <div class="fixture-heading"><h3>Comprobación histórica independiente</h3><button id="br-backtest" type="button" class="button button-secondary">Evaluar temporada elegida</button></div><p id="br-historical-note" class="calendar-note"></p><div class="table-scroll"><table class="basket-table"><thead><tr><th>Escenario</th><th>Muestra</th><th>Acierto</th><th>Brier</th><th>Log loss</th><th>Faltantes</th></tr></thead><tbody id="br-historical"></tbody></table></div>
+          </section>
+          <section id="br-plans-view" hidden>
+            <h3>API-Basketball · Free vs Pro</h3><p class="calendar-note">API-Basketball y API-Football son suscripciones distintas. Precio publicado por el proveedor; sin compras desde esta app. La cobertura del catálogo no garantiza cada dato de cada partido.</p>
+            <div class="table-scroll"><table class="basket-table"><thead><tr><th>Característica</th><th>Free</th><th>Pro</th></tr></thead><tbody>
+              <tr><td>Precio mensual anunciado</td><td>US$0</td><td>US$15</td></tr><tr><td>Consultas diarias anunciadas</td><td>100</td><td>7.500</td></tr><tr><td>Temporadas</td><td>Acceso restringido. Esta cuenta recibió autorización 2022–2024; 2025/2026 y 2026/2027 bloqueadas.</td><td>Anuncia todas las competiciones y temporadas. Acceso efectivo pendiente de probar con Pro.</td></tr><tr><td>Partidos y períodos de equipos</td><td>Final, 1Q–4Q y prórroga cuando la temporada y cobertura lo permitan. Descanso: suma de 1Q + 2Q.</td><td>Mismos campos; más temporadas accesibles y capacidad de consultas.</td></tr><tr><td>Estadísticas individuales</td><td>Minutos, puntos, rebotes, asistencias y triples donde exista cobertura. PRA calculado con los tres campos completos.</td><td>Mismo formato; permite obtener datos de las temporadas habilitadas por Pro.</td></tr><tr><td>Lesiones / disponibilidad</td><td>Sin endpoint dedicado documentado. Reportes externos/manuales.</td><td>Sin endpoint dedicado documentado. No se resuelve pagando Pro.</td></tr><tr><td>Puntos de jugadores por cuarto / descanso</td><td>Sin desglose documentado.</td><td>Sin desglose documentado.</td></tr><tr><td>Cuotas</td><td>Según cobertura y temporada autorizada; historial limitado.</td><td>No garantiza todos los mercados individuales ni un archivo histórico completo.</td></tr><tr><td>Probabilidades</td><td>Las calcula nuestro modelo, no las entrega como precisión garantizada.</td><td>No aumenta automáticamente la precisión del modelo.</td></tr><tr><td>Límite de esta app</td><td>90 consultas locales/día; 24 de detalle/día; máximo 8 de detalle por carga.</td><td>Los mismos límites conservadores hasta configurarlos expresamente.</td></tr>
+            </tbody></table></div>
+            <p class="calendar-note">Los analisis individuales tambien admiten PR, PA, RA, objetivos personalizados y lanzamientos cuando hay registros completos. Son calculos de la app, no mercados ni precision garantizados por la API. Completar historial del equipo consulta hasta cuatro encuentros por accion, dentro de los limites diarios existentes.</p>
+            <h3>Cobertura anunciada por temporada</h3><div class="table-scroll"><table class="basket-table"><thead><tr><th>Competición</th><th>Catálogo</th><th>Equipos</th><th>Jugadores</th><th>Cuotas</th><th>Acceso real</th></tr></thead><tbody id="br-coverage"></tbody></table></div>
+            <div class="research-sources"><a href="https://api-sports.io/sports/basketball" target="_blank" rel="noopener noreferrer">Planes oficiales</a><a href="https://api-sports.io/documentation/basketball/v1" target="_blank" rel="noopener noreferrer">Documentación de campos</a><a href="https://api-sports.io/terms" target="_blank" rel="noopener noreferrer">Condiciones de uso</a></div>
+          </section>
+        </section>
+        <section id="bb-calendar-view" hidden>
+          <form id="bb-match-form" class="basket-match"><div class="field"><label for="bb-home">Local</label><select id="bb-home"></select></div><div class="field"><label for="bb-away">Visitante</label><select id="bb-away"></select></div><div class="field"><label for="bb-total">Total FT</label><input id="bb-total" type="number" step="1" value="160.5" min="0.5" max="499.5"></div><div class="field"><label for="bb-spread">Hándicap local</label><input id="bb-spread" type="number" step="0.5" value="-3.5" min="-99.5" max="99.5"></div><div class="field"><label for="bb-quarter">Total 1Q</label><input id="bb-quarter" type="number" step="1" value="40.5" min="0.5" max="199.5"></div><div class="field"><label for="bb-half">Total descanso</label><input id="bb-half" type="number" step="1" value="80.5" min="0.5" max="299.5"></div><button class="button button-primary" type="submit">Analizar</button></form>
+          <div class="fixture-heading"><h3>Próximos encuentros</h3><button id="bb-list" class="button button-secondary" type="button">Calcular lista</button></div>
+          <p id="bb-calendar-note" class="calendar-note" role="status"></p>
+          <div class="table-scroll"><table class="basket-table"><thead><tr><th>Inicio</th><th>Encuentro</th><th>Gana local</th><th>Gana visitante</th><th>Over FT</th><th>Over 1Q</th><th>Over descanso</th><th></th></tr></thead><tbody id="bb-calendar-body"></tbody></table></div>
+          <div id="bb-report" hidden><div class="basket-heading"><h3 id="bb-match-title"></h3><span id="bb-match-context"></span></div><div id="bb-market-list" class="market-content"></div><details class="method-details"><summary>Modelo, muestras y supuestos</summary><p id="bb-method"></p><ul id="bb-quality"></ul></details><div class="table-scroll"><table class="basket-table"><thead><tr><th>Período</th><th>Local esperado</th><th>Visitante esperado</th><th>Total esperado</th><th>Muestra L/V</th></tr></thead><tbody id="bb-period-body"></tbody></table></div></div>
+        </section>
+        <section id="bb-players-view" hidden><h3>Analisis individual del historial</h3><div id="bb-player-lab" class="basketball-player-lab"></div><details id="bb-player-projection" class="method-details"><summary>Proyeccion experimental de partido completo</summary><form id="bb-player-form" class="basket-filters"><div class="field"><label for="bb-player">Jugador</label><select id="bb-player"></select></div><div class="field"><label for="bb-player-metric">Estadística</label><select id="bb-player-metric"><option value="points">Puntos</option><option value="rebounds">Rebotes</option><option value="assists">Asistencias</option><option value="pra">PRA</option><option value="threes">Triples</option></select></div><div class="field"><label for="bb-player-line">Línea</label><input id="bb-player-line" type="number" step="1" value="20.5" min="0.5" max="199.5"></div><div class="field"><label for="bb-minutes">Minutos proyectados</label><input id="bb-minutes" type="number" step="0.5" min="1" max="68" placeholder="Según historial"></div><div class="field"><label for="bb-player-status">Disponibilidad declarada</label><select id="bb-player-status"><option value="unknown">No verificada</option><option value="active">Disponible</option><option value="questionable">En duda</option><option value="out">Baja</option></select></div><button type="submit" class="button button-primary">Analizar jugador</button></form><p id="bb-player-result" class="calendar-note">Sin registros individuales cargados.</p><div id="bb-player-markets" hidden></div><h3>Partidos anteriores</h3><div class="table-scroll"><table class="basket-table"><thead><tr><th>Fecha</th><th>Equipo</th><th>Rival</th><th>Minutos</th><th>Puntos</th><th>Rebotes</th><th>Asistencias</th><th>PRA</th><th>Triples</th></tr></thead><tbody id="bb-player-body"></tbody></table></div></details></section>
+        <section id="bb-evaluation-view" hidden><div class="fixture-heading"><h3>Comprobación histórica</h3><button id="bb-backtest" class="button button-secondary" type="button">Evaluar 2025/2026</button></div><p id="bb-evaluation-note" class="calendar-note"></p><div class="table-scroll"><table class="basket-table"><thead><tr><th>Escenario</th><th>Partidos</th><th>Acierto</th><th>Brier</th><th>Log loss</th><th>Datos faltantes</th></tr></thead><tbody id="bb-backtest-body"></tbody></table></div><h3>Prueba prospectiva de octubre</h3><p id="bb-prospective-note" class="calendar-note"></p><div class="table-scroll"><table class="basket-table"><thead><tr><th>Escenario</th><th>Partidos</th><th>Acierto</th><th>Brier</th><th>Log loss</th><th>Datos faltantes</th></tr></thead><tbody id="bb-prospective-body"></tbody></table></div><h3>Calibración del ganador · Prueba de octubre</h3><div class="table-scroll"><table class="basket-table"><thead><tr><th>Rango anunciado</th><th>Muestra</th><th>Probabilidad media</th><th>Ocurrencia real</th><th>Intervalo 95 %</th></tr></thead><tbody id="bb-calibration-body"></tbody></table></div><h3>Pronósticos sellados</h3><div class="table-scroll"><table class="basket-table"><thead><tr><th>Encuentro</th><th>Inicio</th><th>Sellado</th><th>Versión</th><th>Escenarios</th></tr></thead><tbody id="bb-frozen-body"></tbody></table></div><p>Los totales y hándicaps de la prueba son líneas de investigación, no líneas históricas de casas. No se calcula rentabilidad. Lesiones y alineaciones no verificadas; las predicciones individuales están condicionadas a jugar.</p></section>
+      </section>
+      <section id="tennis-workspace" role="tabpanel" aria-labelledby="sport-tennis" hidden></section>
+      <section id="sports-workspace" role="tabpanel" aria-labelledby="sport-nba" hidden>
+        <div class="sport-data-band">
+          <div><h2 id="sp-title">NBA · Temporada regular</h2><p id="sp-data-status" role="status"></p></div>
+          <div class="sport-load-controls"><label class="sr-only" for="sp-season">Temporada</label><select id="sp-season"></select><button id="sp-load" class="button button-secondary" type="button">Cargar historial</button></div>
+        </div>
+        <p id="sp-source-note" class="table-note"></p>
+        <form id="sp-import-form" class="sport-import-form">
+          <label for="sp-csv">Archivo personal CSV</label><input id="sp-csv" type="file" accept=".csv,text/csv" required>
+          <button class="button button-secondary" type="submit">Importar</button>
+          <a id="sp-template" class="text-link" href="/templates/nba.csv" download>Plantilla CSV</a>
+          <a id="sp-source-link" class="text-link" href="https://www.espn.com/nba/scoreboard" target="_blank" rel="noopener">Fuente original</a>
+        </form>
+        <section class="sport-controls" aria-label="Encuentro y filtros">
+          <div class="sport-filter-row" id="sp-tennis-filters" hidden>
+            <div class="field"><label for="sp-category">Categoría</label><select id="sp-category"><option value="all">Todas las categorías</option><option value="grand-slam">Grand Slam</option><option value="masters-1000">ATP Masters 1000</option><option value="atp-500">ATP 500</option></select></div>
+            <div class="field"><label for="sp-tournament">Torneo</label><select id="sp-tournament"><option value="">Todos los torneos</option></select></div>
+            <div class="field"><label for="sp-surface">Superficie</label><select id="sp-surface"><option value="all">Todas</option><option value="Hard">Dura</option><option value="Clay">Arcilla</option><option value="Grass">Hierba</option><option value="Carpet">Moqueta</option></select></div>
+            <div class="field"><label for="sp-best-of">Formato</label><select id="sp-best-of"><option value="3">Al mejor de 3 sets</option><option value="5">Al mejor de 5 sets</option></select></div>
+          </div>
+          <div class="sport-match-controls">
+            <div class="field"><label id="sp-home-label" for="sp-home">Local</label><select id="sp-home"><option value="">Seleccionar</option></select></div>
+            <div class="field"><label id="sp-away-label" for="sp-away">Visitante</label><select id="sp-away"><option value="">Seleccionar</option></select></div>
+            <fieldset id="sp-history-field" class="field field-lookback"><legend>Historial</legend><div class="segmented"><button type="button" class="segment" data-sport-lookback="5" aria-pressed="false">5</button><button type="button" class="segment active" data-sport-lookback="10" aria-pressed="true">10</button><button type="button" class="segment" data-sport-lookback="15" aria-pressed="false">15</button><button type="button" class="segment" data-sport-lookback="20" aria-pressed="false">20</button><button type="button" class="segment" data-sport-lookback="25" hidden aria-pressed="false">25</button><button type="button" class="segment" data-sport-lookback="30" hidden aria-pressed="false">30</button></div></fieldset>
+            <div class="field field-cutoff"><label for="sp-cutoff">Fecha de corte</label><input id="sp-cutoff" type="date" required></div>
+            <div class="field"><label id="sp-total-label" for="sp-total">Total de puntos</label><input id="sp-total" type="number" step="1" min="0.5" max="499.5" value="220.5"></div>
+            <div class="field" id="sp-spread-field"><label for="sp-spread">Hándicap local</label><input id="sp-spread" type="number" step="0.5" min="-99.5" max="99.5" value="-3.5"></div>
+            <button id="sp-analyze" class="button button-primary" type="button" disabled>Analizar encuentro</button>
+          </div>
+        </section>
+        <p id="sp-message" class="app-message" role="status" aria-live="polite"></p>
+        <section class="sport-calendar">
+          <div class="fixture-heading"><h2>Lista de encuentros</h2><div class="fixture-actions"><select id="sp-ranking" aria-label="Ordenar por estimación"></select><button id="sp-list" class="button button-secondary" type="button">Calcular lista</button><button id="sp-add" class="button button-secondary" type="button" aria-expanded="false" aria-controls="sp-fixture-form">Añadir encuentro</button></div></div>
+          <p id="sp-calendar-note" class="calendar-note" role="status"></p>
+          <form id="sp-fixture-form" class="sport-fixture-form" hidden>
+            <p id="sp-fixture-pair"></p>
+            <div class="field"><label for="sp-fixture-date">Fecha del encuentro</label><input id="sp-fixture-date" type="date" required></div>
+            <div class="field"><label for="sp-fixture-time">Hora en Guayaquil</label><input id="sp-fixture-time" type="time" required></div>
+            <button class="button button-primary" type="submit">Guardar encuentro</button><button id="sp-fixture-cancel" class="button button-secondary" type="button">Cancelar</button>
+          </form>
+          <div class="table-scroll"><table class="sport-fixture-table"><thead><tr><th>Fecha</th><th>Encuentro</th><th>Gana A</th><th>Gana B</th><th>Escenario elegido</th><th></th></tr></thead><tbody id="sp-fixture-body"></tbody></table></div>
+        </section>
+        <div id="sp-report" hidden>
+          <section class="match-band"><div class="match-team"><img id="sp-home-logo" alt="" hidden><span id="sp-home-initial" class="team-initial"></span><div><small id="sp-report-home-label">LOCAL</small><h2 id="sp-home-name"></h2></div></div><div class="match-center"><span>VS</span><small id="sp-report-context"></small></div><div class="match-team match-team-away"><div><small id="sp-report-away-label">VISITANTE</small><h2 id="sp-away-name"></h2></div><img id="sp-away-logo" alt="" hidden><span id="sp-away-initial" class="team-initial"></span></div></section>
+          <div class="report-meta"><span id="sp-report-sample"></span><span id="sp-report-cutoff"></span><button id="sp-export" class="button button-secondary" type="button">Exportar CSV</button></div>
+          <div class="table-scroll"><table class="sport-summary"><thead id="sp-summary-head"></thead><tbody id="sp-summary-body"></tbody></table></div>
+          <div class="market-header sport-market-header"><div><span class="section-kicker">ESCENARIOS</span><h2>Estimaciones prepartido</h2></div></div>
+          <div id="sp-markets" class="market-content"></div>
+          <details class="method-details"><summary>Método y calidad de datos</summary><p id="sp-method"></p><ul id="sp-quality"></ul></details>
+          <section class="history-section"><div class="history-heading"><span class="section-kicker">EVIDENCIA</span><h2>Partidos anteriores</h2></div><div class="history-grid" id="sp-history"></div></section>
+          <section class="h2h-section"><div class="history-column-head"><h2>Enfrentamientos directos</h2><span id="sp-h2h-count"></span></div><div id="sp-h2h" class="h2h-list"></div></section>
+        </div>
+      </section>
+    </main>
+    <footer class="footer"><span>Observatorio Deportes</span><span>Los datos faltantes se muestran como s/d.</span></footer>
+  </div>
+</body>
+</html>

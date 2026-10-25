@@ -1,0 +1,53 @@
+.daily-brief-page { background: #f5f7f7; margin: 0; line-height: 1.5; }
+.brief-top, #brief-main { width: min(1160px, calc(100% - 40px)); margin: 0 auto; }
+.brief-top { display: flex; align-items: center; justify-content: space-between; min-height: 72px; gap: 20px; border-bottom: 1px solid #d5dfdd; }
+.brief-brand { font-size: 18px; color: #17252a; text-decoration: none; font-weight: 700; }
+.brief-brand span { font-size: 11px; margin-left: 8px; color: #537169; }
+.brief-title { display: flex; justify-content: space-between; align-items: end; gap: 20px; padding: 28px 0 18px; }
+.brief-eyebrow { font-size: 11px; font-weight: 600; color: #53665f; margin: 0; }
+.brief-title h1 { font-size: 28px; margin: 5px 0; }
+.brief-title p:last-child, .brief-sample { font-size: 12px; color: #52645f; }
+.brief-title nav { display: flex; gap: 20px; padding-bottom: 12px; }
+.brief-title a, .brief-source a, .brief-news a { color: #127862; }
+.brief-notice { border-left: 3px solid #aa712c; padding: 10px 14px; font-size: 13px; margin: 8px 0 24px; background: #fff; }
+.brief-section-title { display: flex; align-items: center; gap: 10px; margin-top: 30px; }
+.brief-section-title h2 { font-size: 19px; margin: 12px 0; }
+.brief-section-title svg { width: 20px; }
+.brief-game { padding: 20px 0 26px; border-top: 1px solid #d5dfdd; }
+.brief-game-header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: start; gap: 16px; }
+.brief-game h3 { font-size: 18px; margin: 0 0 6px; overflow-wrap: anywhere; }
+.brief-game h4 { font-size: 14px; margin: 16px 0 8px; }
+.brief-game-header p { font-size: 12px; margin: 0; color: #53665f; }
+.brief-logos { display: flex; align-items: center; gap: 10px; }
+.brief-logos img { width: 38px; height: 38px; object-fit: contain; }
+.brief-time { text-align: right; font-size: 13px; }
+.brief-time strong { display: block; font-size: 17px; }
+.brief-status { color: #8c5d23; }
+.brief-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.brief-table th, .brief-table td { border-bottom: 1px solid #e1e7e5; text-align: left; padding: 9px 10px; }
+.brief-table th { font-size: 12px; background: #edf2f1; color: #41564e; }
+.brief-table td:first-child { width: 42%; }
+.brief-scroll { overflow-x: auto; margin: 12px 0; }
+.brief-scroll table { min-width: 520px; }
+.brief-player-table table { min-width: 950px; }
+.brief-player-table td:first-child { width: auto; min-width: 150px; }
+.brief-player-table th, .brief-player-table td { white-space: nowrap; }
+.brief-columns { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 28px; align-items: start; }
+.brief-columns > div { min-width: 0; }
+.brief-news { padding-left: 20px; font-size: 13px; }
+.brief-news li { margin: 8px 0; }
+.brief-news a { white-space: nowrap; }
+.brief-game details { font-size: 13px; margin-top: 14px; }
+.brief-game summary { cursor: pointer; font-weight: 600; }
+.brief-source { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 12px; margin-top: 14px; }
+.brief-game .basket-condition { max-width: 100%; }
+#brief-football { padding-bottom: 48px; }
+@media(max-width:960px) { .brief-columns { grid-template-columns: minmax(0, 1fr); gap: 0; } }
+@media(max-width:700px) {
+  .brief-top, #brief-main { width: calc(100% - 30px); }
+  .brief-top .button { font-size: 12px; padding: 6px 9px; }
+  .brief-brand { font-size: 15px; }.brief-brand span { display: block; margin: 0; }
+  .brief-title { align-items: start; flex-direction: column; gap: 6px; }.brief-title h1 { font-size: 24px; }
+  .brief-title nav { padding: 0; }.brief-columns { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .brief-game-header { gap: 12px; }.brief-game h3 { font-size: 17px; }.brief-time { text-align: left; }
+}
