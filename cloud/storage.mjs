@@ -25,17 +25,32 @@ export function stateCipher(secret) {
 }
 
 // Las piezas inmutables evitan reenviar los 50 MB del historial por cada cambio pequeno.
-export function partitionState(value, { size = 192 * 1024 } = {}) {
+export function partitionState(value, { size = 192 * 1024, known = new Set() } = {}) {
   const blobs = new Map();
-  const leaf = bytes => { const id = digest(bytes); blobs.set(id, bytes); return { type: 'ref', id }; };
+  const leaf = bytes => { const id = digest(bytes); if (!known.has(id)) blobs.set(id, bytes); return { type: 'ref', id }; };
+  const oversized = {};
+  function boundedJson(item) {
+    let remaining = size;
+    try {
+      return JSON.stringify(item, (name, child) => {
+        // A conservative byte budget stops traversal before allocating a giant
+        // serialization of a whole cache/dataset just to decide to split it.
+        if (name) remaining -= Buffer.byteLength(JSON.stringify(name)) + 2;
+        remaining -= child !== null && typeof child === 'object' ? 2 : Buffer.byteLength(JSON.stringify(child) ?? 'null');
+        if (remaining < 0) throw oversized;
+        return child;
+      });
+    } catch (error) { if (error !== oversized) throw error; return null; }
+  }
   function visit(item, forceObject = false) {
     if (Array.isArray(item) && item.length > 128) {
       const children = []; for (let index = 0; index < item.length; index += 128) children.push(visit(item.slice(index, index + 128)));
       return { type: 'concat', children };
     }
     if (!forceObject) {
-      let serialized = JSON.stringify(item);
-      if (Buffer.byteLength(serialized) <= size || item === null || typeof item !== 'object') return leaf(Buffer.from(serialized));
+      let serialized = boundedJson(item);
+      if (serialized !== null) return leaf(Buffer.from(serialized));
+      if (item === null || typeof item !== 'object') return leaf(Buffer.from(JSON.stringify(item)));
       serialized = null;
     }
     if (Array.isArray(item)) {
@@ -126,7 +141,7 @@ export function createCloudStorage(config, { fetch: request = globalThis.fetch }
   }
   async function save(serialized) {
     if (revision === null || conflicted) throw failure('Almacenamiento no inicializado o con conflicto. Reinicia antes de actualizar.');
-    const snapshot = typeof serialized === 'string' ? JSON.parse(serialized) : serialized, parts = partitionState(snapshot);
+    const snapshot = typeof serialized === 'string' ? JSON.parse(serialized) : serialized, parts = partitionState(snapshot, { known });
     if (parts.root === committedRoot) return;
     const uploads = await Promise.allSettled([...parts.blobs].filter(([id]) => !known.has(id)).map(([id, bytes]) => transfer(async () => {
       const response = await call(object(id), { method: 'POST', headers: { 'Content-Type': 'application/octet-stream', 'x-upsert': 'false' }, body: cipher.seal(bytes) });
