@@ -186,8 +186,8 @@ export function buildFootballPlayerProfile(logs, body) {
 
 export function createFootballPlayersService({ getStore, getReadStore = () => getStore(), resolveLoad = body => body, getPresets = () => [], seasonAggregates = () => [], persist, request, connected, getQuota, getPolicy = () => ({ reserve: 5 }), getConnection = () => null, pause = ms => new Promise(resolve => setTimeout(resolve, ms)) }) {
   let loading = false, lastProviderCall = 0;
-  function leagueFor(body) {
-    const league = getReadStore(body.leagueKey).leagues?.[body.leagueKey];
+  function leagueFor(body, readStore = getReadStore(body.leagueKey)) {
+    const league = readStore.leagues?.[body.leagueKey];
     if (!league) throw new SportsError(404, 'Carga primero la competicion en Encuentros.');
     if (!league.seasons?.some(season => String(season) === String(body.season))) throw new SportsError(400, 'Temporada no guardada.');
     return league;
@@ -213,9 +213,9 @@ export function createFootballPlayersService({ getStore, getReadStore = () => ge
             topAssistCoverage: league.coverageBySeason?.[season]?.top_assists ?? null }];
         })) })).sort((a, b) => a.name.localeCompare(b.name, 'es')) };
   }
-  function directory(body) { const league = leagueFor(body); return { ...buildFootballPlayerDirectory(getReadStore(body.leagueKey).playerLogs || [], body), competition: league.name,
+  function directory(body) { const view = getReadStore(body.leagueKey), league = leagueFor(body, view); return { ...buildFootballPlayerDirectory(view.playerLogs || [], body), competition: league.name,
     seasonAggregates: seasonAggregates(body, league) }; }
-  function profile(body) { const league = leagueFor(body); return { ...buildFootballPlayerProfile(getReadStore(body.leagueKey).playerLogs || [], body), competition: league.name }; }
+  function profile(body) { const view = getReadStore(body.leagueKey), league = leagueFor(body, view); return { ...buildFootballPlayerProfile(view.playerLogs || [], body), competition: league.name }; }
   async function assistLeaders(body) {
     const selected = leagueFor(body);
     const native = resolveLoad({ ...body, team: '' }), league = getStore().leagues[native.leagueKey];

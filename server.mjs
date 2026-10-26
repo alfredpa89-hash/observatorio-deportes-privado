@@ -160,7 +160,7 @@ const footballPlayers = createFootballPlayersService({ getStore: () => store, pe
   seasonAggregates: (body, league) => footballSeasonAggregates(store, league, body),
   getReadStore: key => key && store.leagues[key] ? store : combineFootballHistory(store),
   resolveLoad: resolvePlayerLoad,
-  getPresets: () => state().apiLeagues,
+  getPresets: apiLeaguePresets,
   connected: () => Boolean(apiKey), getQuota: () => quota, getPolicy: footballBudget.policy, getConnection: () => footballConnection });
 
 class HttpError extends Error {
@@ -795,6 +795,12 @@ async function searchLeagues(query) {
   return { results, note, requiresKey: !apiKey && (!results.length || results.some(league => league.sourceType === 'api-required')) };
 }
 
+function apiLeaguePresets() {
+  return API_LEAGUES.map(({ apiNames, ...league }) => ({ ...league, loadedKeys: Object.values(store.leagues)
+    .filter(saved => saved.source !== 'FootyStats' && (slug(saved.name) === slug(league.name) || (saved.country === league.country && apiNames.some(name => slug(name) === slug(saved.name)))))
+    .map(saved => saved.key) }));
+}
+
 function state() {
   return {
     app: 'observatorio-futbol',
@@ -803,9 +809,7 @@ function state() {
     connection: footballConnection,
     quota,
     freeLeagues: freeLeagues(),
-    apiLeagues: API_LEAGUES.map(({ apiNames, ...league }) => ({ ...league, loadedKeys: Object.values(store.leagues)
-      .filter(saved => saved.source !== 'FootyStats' && (slug(saved.name) === slug(league.name) || (saved.country === league.country && apiNames.some(name => slug(name) === slug(saved.name)))))
-      .map(saved => saved.key) })),
+    apiLeagues: apiLeaguePresets(),
     catalog: Object.values(store.leagues).map(league => catalogEntry(league)).sort((a, b) => a.name.localeCompare(b.name, 'es')),
     competitions: competitionCatalog(),
   };
