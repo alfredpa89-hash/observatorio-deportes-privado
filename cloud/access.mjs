@@ -19,7 +19,8 @@ export function createCloudAccess(config, { createClient = createServerClient, a
     response.setHeader('Cache-Control', 'private, no-store, max-age=0');
     response.setHeader('Vary', 'Cookie');
     response.setHeader('X-Content-Type-Options', 'nosniff');
-    response.setHeader('Referrer-Policy', 'no-referrer');
+    // HTML form POSTs need their real Origin; no-referrer makes browsers send null.
+    response.setHeader('Referrer-Policy', 'same-origin');
     response.setHeader('X-Frame-Options', 'DENY');
     response.setHeader('Strict-Transport-Security', 'max-age=31536000');
     response.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
