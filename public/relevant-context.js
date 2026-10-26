@@ -25,13 +25,21 @@ export function mountRelevantContext(root) {
   const section = node('section', '', 'relevant-context'); section.hidden = true;
   section.setAttribute('aria-label', 'Claves del partido');
   const heading = node('div', '', 'context-heading'), title = node('h3', 'Claves del partido'), toolbar = node('div', '', 'context-actions');
-  const refresh = iconButton('newspaper', 'Consultar titulares oficiales / ultimos siete dias');
+  const refresh = node('button', 'Buscar noticias oficiales', 'button button-secondary'); refresh.type = 'button';
   const reload = iconButton('refresh-cw', 'Actualizar resumen con los datos guardados');
   toolbar.append(reload); heading.append(title, toolbar);
   const referenceLabel = node('label', 'Referencia de puntos', 'context-reference'), reference = node('input');
   reference.type = 'number'; reference.min = '0'; reference.max = '100'; reference.step = '.5'; reference.value = '20'; referenceLabel.append(reference); referenceLabel.hidden = true; toolbar.prepend(referenceLabel);
   const status = node('p', '', 'context-status'); status.setAttribute('role', 'status');
   const coverage = node('div', '', 'context-coverage'), highlights = node('div', '', 'context-highlights');
+  const football = node('section', '', 'context-football'); football.hidden = true;
+  football.setAttribute('aria-label', 'Bajas y tarjetas de futbol');
+  const footballTop = node('div', '', 'context-heading'), footballTitle = node('h4', 'Bajas, dudas y tarjetas'), footballLoad = node('button', 'Consultar bajas del encuentro', 'button button-secondary');
+  footballLoad.type = 'button'; footballTop.append(footballTitle, footballLoad);
+  const fixtureLabel = node('label', 'Encuentro para consultar', 'context-fixture'), fixtureSelect = node('select'); fixtureLabel.append(fixtureSelect);
+  const footballStatus = node('p', '', 'context-date'), absences = node('div', '', 'context-highlights');
+  const discipline = node('details', '', 'context-history'), disciplineTitle = node('summary', 'Jugadores con tarjetas en el historial'), disciplineRows = node('div', '', 'context-discipline');
+  discipline.append(disciplineTitle, disciplineRows); football.append(footballTop, fixtureLabel, footballStatus, absences, discipline);
   const filters = node('fieldset', '', 'context-filters'); filters.append(node('legend', 'Tipo de informacion', 'sr-only'));
   const filterName = `context-filter-${crypto.randomUUID()}`;
   for (const [value, label] of [['all', 'Todo'], ['availability', 'Disponibilidad'], ['performance', 'Rendimiento'], ['competition', 'Competicion']]) {
@@ -65,10 +73,11 @@ export function mountRelevantContext(root) {
   const save = node('button', 'Guardar reporte', 'button button-primary'); save.type = 'submit'; form.append(save); detail.append(summary, form);
   const sources = node('details', '', 'context-sources'), sourceList = node('div', '', 'context-source-links'), limits = node('ul');
   sources.append(node('summary', 'Fuentes y limites del contexto'), sourceList, limits);
-  section.append(heading, status, coverage, filters, highlights, historyDetail, noteArchive, detail, sources, newsDetail);
+  section.append(heading, status, football, coverage, filters, highlights, historyDetail, noteArchive, detail, sources, newsDetail);
   if (root.firstElementChild) root.firstElementChild.after(section); else root.append(section);
   let body, report, revision = 0, busy = false, retryTimer;
-  const selection = () => ({ ...body, ...(referenceLabel.hidden ? {} : { referencePoints: Number(reference.value) }) });
+  const selection = () => ({ ...body, ...(referenceLabel.hidden ? {} : { referencePoints: Number(reference.value) }),
+    ...(!football.hidden && fixtureSelect.value ? { contextFixtureId: fixtureSelect.value } : {}) });
   function currentSelection() {
     if (body?.cutoff && Date.now() - Date.parse(body.cutoff) < 86400000) body = { ...body, cutoff: new Date().toISOString() };
     return selection();
@@ -80,8 +89,42 @@ export function mountRelevantContext(root) {
     refresh.title = refresh.ariaLabel = busy ? 'Consultando noticias oficiales' : wait ? `Proxima consulta permitida: ${date(report.news.nextAttemptAt)}` : 'Consultar noticias oficiales / ultimos siete dias';
     if (wait && !section.hidden) retryTimer = setTimeout(constraints, Math.min(wait + 100, 2147483647));
     save.disabled = busy; reference.disabled = busy; reload.disabled = busy || !report;
+    footballLoad.disabled = busy || !report?.football?.canRefresh || Boolean(report?.football?.nextRefreshAt);
+    fixtureSelect.disabled = busy || !report?.football?.fixtures?.length;
     for (const control of Object.values(controls)) control.disabled = busy;
     for (const button of notes.querySelectorAll('button')) button.disabled = busy;
+  }
+  function renderFootball() {
+    const data = report?.football; football.hidden = !data;
+    if (!data) return;
+    fixtureSelect.replaceChildren(...data.fixtures.map(row => {
+      const option = node('option', `${row.home} - ${row.away} / ${date(row.date)}`); option.value = row.id; return option;
+    }));
+    if (data.selectedFixtureId) fixtureSelect.value = data.selectedFixtureId;
+    fixtureLabel.hidden = !data.fixtures.length;
+    footballLoad.textContent = data.nextRefreshAt ? 'Reporte guardado (cache de 4 h)' : 'Consultar bajas del encuentro';
+    footballStatus.textContent = [data.blockedReason, data.warning,
+      data.checkedAt ? `Consulta al proveedor: ${date(data.checkedAt)}${data.stale ? ' / reporte antiguo: requiere actualizar' : ''}. El proveedor no informa fecha de publicacion.` : 'Sin consulta de bajas guardada para este encuentro.',
+      data.nextRefreshAt ? `Proxima consulta desde ${date(data.nextRefreshAt)}.` : ''].filter(Boolean).join(' ');
+    absences.replaceChildren();
+    for (const row of data.absences) {
+      const entry = node('article', '', 'context-highlight'), badge = node('span', data.stale ? 'Reporte antiguo' : 'Reporte del proveedor', 'context-evidence');
+      const top = node('div', '', 'context-highlight-top'); top.append(node('strong', row.team), badge);
+      const state = { out: 'Baja para este encuentro', suspended: 'Suspension reportada', questionable: 'En duda para este encuentro' }[row.status] || 'Estado sin confirmar';
+      entry.append(top, node('h4', row.name), node('strong', state, `context-player-state context-player-state-${row.status}`),
+        node('p', `Motivo del proveedor: ${row.reason}`), node('small', `Consultado ${date(row.checkedAt)} / ${row.source}`), link(row.sourceUrl, 'Acerca de esta fuente'));
+      absences.append(entry);
+    }
+    if (!data.absences.length) absences.append(node('p', data.checkedAt ? 'El reporte no contiene bajas de esta seleccion. No confirma que todos puedan jugar.' : 'Lesiones y suspensiones actuales pendientes de consultar o confirmar con una fuente.', 'context-date'));
+    disciplineTitle.textContent = `Jugadores con tarjetas en el historial (${data.discipline.length})`;
+    disciplineRows.replaceChildren(...data.discipline.map(row => {
+      const entry = node('article', '', 'context-entry');
+      entry.append(node('strong', `${row.name} / ${row.team}`), node('p', `${row.yellow.total} amarillas en ${row.yellow.games} de ${row.yellow.n} participaciones con dato; ${row.red.total} rojas en ${row.red.games} de ${row.red.n} con dato.`),
+        node('small', `Ventana: ${row.appearances} participaciones guardadas / ${day(row.oldest)} a ${day(row.latest)}${row.stale ? ' / historial antiguo' : ''} / ${row.source}`));
+      return entry;
+    }));
+    if (!data.discipline.length) disciplineRows.append(node('p', 'Sin tarjetas individuales registradas en esta muestra. Los datos ausentes no cuentan como cero.', 'context-date'));
+    disciplineRows.append(node('p', data.notice, 'context-date'));
   }
   function renderBrief() {
     const brief = report?.brief, filter = filters.querySelector('input:checked')?.value || 'all';
@@ -140,7 +183,7 @@ export function mountRelevantContext(root) {
     report = data;
     detail.hidden = data.historicalCutoff;
     status.textContent = `Corte ${date(data.cutoff)} / Resumen ${date(data.asOf)} / Ultima consulta exitosa de titulares: ${date(data.news.checkedAt)}`;
-    renderBrief(); renderNotes();
+    renderFootball(); renderBrief(); renderNotes();
     facts.replaceChildren(...data.entities.map(entity => {
       const group = node('article', '', 'context-entity'), list = node('dl');
       const newest = entity.latestPrecision === 'tournament-week' ? `${entity.latest.slice(0, 10)} (semana del torneo)` : day(entity.latest);
@@ -182,6 +225,8 @@ export function mountRelevantContext(root) {
     finally { busy = false; constraints(); }
   }
   refresh.addEventListener('click', () => act(() => api('news', currentSelection())));
+  footballLoad.addEventListener('click', () => act(() => api('football', currentSelection())));
+  fixtureSelect.addEventListener('change', () => act(() => api('summary', currentSelection())));
   reload.addEventListener('click', () => act(() => api('summary', currentSelection())));
   reference.addEventListener('change', () => { if (reference.reportValidity()) act(() => api('summary', selection())); });
   form.addEventListener('submit', event => {
@@ -196,6 +241,8 @@ export function mountRelevantContext(root) {
   return {
     async show(scope) {
       const token = ++revision; body = scope; report = null; section.hidden = false;
+      fixtureSelect.replaceChildren(); football.hidden = true;
+      newsDetail.open = scope.sport === 'football';
       referenceLabel.hidden = !['basketball', 'nba'].includes(scope.sport) || scope.kind !== 'player';
       controls.publishedAt.value = localInput(new Date()); controls.expiresAt.value = localInput(new Date(Date.now() + 24 * 3600000));
       status.textContent = 'Leyendo contexto guardado...'; facts.replaceChildren(); notes.replaceChildren(); news.replaceChildren(); highlights.replaceChildren(); coverage.replaceChildren(); sourceList.replaceChildren(); limits.replaceChildren(); constraints();

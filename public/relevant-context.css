@@ -53,6 +53,17 @@
 .context-archive-toggle { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 12px; color: #59666a; }
 .context-review-actions { display: flex; gap: 6px; justify-content: flex-end; margin-top: 8px; }
 .context-news-actions { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: #59666a; margin-top: 8px; }
+.context-football { padding: 16px; margin-top: 16px; border: 1px solid #ebcfc5; border-radius: 8px; background: #fff9f6; min-width: 0; }
+.context-football h4 { margin: 0; }
+.context-football .context-highlight { display: grid; gap: 6px; align-content: start; }
+.context-football .context-highlight small { font-size: 12px; color: #59666a; }
+.context-football .context-highlight a { font-size: 12px; color: #176b58; }
+.context-fixture { display: grid; gap: 6px; font-size: 12px; margin: 12px 0; }
+.context-fixture select { width: 100%; min-width: 0; padding: 10px; border: 1px solid #cbd6d8; border-radius: 5px; background: white; color: #233537; font: inherit; }
+.context-player-state { font-size: 12px; color: #9c3c2f; }
+.context-player-state-questionable { color: #80600d; }
+.context-discipline { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 0 24px; }
+.context-discipline > .context-date { grid-column: 1 / -1; }
 @media (max-width: 540px) {
   .context-heading h3 { font-size: 16px; }
   .context-actions { width: 100%; justify-content: flex-end; }
