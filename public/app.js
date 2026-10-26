@@ -509,7 +509,9 @@ function renderReport(value) {
 
 async function analyze() {
   const value = await api('/api/report', { leagueKey: $('league-select').value, season: $('season-select').value, home: $('home-select').value, away: $('away-select').value, lookback, cutoff: cutoff(), thresholds });
-  renderReport(value); await refreshState($('league-select').value);
+  // The report already contains the enriched history. A second full catalog
+  // request here kept the whole page inert after the result was visible.
+  renderReport(value);
 }
 
 function marketValue(fixture, id) { return fixture.markets?.find((m) => m.id === id)?.probability ?? null; }
