@@ -43,13 +43,13 @@ function latest(rows, key) {
   for (const row of [...rows].sort((a, b) => a.publishedAt.localeCompare(b.publishedAt) || a.recordedAt.localeCompare(b.recordedAt))) map.set(key(row), row);
   return [...map.values()];
 }
-export function createResearchContext({ getStore, persist, read, now = () => new Date(), request = (...args) => fetch(...args) }) {
+export function createResearchContext({ getStore, persist, read, footballContext, now = () => new Date(), request = (...args) => fetch(...args) }) {
   let busy = false;
   const saved = () => getStore().researchContext || { notes: [], news: {}, quota: { day: '', count: 0 }, lastRequestAt: null, cooldownUntil: null };
   const writable = () => (getStore().researchContext ||= saved());
   const stamp = () => now().toISOString();
   const cacheKey = scope => hash({ sport: scope.sport, key: scope.key, season: scope.season, ids: scope.entities.map(row => row.id).sort() });
-  function decorate(scope) {
+  function decorate(scope, contextFixtureId) {
     const clock = stamp(), set = saved().news[cacheKey(scope)];
     const dailyLimit = saved().quota.day === clock.slice(0, 10) && saved().quota.count >= 60;
     const pause = saved().cooldownUntil > clock, nextAttemptAt = [retryTime(set), saved().cooldownUntil,
@@ -67,6 +67,7 @@ export function createResearchContext({ getStore, persist, read, now = () => new
       .map(row => ({ ...row, expired: !Number.isFinite(Date.parse(row.expiresAt)) || row.expiresAt <= scope.cutoff }));
     const items = scope.historicalCutoff ? [] : (set?.items || []).filter(row => Date.parse(row.seenAt) > now().getTime() - 7 * DAY);
     return { ...scope, availability, notes, categories, sources: contextSources(scope), brief: buildPrematchBrief(scope, notes, availability),
+      football: footballContext?.summary(scope, contextFixtureId) || null,
       news: { items, checkedAt: set?.checkedAt || null, attemptedAt: set?.attemptedAt || null, warning: set?.warning || null,
         diagnostic, providerHealth: saved().providerHealth || null, nextAttemptAt,
         blockedReason: pause ? 'provider_pause' : dailyLimit ? 'daily_limit' : retryTime(set) > clock ? 'selection_cache' : nextAttemptAt ? 'request_spacing' : null,
@@ -75,7 +76,13 @@ export function createResearchContext({ getStore, persist, read, now = () => new
         note: 'Titulares para revisar: no confirman lesiones, sanciones, identidad ni plantilla. Fecha de deteccion GDELT, no publicacion. No se descargan articulos ni se usan como entradas del modelo.' },
       asOf: clock, modelChanged: false };
   }
-  function summary(body) { return decorate(read(body)); }
+  function summary(body) { return decorate(read(body), body?.contextFixtureId); }
+  async function refreshFootball(body) {
+    if (!footballContext) throw new SportsError(503, 'Conector de disponibilidad no disponible.');
+    const scope = read(body);
+    await footballContext.refresh(scope, body.contextFixtureId);
+    return summary({ ...body, cutoff: stamp() });
+  }
   async function saveNote(body) {
     const scope = read(body), entity = scope.entities.find(row => row.id === body.entityId);
     if (scope.historicalCutoff) fail('Registra reportes desde un corte actual; no se reconstruye contexto historico.');
@@ -171,5 +178,5 @@ export function createResearchContext({ getStore, persist, read, now = () => new
     }
     return { ...decorate(scope), requests: 1 };
   }
-  return { summary, saveNote, reviewNote, refresh };
+  return { summary, saveNote, reviewNote, refresh, refreshFootball };
 }

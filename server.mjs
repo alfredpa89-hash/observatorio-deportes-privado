@@ -24,6 +24,7 @@ import { createBasketballReadiness } from './basketball-readiness.mjs';
 import { createCredentialVault, defaultCredentialFile, CREDENTIAL_PROVIDERS } from './credentials.mjs';
 import { createContextReader } from './context-data.mjs';
 import { createResearchContext } from './research-context.mjs';
+import { createFootballContext } from './football-context.mjs';
 import basketballReferences from './research/euroleague-2026-10-11.json' with { type: 'json' };
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
@@ -186,7 +187,10 @@ async function verifyBasketballAccess() {
 }
 const backups = createDataBackups({ directory: path.join(DATA_DIR, 'backups'), getStore: () => store, replaceStore: value => { store = value; }, persist });
 const dataContext = createDataContext({ getStore: () => store, persist, basketballData: basketballResearch.prematchData });
+const footballContext = createFootballContext({ getStore: () => store, persist, request: apiRequest,
+  connected: () => Boolean(apiKey), getConnection: () => footballConnection });
 const researchContext = createResearchContext({ getStore: () => store, persist,
+  footballContext,
   read: createContextReader({ getStore: () => store, footballPlayers, basketballPrematch, basketballPlayers,
     readBasketball: basketballResearch.prematchData, tennisLab }) });
 const basketballReadiness = createBasketballReadiness({ getStore: () => store, persist, read: basketballResearch.prematchData,
@@ -1486,6 +1490,7 @@ async function route(request, response) {
     }
     if (request.method === 'GET' && url.pathname === '/api/data/state') return sendJson(response, 200, await dataControl.state());
     if (request.method === 'POST' && url.pathname === '/api/context/summary') return sendJson(response, 200, researchContext.summary(await readBody(request)));
+    if (request.method === 'POST' && url.pathname === '/api/context/football') return sendJson(response, 200, await researchContext.refreshFootball(await readBody(request)));
     if (request.method === 'POST' && url.pathname === '/api/context/news') return sendJson(response, 200, await researchContext.refresh(await readBody(request)));
     if (request.method === 'POST' && url.pathname === '/api/context/report') return sendJson(response, 200, await researchContext.saveNote(await readBody(request)));
     if (request.method === 'POST' && url.pathname === '/api/context/review') return sendJson(response, 200, await researchContext.reviewNote(await readBody(request)));
