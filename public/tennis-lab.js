@@ -1,3 +1,4 @@
+import { jsonRequest } from './api-client.js';
 import { onDataRefresh, currentCutoff } from './live-refresh.js';
 import { mountRelevantContext } from './relevant-context.js';
 const root = document.getElementById('tennis-workspace');
@@ -39,8 +40,7 @@ const countLabel = item => item.n ? `${item.hits} de ${item.n} partidos` : 'Sin 
 const interval = item => item.interval ? `${pct(item.interval[0])} a ${pct(item.interval[1])}` : 's/d';
 const sourceLink = (url, label = 'Fuente') => { const a = el('a', label, 'text-link'); a.href = url; a.target = '_blank'; a.rel = 'noopener noreferrer'; return a; };
 async function api(path, body) {
-  const response = await fetch(`/api/tennis/${path}`, body === undefined ? {} : { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-  const result = await response.json(); if (!response.ok) throw new Error(result.error || 'No se pudo completar la consulta de tenis.'); return result;
+  return jsonRequest(`/api/tennis/${path}`, body);
 }
 
 const heading = el('div', '', 'sport-data-band'), headingText = el('div'), dataStatus = el('p'), refresh = button('Actualizar historicos', 'refresh-cw');

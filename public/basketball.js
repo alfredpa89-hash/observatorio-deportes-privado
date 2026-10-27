@@ -1,3 +1,4 @@
+import { jsonRequest } from './api-client.js';
 import { mountPlayerMarkets } from './player-markets.js';
 import { mountBasketballPlayerTools } from './basketball-player-tools.js';
 import { mountBasketballPrematch } from './basketball-prematch.js';
@@ -37,8 +38,7 @@ function renderCondition() {
 conditionSelect.addEventListener('change', renderCondition);
 function invalidatePlayer() { playerRevision++; playerMarkets?.dispose(); $('bb-player-markets').hidden = true; $('bb-player-body').replaceChildren(); $('bb-player-result').textContent = 'Selecciona un jugador con historial y analiza la selección.'; }
 async function api(path, body) {
-  const response = await fetch(`/api/basketball/${path}`, body === undefined ? {} : { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-  const result = await response.json(); if (!response.ok) throw new Error(result.error || 'No se pudo completar la consulta.'); return result;
+  return jsonRequest(`/api/basketball/${path}`, body);
 }
 const league = () => $('bb-league').value;
 const selected = () => state?.leagues.find(row => row.key === league());

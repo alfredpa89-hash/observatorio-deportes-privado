@@ -1,3 +1,4 @@
+import { jsonRequest } from './api-client.js';
 const $ = id => document.getElementById(id);
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
 const icon = name => `<i data-lucide="${name}" aria-hidden="true"></i>`;
@@ -25,8 +26,7 @@ const readinessPanel = document.createElement('div'); readinessPanel.id = 'dc-ba
 $('dc-checks').prepend(readinessPanel);
 const icons = () => window.lucide?.createIcons();
 async function api(path, body) {
-  const response = await fetch(`/api/data/${path}`, body === undefined ? {} : { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
-  const result = await response.json(); if (!response.ok) throw new Error(result.error || 'No se pudo completar la operacion.'); return result;
+  return jsonRequest(`/api/data/${path}`, body);
 }
 function message(text, error = false) { $('dc-message').textContent = text; $('dc-message').dataset.error = String(error); }
 async function action(fn) {

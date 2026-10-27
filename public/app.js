@@ -1,3 +1,4 @@
+import { jsonRequest } from './api-client.js';
 import { footballSourceMode, filterFootballSources, footballFieldLabel } from './football-source.js';
 import { onDataRefresh } from './live-refresh.js';
 import { mountRelevantContext } from './relevant-context.js';
@@ -67,10 +68,7 @@ function message(text = '', error = false, target = 'app-message') {
 }
 
 async function api(url, body) {
-  const response = await fetch(url, body === undefined ? {} : { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-  const result = await response.json();
-  if (!response.ok) throw new Error(result.error || 'No se pudo completar la consulta.');
-  return result;
+  return jsonRequest(url, body);
 }
 
 async function task(button, pendingLabel, action, target = 'app-message') {

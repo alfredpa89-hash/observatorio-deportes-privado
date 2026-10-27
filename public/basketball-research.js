@@ -1,3 +1,4 @@
+import { jsonRequest } from './api-client.js';
 import { mountBasketballPlayerTools } from './basketball-player-tools.js';
 const $ = id => document.getElementById(id);
 const archivePlayerTools = mountBasketballPlayerTools($('br-player-lab'));
@@ -15,8 +16,7 @@ let state, busy = false;
 let archiveTab = 'teams', archivePage = 0;
 const selection = () => ({ league: $('br-league').value, season: $('br-season').value, lookback: Number($('br-depth').value) });
 async function api(path, body) {
-  const response = await fetch(`/api/basketball/research/${path}`, body === undefined ? {} : { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-  const result = await response.json(); if (!response.ok) throw new Error(result.error || 'No se pudo completar la consulta.'); return result;
+  return jsonRequest(`/api/basketball/research/${path}`, body);
 }
 function message(value = '', error = false) { $('br-message').textContent = value; $('br-message').classList.toggle('error', error); }
 function table(id, rows, columns, emptyText) {

@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="/tennis-lab.css">
   <link rel="stylesheet" href="/data-control.css">
   <link rel="stylesheet" href="/relevant-context.css">
+  <link rel="stylesheet" href="/daily-overview.css">
   <script src="/vendor/lucide.min.js" defer></script>
   <script type="module" src="/app.js"></script>
   <script type="module" src="/sports.js"></script>
@@ -27,6 +28,7 @@
   <script type="module" src="/data-control.js"></script>
   <script type="module" src="/live-data.js"></script>
   <script type="module" src="/credentials.js"></script>
+  <script type="module" src="/daily-overview.js"></script>
 </head>
 <body>
   <a class="skip-link" href="#main-content">Ir al contenido</a>
@@ -37,7 +39,7 @@
         <div><strong>Observatorio</strong><small>DEPORTES</small></div>
       </div>
       <div class="topbar-right">
-        <a class="button button-secondary icon-button" href="/resumen-2026-10-21.html" title="Partidos destacados del 21 de octubre" aria-label="Partidos destacados del 21 de octubre"><i data-lucide="calendar-days" aria-hidden="true"></i></a>
+        <button id="open-daily-overview" class="button button-secondary" type="button" title="Resumen de hoy y manana"><i data-lucide="calendar-days" aria-hidden="true"></i><span>Resumen del dia</span></button>
         <button id="open-data-control" class="button button-secondary icon-button" type="button" title="Centro de datos" aria-label="Centro de datos"><i data-lucide="database" aria-hidden="true"></i></button>
         <span id="source-status" class="source-status">Datos locales</span>
         <span id="quota-status" class="quota-status" hidden></span>
@@ -354,7 +356,7 @@
             <div class="field"><label for="bd-kind">Selecciones</label><select id="bd-kind"><option value="all">Equipos y jugadores</option><option value="team">Equipos</option><option value="player">Jugadores</option></select></div>
             <div class="field"><label for="bd-market">Escenario</label><select id="bd-market"><option value="all">Todos</option><option value="winner">Ganador</option><option value="total">Total de puntos</option><option value="spread">Hándicap</option><option value="team-total">Total por equipo</option><option value="points">Jugador: puntos</option><option value="rebounds">Jugador: rebotes</option><option value="assists">Jugador: asistencias</option><option value="pra">Jugador: PRA</option><option value="threes">Jugador: triples</option></select></div>
             <div class="field"><label for="bd-period">Período</label><select id="bd-period"><option value="all">Todos</option><option value="ft">Partido completo</option><option value="q1">Primer cuarto</option><option value="ht">Descanso</option></select></div>
-            <div class="field"><label for="bd-evidence">Respaldo de datos</label><select id="bd-evidence"><option value="all">Todo el historial disponible</option><option value="recent">Excluir antiguos y sin datos</option></select></div>
+            <div class="field"><label for="bd-evidence">Respaldo de datos</label><select id="bd-evidence"><option value="recent">Excluir antiguos y sin datos</option><option value="all">Incluir referencias historicas</option></select></div>
             <div class="field daily-probability"><label for="bd-min">Probabilidad mínima <output id="bd-min-value" for="bd-min">60 %</output></label><input id="bd-min" type="range" min="0" max="95" step="5" value="60"></div>
           </div>
           <p id="bd-message" class="app-message" role="status" aria-live="polite"></p>

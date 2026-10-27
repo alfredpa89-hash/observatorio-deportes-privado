@@ -1,3 +1,4 @@
+import { jsonRequest } from './api-client.js';
 import { onDataRefresh } from './live-refresh.js';
 import { evidenceSampleLabel } from './basketball-evidence.js';
 const $ = id => document.getElementById(id);
@@ -14,8 +15,7 @@ const visible = () => (state?.rows || []).filter(row => row.probability >= Numbe
   ($('bd-period').value === 'all' || (row.spec.period || 'ft') === $('bd-period').value) && Date.parse(row.fixture.date) >= Date.now() + 5 * 60000);
 function message(value = '', error = false) { $('bd-message').textContent = value; $('bd-message').classList.toggle('error', error); }
 async function api(path = '', body) {
-  const response = await fetch(`/api/basketball/daily${path}`, body === undefined ? {} : { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-  const result = await response.json(); if (!response.ok) throw new Error(result.error || 'No se pudo consultar el dia.'); return result;
+  return jsonRequest(`/api/basketball/daily${path}`, body);
 }
 function dayLimits() {
   const today = localDay(); $('bd-day').min = today;
@@ -43,6 +43,8 @@ function render() {
       node('span', row.calibrated ? `Calibracion historica n=${row.calibrationN}` : 'Experimental; sin calibracion'));
     if (row.evidence) evidence.append(node('strong', row.evidence.label), node('span', evidenceSampleLabel(row.evidence)),
       node('span', row.evidence.missing || row.evidence.unfilled ? `${row.evidence.missing} campos faltantes / ${row.evidence.unfilled} partidos para completar la ventana` : 'Ventana guardada con campos completos'));
+    if (row.observed) evidence.append(node('span', Object.entries(row.observed).filter(([, sample]) => sample?.n).map(([side, sample]) =>
+      `${side === 'home' ? 'Local' : side === 'away' ? 'Visitante' : 'Jugador'}: ${sample.hits} de ${sample.n} partidos cumplieron la condicion`).join(' | ')));
     const status = node('div', '', 'daily-status'); status.append(node('span', row.origin === 'trial' ? 'Prueba de octubre' : 'Archivo de investigacion', 'daily-origin'), node('span', row.availability.note));
     if (row.kind === 'player') status.append(node('span', `${num(row.projectedMinutes)} min proyectados`));
     const details = node('details', '', 'daily-details'); details.append(node('summary', 'Registro y fuente'));

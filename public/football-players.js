@@ -1,3 +1,4 @@
+import { jsonRequest } from './api-client.js';
 import { mountPlayerMarkets } from './player-markets.js';
 import { mountFootballSeasonAggregates } from './football-season.js';
 import { mountRelevantContext } from './relevant-context.js';
@@ -18,8 +19,7 @@ const basisLabels = { total: 'Total de la muestra', average: 'Por partido', per9
 const positions = { G: 'Portero', D: 'Defensa', M: 'Mediocampista', F: 'Delantero' };
 function icons() { window.lucide?.createIcons(); }
 async function api(path, body) {
-  const response = await fetch(path, body ? { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) } : {});
-  const result = await response.json(); if (!response.ok) { const error = new Error(result.error || 'No se pudo consultar futbol.'); error.allowedSeasons = result.allowedSeasons; throw error; } return result;
+  return jsonRequest(path, body);
 }
 function message(text = '', error = false) { $('fp-message').textContent = text; $('fp-message').classList.toggle('error', error); }
 function selectedLeague() { return state?.catalog.find(league => league.key === leagueKey); }

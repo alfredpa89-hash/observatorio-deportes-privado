@@ -1,3 +1,4 @@
+import { jsonRequest } from './api-client.js';
 import { currentCutoff } from './live-refresh.js';
 
 const main = document.getElementById('main-content'), band = document.createElement('section');
@@ -31,13 +32,12 @@ function render(value) {
   if (changed.length) { updateCutoffs(); document.dispatchEvent(new CustomEvent('observatorio:refreshed', { detail: { sports: changed, checkedAt: value.finishedAt || value.lastCycle } })); }
 }
 async function request(path, body) {
-  const response = await fetch(`/api/data/${path}`, body === undefined ? {} : { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
-  const data = await response.json(); if (!response.ok) throw new Error(data.error || 'Servidor no disponible'); return data;
+  return jsonRequest(`/api/data/${path}`, body);
 }
 async function poll() {
   if (polling || document.hidden) return; polling = true; lastPoll = Date.now();
   try { render(await request('progress')); }
-  catch { band.dataset.state = 'partial'; title.textContent = 'No se pudo comprobar la actualizacion'; detail.textContent = 'Se conservan las vistas guardadas. Comprueba que el servidor local siga encendido.'; check.disabled = false; }
+  catch { band.dataset.state = 'partial'; title.textContent = 'No se pudo comprobar la actualizacion'; detail.textContent = 'Se conservan las vistas guardadas. El servidor puede estar iniciandose; comprueba la conexion y vuelve a consultar.'; check.disabled = false; }
   finally { polling = false; }
 }
 async function visit() {

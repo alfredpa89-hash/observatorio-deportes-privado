@@ -15,12 +15,16 @@ export function basketballEvidence({ history = [], validHistory = history, cutof
   const n = validHistory.length, missing = Math.max(0, history.length - n);
   const unfilled = Number.isInteger(Number(lookback)) ? Math.max(0, Number(lookback) - history.length) : 0;
   const previousOnly = n > 0 && Boolean(season) && validHistory.every(row => row.season && row.season < season);
+  const currentSeasonN = validHistory.filter(row => eligible(row) && row.season === season).length;
+  const previousSeasonN = validHistory.filter(row => eligible(row) && row.season && season && row.season < season).length;
+  const limitedCurrent = Boolean(season) && n >= 10 && currentSeasonN > 0 && currentSeasonN < 5;
   const reasons = [];
   if (!n) reasons.push('Sin datos de esta condicion. Completar el campo antes de interpretarla.');
   if (n && dates.length !== n) reasons.push('Hay registros sin fecha util verificable para este corte.');
   if (ageDays > 45) reasons.push(`Ultimo dato hace ${ageDays} dias: no acredita la forma actual.`);
   if (previousOnly) reasons.push('Solo hay temporadas anteriores en esta muestra; plantilla y rol actuales pendientes.');
   else if (season && seasons.some(value => value < season)) reasons.push('La muestra incluye temporadas anteriores.');
+  if (limitedCurrent) reasons.push(`Solo ${currentSeasonN} de ${n} partidos con datos pertenecen a la temporada seleccionada; forma actual aun limitada.`);
   if (n > 0 && n < 10) reasons.push('Muestra reducida: menos de 10 partidos con esta condicion.');
   if (missing) reasons.push(`${missing} registros de la muestra sin esta estadistica; no se cuentan como cero.`);
   if (unfilled) reasons.push(`${unfilled} partidos faltan para completar la ventana solicitada.`);
@@ -29,9 +33,9 @@ export function basketballEvidence({ history = [], validHistory = history, cutof
     : 'Disponibilidad y minutos del proximo encuentro sin confirmar. El historial no confirma que vaya a jugar.');
   else reasons.push('Las bajas y alineaciones no ajustan automaticamente esta estimacion.');
   const level = !n ? 4 : ageDays === null || dates.length !== n || ageDays > 45 || previousOnly ? 3
-    : n < 10 || missing || unfilled ? 2 : kind === 'player' && availability !== 'active' ? 1 : 0;
+    : n < 10 || missing || unfilled || limitedCurrent ? 2 : kind === 'player' && availability !== 'active' ? 1 : 0;
   const label = ['Historial disponible', 'Disponibilidad por confirmar', 'Evidencia limitada', 'Solo referencia historica', 'Pendiente de datos'][level];
-  return { n, sample: history.length, missing, unfilled, latest, oldest: dates[0] || null, ageDays, seasons, previousOnly, level, label, reasons };
+  return { n, sample: history.length, missing, unfilled, latest, oldest: dates[0] || null, ageDays, seasons, previousOnly, currentSeasonN, previousSeasonN, level, label, reasons };
 }
 
 export function basketballPeriodPair(game, period = 'ft') {
@@ -52,8 +56,8 @@ export function basketballTeamEvidence(histories, spec, context) {
 }
 
 export function evidenceSampleLabel(evidence) {
-  return evidence.samples ? evidence.samples.map(row => `${row.side === 'home' ? 'Local' : 'Visitante'}: ${row.n}/${row.sample} con datos; ultimo ${date(row.latest)}`).join(' | ')
-    : `${evidence.n}/${evidence.sample} con datos; ultimo ${date(evidence.latest)}`;
+  const sample = row => `${row.n}/${row.sample} con datos; ${row.currentSeasonN ?? 0} de esta temporada; ultimo ${date(row.latest)}`;
+  return evidence.samples ? evidence.samples.map(row => `${row.side === 'home' ? 'Local' : 'Visitante'}: ${sample(row)}`).join(' | ') : sample(evidence);
 }
 
 export function renderBasketballEvidence(root, evidence, { label = '', frequency, probability, modeled = false } = {}) {

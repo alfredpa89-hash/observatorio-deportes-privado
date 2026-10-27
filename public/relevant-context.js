@@ -1,3 +1,4 @@
+import { jsonRequest } from './api-client.js';
 const node = (tag, text = '', className = '') => { const item = document.createElement(tag); item.textContent = text; item.className = className; return item; };
 const date = value => value ? new Date(value).toLocaleString('es-EC', { timeZone: 'America/Guayaquil', dateStyle: 'short', timeStyle: 'short' }) : 'sin consulta';
 const day = value => value ? new Date(value).toLocaleDateString('es-EC', { timeZone: 'America/Guayaquil' }) : 'sin fecha';
@@ -18,8 +19,7 @@ const iconButton = (name, title) => {
 };
 const evidenceLabels = { historical: 'Historial', reported: 'Reporte con fuente', 'user-reviewed': 'Revisado por ti', unverified: 'Sin revisar' };
 async function api(path, body) {
-  const response = await fetch(`/api/context/${path}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
-  const result = await response.json(); if (!response.ok) throw new Error(result.error || 'No se pudo consultar el contexto.'); return result;
+  return jsonRequest(`/api/context/${path}`, body);
 }
 export function mountRelevantContext(root) {
   const section = node('section', '', 'relevant-context'); section.hidden = true;

@@ -1,3 +1,4 @@
+import { jsonRequest } from './api-client.js';
 import { mountBasketballPlayerTools } from './basketball-player-tools.js';
 import { mountRelevantContext } from './relevant-context.js';
 const node = (tag, text = '', className = '') => { const item = document.createElement(tag); item.textContent = text; item.className = className; return item; };
@@ -16,8 +17,7 @@ function button(label, icon, primary = false) {
   item.append(glyph, node('span', label)); item.type = 'button'; return item;
 }
 async function api(path, body) {
-  const response = await fetch(`/api/basketball/${path}`, body === undefined ? {} : { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-  const value = await response.json(); if (!response.ok) throw new Error(value.error || 'No se pudo consultar el prepartido.'); return value;
+  return jsonRequest(`/api/basketball/${path}`, body);
 }
 
 export function mountBasketballPrematch(root) {
