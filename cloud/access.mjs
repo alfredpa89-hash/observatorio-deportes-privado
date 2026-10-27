@@ -1,4 +1,5 @@
 import { createServerClient, parseCookieHeader, serializeCookieHeader } from '@supabase/ssr';
+import { createHash } from 'node:crypto';
 
 const escape = value => String(value).replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]);
 const safeNext = value => typeof value === 'string' && value.startsWith('/') && !value.startsWith('//') && !/[\\\r\n]/.test(value) && !value.startsWith('/auth/') ? value : '/';
@@ -15,6 +16,7 @@ function loginPage(next, error = '') {
 
 export function createCloudAccess(config, { createClient = createServerClient, authFetch = globalThis.fetch, now = () => Date.now() } = {}) {
   const attempts = []; const cookieName = '__Host-observatorio-auth';
+  const checking = new Map();
   return async function access(request, response, url) {
     response.setHeader('Cache-Control', 'private, no-store, max-age=0');
     response.setHeader('Vary', 'Cookie');
@@ -67,7 +69,20 @@ export function createCloudAccess(config, { createClient = createServerClient, a
       else redirect(response, `/auth/login?next=${encodeURIComponent(safeNext(url.pathname + url.search))}`);
       return false;
     }
-    const result = await client.auth.getUser();
+    // Concurrent asset/API reads carrying the exact same session share only
+    // the in-flight verification. No successful authorization is cached after
+    // it settles: the next request still checks Supabase and current ownership.
+    let result;
+    if (request.method === 'GET' || request.method === 'HEAD') {
+      const key = createHash('sha256').update(JSON.stringify(incoming.map(({ name, value }) => [name, value]).sort(([a], [b]) => a.localeCompare(b)))).digest('hex');
+      if (!checking.has(key)) {
+        const pendingCheck = Promise.resolve().then(() => client.auth.getUser()).then(result => ({ result, updates: [...pending.values()] }));
+        checking.set(key, pendingCheck);
+        void pendingCheck.finally(() => { if (checking.get(key) === pendingCheck) checking.delete(key); }).catch(() => {});
+      }
+      const shared = await checking.get(key); result = shared.result;
+      for (const cookie of shared.updates) { cookies.set(cookie.name, cookie.value); pending.set(cookie.name, cookie); }
+    } else result = await client.auth.getUser();
     if (result.error || result.data?.user?.id !== config.owner) {
       const status = result.error?.name === 'AuthRetryableFetchError' ? 503 : 401;
       if (url.pathname.startsWith('/api/') || status === 503) json(response, status, { error: status === 503 ? 'No se pudo verificar el acceso privado. Intenta mas tarde.' : 'Sesion no valida.', login: '/auth/login' });
