@@ -77,7 +77,7 @@ async function task(button, pendingLabel, action, target = 'app-message') {
   const content = [...button.childNodes];
   button.disabled = true;
   button.textContent = pendingLabel;
-  const surfaces = [...document.querySelectorAll('main, .topbar, #sources-panel')];
+  const surfaces = [...document.querySelectorAll('main, #sources-panel')];
   surfaces.forEach((surface) => { surface.inert = true; });
   document.querySelector('.app-shell').setAttribute('aria-busy', 'true');
   message('', false, target);
