@@ -26,8 +26,11 @@ const coverage = node('details'), coverageList = node('ul', '', 'overview-covera
 const evaluation = node('details'), evaluationBody = node('div', '', 'overview-evaluation'), evaluationControls = node('div', '', 'overview-filters');
 const evalLeague = node('select'); evalLeague.setAttribute('aria-label', 'Competicion a evaluar');
 for (const [value, label] of [['nba', 'NBA'], ['euroleague', 'Euroliga'], ['tennis', 'Tenis']]) { const option = node('option', label); option.value = value; evalLeague.append(option); }
-const evalRead = node('button', 'Leer evaluacion guardada', 'button button-secondary'); evalRead.type = 'button'; evaluationControls.append(evalLeague, evalRead);
+const evalRead = node('button', 'Leer evaluacion guardada', 'button button-secondary'); evalRead.type = 'button';
+const evalSave = node('button', 'Guardar equipos para evaluar', 'button button-secondary'); evalSave.type = 'button';
+evaluationControls.append(evalLeague, evalRead, evalSave);
 evaluation.append(node('summary', 'Comprobar si los porcentajes funcionan'), evaluationControls, evaluationBody);
+evaluation.append(node('p', 'Guardar sella NBA o Euroliga de la fecha seleccionada antes del inicio, con ventana 20 y lineas internas fijas. No consulta APIs ni cambia registros anteriores. Tenis conserva su preparacion en su propio apartado.', 'overview-notice'));
 const contextRoot = node('div', '', 'overview-context'), context = mountRelevantContext(contextRoot);
 body.append(filters, status, cards, notice, coverage, evaluation, contextRoot); dialog.append(header, body); document.body.append(dialog);
 let state, busy = false, revision = 0, manualGroup = false;
@@ -95,5 +98,18 @@ evalRead.addEventListener('click', async () => {
     }
     evaluationBody.append(node('p', 'La eficacia sigue pendiente de una muestra suficiente y comparaciones temporales. No se convierte acierto en rentabilidad.'));
   } catch (error) { evaluationBody.textContent = error.message; } finally { evalRead.disabled = false; }
+});
+evalLeague.addEventListener('change', () => { evalSave.disabled = evalLeague.value === 'tennis'; });
+evalSave.addEventListener('click', async () => {
+  if (evalLeague.value === 'tennis') return;
+  evalSave.disabled = true; evalRead.disabled = true; evalLeague.disabled = true;
+  evaluationBody.textContent = 'Guardando solo encuentros futuros admisibles. Esta operacion no se repetira automaticamente si tarda demasiado…';
+  try {
+    const result = await jsonRequest('/api/basketball/daily/prepare', { day: day.value, league: evalLeague.value, kind: 'team' });
+    evaluationBody.replaceChildren(node('p', `${result.sealed} pronosticos nuevos; ${result.existing} ya guardados; ${result.issues.length} pendientes. Puedes leer ahora la evaluacion; los encuentros sin resultado seguiran pendientes.`));
+    const reasons = [...new Set(result.issues.map(item => item.reason))];
+    if (reasons.length) { const list = node('ul'); list.append(...reasons.map(reason => node('li', reason))); evaluationBody.append(list); }
+  } catch (error) { evaluationBody.textContent = `${error.message} Lee la evaluacion antes de intentar guardar otra vez; puede haberse completado parte del lote.`; }
+  finally { evalSave.disabled = false; evalRead.disabled = false; evalLeague.disabled = false; }
 });
 document.getElementById('open-daily-overview').addEventListener('click', () => { dialog.showModal(); void load(); });
