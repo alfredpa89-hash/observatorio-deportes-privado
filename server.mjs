@@ -9,6 +9,7 @@ import { createProfilesService } from './profiles.mjs';
 import { createBasketballService } from './basketball-service.mjs';
 import { createBasketballResearch } from './basketball-research.mjs';
 import { createBasketballDaily } from './basketball-daily.mjs';
+import { createDailyOverview } from './daily-overview.mjs';
 import { createBasketballPanel } from './basketball-panel.mjs';
 import { createBasketballPlayerAnalysis } from './basketball-player-analysis.mjs';
 import { createBasketballPrematch } from './basketball-prematch.mjs';
@@ -152,6 +153,7 @@ const basketballPanel = createBasketballPanel({ basketball, research: basketball
 const basketballPlayers = createBasketballPlayerAnalysis({ read: basketballResearch.playerData });
 const basketballPrematch = createBasketballPrematch({ read: basketballResearch.prematchData, playerAnalysis: basketballPlayers });
 const basketballDaily = createBasketballDaily({ getStore: () => store, research: basketballResearch });
+const dailyOverview = createDailyOverview({ getStore: () => store, basketballResearch, basketballDaily, tennisLab });
 const profiles = createProfilesService({ getStore: () => store, persist, parseCsvRows, parseCsvDateTime,
   getFootballStore: key => store.leagues[key] ? store : combineFootballHistory(store),
   footballCatalog: key => store.leagues[key] ? [catalogEntry(store.leagues[key])] : competitionCatalog(), sportsState: () => sports.state(),
@@ -287,12 +289,20 @@ function parseCsvDateTime(dateValue, timeValue, timeZone) {
   const second = Number(time[3] || 0);
   if (hour > 23 || minute > 59 || second > 59) return null;
   const localAsUtc = new Date(Date.UTC(year, month - 1, day, hour, minute, second));
-  const zone = new Intl.DateTimeFormat('en-GB', {
-    timeZone, timeZoneName: 'shortOffset',
-  }).formatToParts(localAsUtc).find((part) => part.type === 'timeZoneName')?.value || 'GMT';
+  const zone = offsetFormatter(timeZone).formatToParts(localAsUtc).find((part) => part.type === 'timeZoneName')?.value || 'GMT';
   const offset = zone.match(/^GMT([+-])(\d{1,2})(?::(\d{2}))?$/);
   const offsetMinutes = offset ? (offset[1] === '-' ? -1 : 1) * (Number(offset[2]) * 60 + Number(offset[3] || 0)) : 0;
   return new Date(localAsUtc.getTime() - offsetMinutes * 60 * 1000).toISOString();
+}
+
+const offsetFormatters = new Map();
+function offsetFormatter(timeZone) {
+  if (!offsetFormatters.has(timeZone)) {
+    const formatter = new Intl.DateTimeFormat('en-GB', { timeZone, timeZoneName: 'shortOffset' });
+    if (offsetFormatters.size >= 16) offsetFormatters.delete(offsetFormatters.keys().next().value);
+    offsetFormatters.set(timeZone, formatter);
+  }
+  return offsetFormatters.get(timeZone);
 }
 
 function parseCsvRows(csv) {
@@ -531,6 +541,7 @@ async function initializeStore() {
 }
 
 function persist() {
+  dailyOverview.invalidate();
   saveQueue = saveQueue.catch(() => {}).then(async () => {
     if (cloudStorage) return cloudStorage.save(store);
     const serialized = JSON.stringify(store);
@@ -1486,6 +1497,13 @@ async function route(request, response) {
     if (maintenance) throw new HttpError(409, 'Restauracion en curso. Espera antes de consultar o actualizar.');
     if (request.method === 'POST') { activeMutations++; counted = true; }
     const url = new URL(request.url, `http://${HOST}:${PORT}`);
+    if (request.method === 'GET' && url.pathname === '/api/daily-overview') return sendJson(response, 200, dailyOverview.state(Object.fromEntries(url.searchParams)));
+    if (request.method === 'GET' && url.pathname === '/api/daily-overview/evaluation') {
+      const sport = url.searchParams.get('sport') || 'basketball', league = url.searchParams.get('league') || 'nba';
+      if (sport === 'tennis') return sendJson(response, 200, { sport, ...tennisLab.evaluation() });
+      if (sport !== 'basketball' || !['nba', 'euroleague'].includes(league)) throw new HttpError(400, 'Selecciona NBA, Euroliga o tenis para leer su evaluacion guardada.');
+      return sendJson(response, 200, { sport, league, ...basketballResearch.evaluation(league) });
+    }
     if (request.method === 'POST' && url.pathname === '/api/server/stop') {
       await readBody(request);
       if (activeMutations > 1 || dataControl.running() || basketball.isUpdating() || footystats.state().busy || footballRequestsActive) throw new HttpError(409, 'Espera a que terminen las actualizaciones antes de reiniciar.');

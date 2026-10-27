@@ -8,7 +8,8 @@ const hash = value => createHash('sha256').update(JSON.stringify(value)).digest(
 const fail = message => { throw new SportsError(400, message); };
 const unique = values => [...new Set(values)];
 const text = value => String(value ?? '').trim();
-const day = value => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Guayaquil', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(value));
+const dayFormatter = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Guayaquil', year: 'numeric', month: '2-digit', day: '2-digit' });
+const day = value => dayFormatter.format(new Date(value));
 const positive = value => typeof value === 'number' && Number.isFinite(value) && value > 0;
 export const TENNIS_METRICS = {
   aces: 'Aces', doubleFaults: 'Dobles faltas', breaks: 'Quiebres logrados', bpFaced: 'Puntos de quiebre enfrentados', bpSaved: 'Puntos de quiebre salvados',

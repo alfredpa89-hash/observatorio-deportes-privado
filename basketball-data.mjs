@@ -4,7 +4,10 @@ export const count = value => value !== '' && value !== null && value !== undefi
 const name = value => String(value || '').trim();
 const nbaNames = { 'LA Clippers': 'LA Clippers', 'Los Angeles Clippers': 'LA Clippers', 'LA Lakers': 'Los Angeles Lakers', 'Golden State': 'Golden State Warriors' };
 export const teamName = (value, league) => league === 'nba' ? nbaNames[name(value)] || name(value) : name(value);
-export const localDay = date => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Guayaquil', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(date));
+// ICU formatters allocate native memory outside V8's heap. Reuse one while
+// scanning thousands of games instead of allocating one for every record.
+const dayFormatter = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Guayaquil', year: 'numeric', month: '2-digit', day: '2-digit' });
+export const localDay = date => dayFormatter.format(new Date(date));
 export function basketballSeason(value) {
   const parts = /^(\d{4})(?:[-/](\d{4}))?$/.exec(String(value ?? ''));
   if (!parts || parts[2] && Number(parts[2]) !== Number(parts[1]) + 1) return null;

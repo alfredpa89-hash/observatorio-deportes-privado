@@ -111,7 +111,10 @@ export function createBasketballDaily({ getStore, research, now = () => new Date
           label: marketLabel(market, game), probability: market.probability, n, missing: support.missing, lookback: snapshot.lookback || 20,
           spec, calibrated: market.calibrated === true, calibrationN: market.calibrationN || 0, createdAt: snapshot.createdAt,
           modelVersion: MODEL_VERSION, sources: sourceNames, availability: current,
-          projectedMinutes, evidence: support });
+          projectedMinutes, evidence: support, observed: market.observed || (kind === 'player' ? {
+            player: { n: support.n, hits: playerHistory.filter(row => finite(row.values?.[spec.metric]) &&
+              (spec.direction === 'under' ? row.values[spec.metric] < spec.line : row.values[spec.metric] > spec.line)).length },
+          } : null) });
       }
     }
     // The trial takes precedence for duplicate scenarios; other research lines remain visible.
