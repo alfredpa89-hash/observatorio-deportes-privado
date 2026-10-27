@@ -139,6 +139,13 @@ let quota = null;
 let footballConnection = { verified: false, plan: null, allowedSeasons: null, checkedAt: null, lastIssue: null };
 let connectingFootball = false;
 let store = { version: 1, leagues: {}, matches: [], cache: {} };
+let footballReadView = null, footballReadAt = 0;
+function combinedFootballStore() {
+  if (!footballReadView || Date.now() - footballReadAt >= 30000) {
+    footballReadView = combineFootballHistory(store); footballReadAt = Date.now();
+  }
+  return footballReadView;
+}
 let saveQueue = Promise.resolve();
 let cloudStorage = null;
 let footballRequestQueue = Promise.resolve(), activeMutations = 0, footballRequestsActive = 0, maintenance = false;
@@ -155,12 +162,12 @@ const basketballPrematch = createBasketballPrematch({ read: basketballResearch.p
 const basketballDaily = createBasketballDaily({ getStore: () => store, research: basketballResearch });
 const dailyOverview = createDailyOverview({ getStore: () => store, basketballResearch, basketballDaily, tennisLab });
 const profiles = createProfilesService({ getStore: () => store, persist, parseCsvRows, parseCsvDateTime,
-  getFootballStore: key => store.leagues[key] ? store : combineFootballHistory(store),
+  getFootballStore: key => store.leagues[key] ? store : combinedFootballStore(),
   footballCatalog: key => store.leagues[key] ? [catalogEntry(store.leagues[key])] : competitionCatalog(), sportsState: () => sports.state(),
   enrichFootball: (league, history) => enrichHistory(store.leagues[league.key] || league, history, []) });
 const footballPlayers = createFootballPlayersService({ getStore: () => store, persist, request: apiRequest,
   seasonAggregates: (body, league) => footballSeasonAggregates(store, league, body),
-  getReadStore: key => key && store.leagues[key] ? store : combineFootballHistory(store),
+  getReadStore: key => key && store.leagues[key] ? store : combinedFootballStore(),
   resolveLoad: resolvePlayerLoad,
   getPresets: apiLeaguePresets,
   connected: () => Boolean(apiKey), getQuota: () => quota, getPolicy: footballBudget.policy, getConnection: () => footballConnection });
@@ -541,6 +548,7 @@ async function initializeStore() {
 }
 
 function persist() {
+  footballReadView = null;
   dailyOverview.invalidate();
   saveQueue = saveQueue.catch(() => {}).then(async () => {
     if (cloudStorage) return cloudStorage.save(store);
@@ -725,17 +733,17 @@ function catalogEntry(league, allMatches = store.matches) {
 }
 
 function competitionCatalog() {
-  const view = combineFootballHistory(store);
+  const view = combinedFootballStore();
   return Object.values(view.leagues).map(league => catalogEntry(league, view.matches)).sort((a, b) => a.name.localeCompare(b.name, 'es'));
 }
 
 function leagueMatches(league) {
-  return (league.source === 'combined' ? combineFootballHistory(store).matches : store.matches).filter(match => match.leagueKey === league.key);
+  return (league.source === 'combined' ? combinedFootballStore().matches : store.matches).filter(match => match.leagueKey === league.key);
 }
 
 function resolvePlayerLoad(body) {
   if (store.leagues[body.leagueKey]) return body;
-  const league = combineFootballHistory(store).leagues[body.leagueKey];
+  const league = combinedFootballStore().leagues[body.leagueKey];
   const ref = league?.sourceSeasons?.[body.season]?.find(item => store.leagues[item.leagueKey]?.source === 'api-football');
   if (!ref) throw new SportsError(400, 'Esta temporada no tiene partidos API-Football guardados. Carga primero esa temporada con un plan que permita acceder a ella; los jugadores no se deducen del total del equipo.');
   const native = store.leagues[ref.leagueKey];
@@ -827,7 +835,7 @@ function state() {
 }
 
 function selectedLeague(leagueKey, season) {
-  const league = store.leagues[String(leagueKey ?? '')] || combineFootballHistory(store).leagues[String(leagueKey ?? '')];
+  const league = store.leagues[String(leagueKey ?? '')] || combinedFootballStore().leagues[String(leagueKey ?? '')];
   if (!league) throw new HttpError(404, 'Carga o importa la liga primero.');
   const selectedSeason = season ?? league.seasons?.[0];
   if (!league.seasons?.some((available) => String(available) === String(selectedSeason))) {
