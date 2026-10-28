@@ -1,6 +1,8 @@
 import { jsonRequest } from './api-client.js';
 import { mountBasketballPlayerTools } from './basketball-player-tools.js';
 import { mountRelevantContext } from './relevant-context.js';
+import { mountBasketballScenarioPicker } from './basketball-scenario-picker.js';
+import { mountBasketballAvailabilityLinks } from './basketball-availability-links.js';
 const node = (tag, text = '', className = '') => { const item = document.createElement(tag); item.textContent = text; item.className = className; return item; };
 const option = (value, label) => { const item = node('option', label); item.value = value; return item; };
 const num = value => value == null ? 's/d' : Number(value).toLocaleString('es-EC', { maximumFractionDigits: 2 });
@@ -54,8 +56,13 @@ export function mountBasketballPrematch(root) {
   const h2h = table(['Fecha', 'Encuentro', 'Resultado FT', 'Fuente']);
   const playerCount = node('p', '', 'calendar-note'), pageControls = node('div', '', 'archive-pagination'), previous = button('Anterior', 'chevron-left'), next = button('Siguiente', 'chevron-right');
   pageControls.append(playerCount, previous, next);
-  result.append(heading, meta, alerts, node('h3', 'Comparacion de equipos'), comparison.wrapper, playerHeading, playerNote, playerControls, players.wrapper, pageControls, playerDetail,
-    node('h3', 'Disponibilidad y reportes guardados'), availability.wrapper, node('h3', 'Ultimos enfrentamientos guardados'), h2h.wrapper);
+  const scenariosRoot = node('section', '', 'prematch-scenarios');
+  const availabilityLinksRoot = node('div'), availabilityLinks = mountBasketballAvailabilityLinks(availabilityLinksRoot);
+  const scenarios = mountBasketballScenarioPicker(scenariosRoot, { onLine: async extra => {
+    await task(() => analyzeMatch(extra));
+  } });
+  result.append(heading, meta, alerts, scenariosRoot, node('h3', 'Comparacion de equipos'), comparison.wrapper, playerHeading, playerNote, playerControls, players.wrapper, pageControls, playerDetail,
+    node('h3', 'Disponibilidad y reportes guardados'), availabilityLinksRoot, availability.wrapper, node('h3', 'Ultimos enfrentamientos guardados'), h2h.wrapper);
   root.append(form, status, result); window.lucide?.createIcons();
   const relevantContext = mountRelevantContext(result);
   let catalog, report, busy = false, active = false, loaded = false, page = 0, pending;
@@ -114,6 +121,8 @@ export function mountBasketballPrematch(root) {
     previous.disabled = page === 0; next.disabled = (page + 1) * 15 >= all.length; window.lucide?.createIcons();
   }
   function render() {
+    scenarios.setReport(report.scenarios);
+    availabilityLinks.setLeague(report.meta.league);
     relevantContext.show({ ...report.meta, sport: 'basketball', key: report.meta.league, kind: 'team',
       names: [report.meta.home, report.meta.away], fixtureId: report.meta.fixture?.id });
     playerDetail.hidden = true;
@@ -148,7 +157,7 @@ export function mountBasketballPrematch(root) {
     teamFilter.replaceChildren(option('', 'Ambos equipos'), option(home.team, home.team), option(away.team, away.team));
     page = 0; search.value = ''; renderPlayers(); result.hidden = false;
   }
-  async function analyzeMatch() { report = await api('prematch', { ...selection(), fixtureId: fields.fixtureId.value, home: fields.home.value, away: fields.away.value }); render(); }
+  async function analyzeMatch(extra = {}) { report = await api('prematch', { ...selection(), fixtureId: fields.fixtureId.value, home: fields.home.value, away: fields.away.value, ...extra }); render(); }
   async function open(update) {
     if (busy) { pending = update; return; }
     fields.league.value = update.league; fields.season.value = update.season; fields.fixtureId.value = '';

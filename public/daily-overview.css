@@ -2,6 +2,7 @@
 .daily-overview::backdrop{background:#153c4466;backdrop-filter:blur(3px)}
 .overview-header{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:22px 26px;border-bottom:1px solid #e5ebeb;position:sticky;top:0;background:#fff;z-index:2}
 .overview-header h2{margin:0;font-size:23px}.overview-header p{margin:5px 0 0;font-size:13px;color:#64777a}
+.prematch-scenarios{margin:24px 0;padding:20px;border:1px solid var(--line,#dce4e4);border-radius:16px}.prematch-scenarios .overview-filters .field{min-width:140px}.overview-status a{color:#236964}.overview-status p{font-size:13px;line-height:1.6}.overview-filters input{max-width:100%;min-width:0}
 .overview-body{padding:22px 26px}.overview-filters{display:flex;flex-wrap:wrap;align-items:end;gap:12px;margin-bottom:16px}.overview-filters .field{min-width:150px;flex:1}
 .overview-status{font-size:14px;padding:12px 14px;border-radius:12px;background:#f2f6f5;line-height:1.6}.overview-status[data-error=true]{background:#fff0eb;color:#8b3f2e}
 .overview-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:18px 0}.overview-card{padding:20px;border:1px solid #dae5e3;border-radius:16px;background:white}

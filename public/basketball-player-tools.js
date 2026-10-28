@@ -1,6 +1,8 @@
 import { mountPlayerMarkets } from './player-markets.js';
 import { mountRelevantContext } from './relevant-context.js';
 import { BASKETBALL_PLAYER_METRICS as metrics, defaultTargets, targetRates } from './basketball-player-metrics.js';
+import { jsonRequest } from './api-client.js';
+import { mountBasketballAvailabilityLinks } from './basketball-availability-links.js';
 
 const node = (tag, text = '', className = '') => { const item = document.createElement(tag); item.textContent = text; item.className = className; return item; };
 const option = (value, label) => { const item = node('option', label); item.value = value; return item; };
@@ -18,8 +20,7 @@ function table(headers) {
   head.append(row(headers, true)); table.append(head, body); wrapper.append(table); return { wrapper, head, body };
 }
 async function api(path, body) {
-  const response = await fetch(`/api/basketball/${path}`, body === undefined ? {} : { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-  const result = await response.json(); if (!response.ok) throw new Error(result.error || 'No se pudo consultar el historial.'); return result;
+  return jsonRequest(`/api/basketball/${path}`, body);
 }
 
 export function mountBasketballPlayerTools(root) {
@@ -60,6 +61,7 @@ export function mountBasketballPlayerTools(root) {
   results.append(title, kpis, warnings, node('h3', 'Over, under y rangos'), markets, node('h3', 'Volumen de lanzamiento'), shooting.wrapper,
     goalHeading, goalForm, goals.wrapper, node('h3', 'Participaciones de la muestra'), previous.wrapper);
   root.replaceChildren(coverageNote, form, status, results); icons();
+  const availabilityLinks = mountBasketballAvailabilityLinks(root);
   const relevantContext = mountRelevantContext(results);
   let base, contextKey = '', result, market, revision = 0, busy = false, customGoals = [], goalPlayer, pendingContext;
   const body = () => ({ ...base, team: fields.team.value, venue: fields.venue.value, playerKey: fields.player.value });
@@ -166,6 +168,7 @@ export function mountBasketballPlayerTools(root) {
       if (busy) { pendingContext = { ...context }; revision++; return; }
       const changed = base && (base.league !== context.league || base.season !== context.season);
       clear(); base = { ...context }; contextKey = next;
+      availabilityLinks.setLeague(base.league);
       if (changed) { fields.player.value = ''; fields.team.value = ''; }
       const team = Object.hasOwn(context, 'team') ? context.team || '' : fields.team.value;
       await task(async () => {
