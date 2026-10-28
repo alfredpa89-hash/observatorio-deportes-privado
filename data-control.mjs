@@ -24,6 +24,8 @@ export function planDataJobs(store, { basketballConnected, footballConnected, fo
   }
   if (basketballConnected) add('basketball', 'basketball-access', 'API-Basketball / verificar plan y cuota', {}, 160, 12 * 3600000);
   add('basketball', 'nba-free', 'NBA / calendario y resultados gratuitos', { sport: 'nba', season: currentBasket }, 110);
+  add('basketball', 'nba-official', 'NBA / parte oficial de disponibilidad', {}, 115, 15*60000);
+  add('basketball', 'nba-free-players', 'NBA / participaciones de partidos recientes', {season:currentBasket}, 105);
   for (const league of Object.values(store.leagues || {})) {
     const season = [...(league.seasons || [])].sort((a, b) => String(b).localeCompare(String(a)))[0];
     if (!season) continue;
@@ -164,8 +166,8 @@ export function createDataControl({ getStore, persist, connections, policies, ba
       const jobs = plan().filter(job => data().automatic[job.sport]);
       const currentStart = now().getUTCMonth() >= 8 ? now().getUTCFullYear() : now().getUTCFullYear() - 1;
       const currentSeason = `${currentStart}/${currentStart + 1}`;
-      const primary = jobs.filter(job => job.kind !== 'basketball-details' && job.kind !== 'football-players' && (job.kind !== 'basketball-calendar' || job.params.season === currentSeason));
-      const details = jobs.filter(job => job.kind === 'football-players' || job.kind === 'basketball-details' && job.params.season === currentSeason);
+      const primary = jobs.filter(job => !['basketball-details','football-players','nba-free-players'].includes(job.kind) && (job.kind !== 'basketball-calendar' || job.params.season === currentSeason));
+      const details = jobs.filter(job => ['football-players','nba-free-players'].includes(job.kind) || job.kind === 'basketball-details' && job.params.season === currentSeason);
       const required = [...primary, ...details];
       const record = data().visit; record.jobIds = required.map(job => job.id);
       // Fresh checks bypass long archive caches, but never override access/quota cooldowns.

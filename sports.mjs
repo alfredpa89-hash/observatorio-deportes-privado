@@ -260,26 +260,45 @@ export function createSportsService({ getStore, persist, parseCsvRows, parseCsvD
     if (!matches.length) throw new SportsError(404, 'No hay partidos finales anteriores al corte para este equipo.');
     const store = getStore(); const records = []; const cached = new Set(store.nbaPlayerBoxscores || []);
     let downloaded = 0; const warnings = [];
+    const maxGames = body.maxGames == null ? depth : Math.max(1, Math.min(4, Number(body.maxGames) || 1));
     for (const match of matches) {
-      if (cached.has(String(match.id))) continue;
+      if (downloaded >= maxGames) break;
+      if (Array.isArray(body.onlyMatchIds) && !body.onlyMatchIds.map(String).includes(String(match.id))) continue;
+      if (cached.has(String(match.id)) && !body.refreshRecent) continue;
       if (match.source !== NBA_SOURCE.id || !/^\d+$/.test(String(match.id))) {
         warnings.push(`${match.id}: el resultado CSV no tiene un identificador ESPN.`); continue;
       }
       try {
         const parsed = parseNbaPlayerBoxscore(JSON.parse(await fetchText(`https://site.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event=${match.id}`)), match);
         if (!parsed.length) throw new Error('Sin registros individuales disponibles.');
-        records.push(...parsed); cached.add(String(match.id)); downloaded++;
+        const checkedAt=new Date().toISOString();records.push(...parsed.map(row=>({...row,fetchedAt:checkedAt})));cached.add(String(match.id));
+        (store.nbaPlayerChecks ||= {})[String(match.id)]=checkedAt;downloaded++;
       } catch (error) { warnings.push(`${match.id}: ${error.message}`); }
     }
     if (downloaded) {
       // Keep personal CSV corrections when a public box score has the same record identity.
-      store.playerLogs = [...new Map([...records, ...(store.playerLogs || [])].map(row => [row.id, row])).values()];
+      const replaced=new Set(records.map(row=>row.id));
+      store.playerLogs = [...new Map([...records, ...(store.playerLogs || []).filter(row=>row.source!=='ESPN box score'||!replaced.has(row.id))].map(row => [row.id, row])).values()];
       store.nbaPlayerBoxscores = [...cached]; await persist();
     }
     const available = matches.filter(match => cached.has(String(match.id))).length;
     if (!available) throw new SportsError(502, `No se pudieron cargar jugadores. Se conserva lo guardado. ${warnings.join(' ')}`);
-    return { team, games: matches.length, available, downloaded, imported: records.length,
+    return { team, games: matches.length, available, downloaded, imported: records.length, pending: Math.max(0,matches.length-available),
       warning: warnings.length ? `${warnings.length} partidos sin box score; puedes completar con CSV.` : null };
   }
-  return { state, load, importCsv, report, list, addFixture, removeFixture, loadNbaPlayers };
+  async function loadNbaDailyPlayers({season}) {
+    const day=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Guayaquil',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+    const from=Date.parse(`${day}T00:00:00-05:00`)-2*86400000;
+    const recent=history('nba',season).filter(game=>validMatch(game)&&Date.parse(game.date)>=from&&Date.parse(game.date)+6*3600000<Date.now());
+    const cached=new Set(getStore().nbaPlayerBoxscores||[]),checks=getStore().nbaPlayerChecks||{};
+    const pendingGames=recent.filter(game=>!cached.has(String(game.id))||!checks[String(game.id)]||Date.now()-Date.parse(checks[String(game.id)])>86400000).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,4);
+    let imported=0,downloaded=0;const warnings=[];
+    for(const game of pendingGames) {
+      try {const result=await loadNbaPlayers({sport:'nba',season,team:game.home,lookback:30,maxGames:1,onlyMatchIds:[game.id],refreshRecent:true,cutoff:new Date().toISOString()});imported+=result.imported;downloaded+=result.downloaded;}
+      catch {warnings.push(`${game.home}: participaciones pendientes; se conserva el historial.`);}
+    }
+    const remaining=new Set(getStore().nbaPlayerBoxscores||[]),updatedChecks=getStore().nbaPlayerChecks||{};
+    return {imported,completed:downloaded,pending:recent.filter(game=>!remaining.has(String(game.id))||!updatedChecks[String(game.id)]||Date.now()-Date.parse(updatedChecks[String(game.id)])>86400000).length,warning:warnings.join(' ')||null};
+  }
+  return { state, load, importCsv, report, list, addFixture, removeFixture, loadNbaPlayers, loadNbaDailyPlayers };
 }

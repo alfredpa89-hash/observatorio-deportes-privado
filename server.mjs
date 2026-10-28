@@ -10,9 +10,11 @@ import { createBasketballService } from './basketball-service.mjs';
 import { createBasketballResearch } from './basketball-research.mjs';
 import { createBasketballDaily } from './basketball-daily.mjs';
 import { createDailyOverview } from './daily-overview.mjs';
+import { createNbaOfficial } from './nba-official.mjs';
 import { createBasketballPanel } from './basketball-panel.mjs';
 import { createBasketballPlayerAnalysis } from './basketball-player-analysis.mjs';
 import { createBasketballPrematch } from './basketball-prematch.mjs';
+import { createBasketballAnalysis } from './basketball-analysis.mjs';
 import { createFootballPlayersService, restoreFootballPlayerSaves } from './football-players.mjs';
 import { combineFootballHistory, canonicalTeam, footballSeasonAggregates } from './football-history.mjs';
 import { createFootystatsService } from './footystats.mjs';
@@ -155,10 +157,12 @@ const sports = createSportsService({ getStore: () => store, persist, parseCsvRow
 const tennisLab = createTennisLab({ getStore: () => store, persist, sports });
 const basketball = createBasketballService({ getStore: () => store, persist, getApiKey: () => basketballKey,
   sports, parseCsvRows, parseCsvDateTime, references: basketballReferences });
-const basketballResearch = createBasketballResearch({ getStore: () => store, persist, basketball });
+const basketballResearch = createBasketballResearch({ getStore: () => store, persist, basketball, externalAvailability: () => nbaOfficial.availability() });
+const nbaOfficial = createNbaOfficial({getStore:()=>store,persist,read:basketballResearch.playerData});
 const basketballPanel = createBasketballPanel({ basketball, research: basketballResearch });
 const basketballPlayers = createBasketballPlayerAnalysis({ read: basketballResearch.playerData });
 const basketballPrematch = createBasketballPrematch({ read: basketballResearch.prematchData, playerAnalysis: basketballPlayers });
+const basketballAnalysis = createBasketballAnalysis({getStore:()=>store,persist,read:basketballResearch.prematchData,prematch:basketballPrematch,playerAnalysis:basketballPlayers});
 const basketballDaily = createBasketballDaily({ getStore: () => store, research: basketballResearch });
 const dailyOverview = createDailyOverview({ getStore: () => store, basketballResearch, basketballDaily, tennisLab });
 const profiles = createProfilesService({ getStore: () => store, persist, parseCsvRows, parseCsvDateTime,
@@ -190,7 +194,10 @@ async function rememberCredential(provider, key, remember = true) {
   return credentialVault.state();
 }
 async function verifyBasketballAccess() {
+  const wasPaid=basketball.requestPolicy().paid;
   const access = await basketballResearch.verify();
+  // A newly verified paid session is evidence to recheck seasons denied on Free.
+  if(!wasPaid&&basketball.requestPolicy().paid) await dataControl.reconnect('basketball');
   if (basketballKey) await rememberCredential('basketball', basketballKey, basketballRemember);
   return access;
 }
@@ -218,6 +225,8 @@ const dataControl = createDataControl({ getStore: () => store, persist, backups,
     'basketball-calendar': body => basketballResearch.sync({ ...body, details: false }),
     'basketball-details': body => basketballResearch.syncBalanced(body),
     'nba-free': body => sports.load(body),
+    'nba-free-players': body => sports.loadNbaDailyPlayers(body),
+    'nba-official': () => nbaOfficial.refresh(),
     'football-calendar': body => loadLeague(body),
     'football-players': body => footballPlayers.load(body),
     'football-free': body => loadFree(body),
@@ -1584,6 +1593,12 @@ async function route(request, response) {
     if (request.method === 'POST' && url.pathname === '/api/basketball/research/sync') return sendJson(response, 200, await basketballResearch.sync(await readBody(request)));
     if (request.method === 'POST' && url.pathname === '/api/basketball/research/player-sync') return sendJson(response, 200, await basketballResearch.syncPlayers(await readBody(request)));
     if (request.method === 'GET' && url.pathname === '/api/basketball/players/catalog') return sendJson(response, 200, basketballPlayers.catalog(Object.fromEntries(url.searchParams)));
+    if (request.method === 'GET' && url.pathname === '/api/basketball/official') return sendJson(response,200,nbaOfficial.state());
+    if (request.method === 'POST' && url.pathname === '/api/basketball/analysis') return sendJson(response,200,basketballAnalysis.analyze(await readBody(request)));
+    if (request.method === 'POST' && url.pathname === '/api/basketball/analysis/seal') return sendJson(response,200,await basketballAnalysis.seal(await readBody(request)));
+    if (request.method === 'GET' && url.pathname === '/api/basketball/analysis/journal') return sendJson(response,200,basketballAnalysis.journal());
+    if (request.method === 'POST' && url.pathname === '/api/basketball/analysis/price') return sendJson(response,200,await basketballAnalysis.recordPrice(await readBody(request)));
+    if (request.method === 'POST' && url.pathname === '/api/basketball/official/refresh') {await readBody(request);return sendJson(response,200,await nbaOfficial.refresh());}
     if (request.method === 'POST' && url.pathname === '/api/basketball/players/analysis') return sendJson(response, 200, basketballPlayers.analyze(await readBody(request)));
     if (request.method === 'POST' && url.pathname === '/api/basketball/research/availability') return sendJson(response, 200, await basketballResearch.saveAvailability(await readBody(request)));
     if (request.method === 'POST' && url.pathname === '/api/basketball/research/forecast') return sendJson(response, 200, await basketballResearch.seal(await readBody(request)));

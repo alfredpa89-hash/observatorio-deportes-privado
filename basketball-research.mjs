@@ -73,7 +73,7 @@ export function parseResearchPlayers(payload, game, now) {
   });
 }
 
-export function createBasketballResearch({ getStore, persist, basketball, now = () => new Date() }) {
+export function createBasketballResearch({ getStore, persist, basketball, externalAvailability = () => [], now = () => new Date() }) {
   const clock = () => now().toISOString();
   const read = () => getStore().basketballResearch || { schema: 1, games: [], players: [], availability: [], forecasts: [], inputs: {}, details: {} };
   const data = () => (getStore().basketballResearch ||= read());
@@ -103,7 +103,7 @@ export function createBasketballResearch({ getStore, persist, basketball, now = 
     for (const record of source) if (RESEARCH_LEAGUES[record.league]) map.set(`${record.league}:${record.matchId}:${record.team}:${entity(record)}`, { ...record, playerKey: entity(record) });
     return [...map.values()];
   }
-  const availabilityReports = () => [...read().availability, ...(getStore().contextReports || []).filter(row => row.sport === 'basketball' && row.playerKey)
+  const availabilityReports = () => [...read().availability, ...externalAvailability(), ...(getStore().contextReports || []).filter(row => row.sport === 'basketball' && row.playerKey)
     .map(row => ({ ...row, league: row.key, fixtureId: null }))];
   function availabilityAt(league, team, playerKey, fixtureId, cutoff, season) {
     const latest = availabilityReports().filter(row => row.league === league && (!row.season || row.season === season) && row.team === team && row.playerKey === playerKey && (!row.fixtureId || row.fixtureId === fixtureId) && row.recordedAt <= cutoff && row.publishedAt <= cutoff).sort((a, b) => a.publishedAt.localeCompare(b.publishedAt) || a.recordedAt.localeCompare(b.recordedAt)).at(-1);
