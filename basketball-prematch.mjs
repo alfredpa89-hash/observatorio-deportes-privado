@@ -2,6 +2,7 @@ import { SportsError } from './sports.mjs';
 import { priorGames } from './basketball-model.mjs';
 import { RESEARCH_LEAGUES, RESEARCH_SEASONS, eligibleNba } from './basketball-research.mjs';
 import { localDay } from './basketball-data.mjs';
+import { buildBasketballScenarios } from './basketball-scenarios.mjs';
 
 const count = value => typeof value === 'number' && Number.isInteger(value) && value >= 0;
 const unique = values => [...new Set(values)].sort((a, b) => a.localeCompare(b, 'es'));
@@ -109,6 +110,8 @@ export function createBasketballPrematch({ read, playerAnalysis, now = () => new
     return { meta: { ...config, competition: RESEARCH_LEAGUES[config.league], home, away, descriptive: true, modelChanged: false,
       fixture: fixture ? { id: fixture.id, date: fixture.date, source: fixture.source || 'Guardado', fetchedAt: fixture.fetchedAt || null } : null },
       teams: summaries, alerts,
+      scenarios: fixture && config.league !== 'endesa' ? buildBasketballScenarios({ matches: stored.history, ...config,
+        home, away, date: fixture.date, neutralSite: fixture.neutralSite }, { line: body.scenarioLine, period: body.scenarioPeriod }) : null,
       h2h: stored.history.filter(game => [home, away].includes(game.home) && [home, away].includes(game.away)).slice(-5).reverse()
         .map(game => ({ date: game.date, home: game.home, away: game.away, homePoints: game.homePoints, awayPoints: game.awayPoints, source: game.source || 'Guardado' })),
       note: 'Contexto descriptivo anterior al corte; no es una recomendacion de apuesta ni modifica los pronosticos sellados. FT incluye prorroga. Cada periodo conserva sus faltantes.' };

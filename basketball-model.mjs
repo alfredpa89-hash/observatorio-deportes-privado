@@ -128,6 +128,9 @@ export function buildBasketballReport(options = {}) {
   const games = priorGames((options.matches || []).filter(game => !options.season || !game.season || game.season <= options.season), cutoff, league);
   const totalLine = options.totalLine ?? config.total, spreadLine = options.spreadLine ?? -3.5;
   const quarterLine = options.quarterLine ?? config.quarter, halfLine = options.halfLine ?? config.half;
+  const extraLines = { ft: options.totalLines || [], q1: options.quarterLines || [], ht: options.halfLines || [] };
+  for (const lines of Object.values(extraLines)) if (!Array.isArray(lines) || lines.length > 40 || lines.some(line => typeof line !== 'number' || !Number.isFinite(line) || line <= 0 || line >= 500 || line % 1 !== 0.5))
+    throw new Error('Selecciona como maximo 40 lineas adicionales por periodo, terminadas en .5.');
   for (const line of [totalLine, quarterLine, halfLine]) if (!finite(line) || line <= 0 || line > 500 || Number(line) % 1 !== 0.5) throw new Error('Los totales deben terminar en .5 y estar entre 0 y 500.');
   if (!finite(spreadLine) || Math.abs(spreadLine) > 100 || Number(spreadLine) % 1 !== 0 && Math.abs(Number(spreadLine) % 1) !== 0.5) throw new Error('Handicap no valido.');
   const base = buildNbaReport({ ...options, matches: games, lookback, cutoff, totalLine, spreadLine });
@@ -160,9 +163,13 @@ export function buildBasketballReport(options = {}) {
       add(`${prefix}draw`, 'Empate' + suffix, `${period}-winner`, f ? upper - lower : null, { type: 'winner', period, side: 'draw' }, n);
     }
     const line = Number(period === 'ft' ? totalLine : period === 'q1' ? quarterLine : halfLine);
-    const p = f ? 1 - cdf((line - f.total) / f.totalSd) : null, group = period === 'ft' ? 'total' : `${period}-total`;
-    add(`${prefix}total-over`, `Over ${line} puntos${suffix}`, group, p, { type: 'total', period, line, direction: 'over' }, n);
-    add(`${prefix}total-under`, `Under ${line} puntos${suffix}`, group, p, { type: 'total', period, line, direction: 'under' }, n, true);
+    const group = period === 'ft' ? 'total' : `${period}-total`;
+    for (const selectedLine of new Set([line, ...extraLines[period]])) {
+      const p = f ? 1 - cdf((selectedLine - f.total) / f.totalSd) : null;
+      const id = selectedLine === line ? `${prefix}total` : `${prefix}total-${selectedLine}`;
+      add(`${id}-over`, `Over ${selectedLine} puntos${suffix}`, group, p, { type: 'total', period, line: selectedLine, direction: 'over' }, n);
+      add(`${id}-under`, `Under ${selectedLine} puntos${suffix}`, group, p, { type: 'total', period, line: selectedLine, direction: 'under' }, n, true);
+    }
     if (period === 'ft') {
       const boundary = -Number(spreadLine), p = f ? 1 - cdf((Math.floor(boundary) + 0.5 - f.margin) / f.marginSd) : null;
       const push = f && Number.isInteger(Number(spreadLine)) && Number(spreadLine) !== 0 ? cdf((boundary + 0.5 - f.margin) / f.marginSd) - cdf((boundary - 0.5 - f.margin) / f.marginSd) : 0;
@@ -176,7 +183,13 @@ export function buildBasketballReport(options = {}) {
     expectedHomePoints: round(f?.home), expectedAwayPoints: round(f?.away), expectedTotalPoints: round(f?.total), expectedMargin: round(f?.margin),
     periods: Object.fromEntries(Object.entries(predictions).map(([period, value]) => [period, value && Object.fromEntries(Object.entries(value).map(([key, value]) => [key, round(value)]))])),
     model: 'Ataque/defensa con ajuste por rival y regularizacion; descanso aprendido; ritmo cuando hay posesiones; modelos independientes FT, 1Q y descanso.' };
-  for (const market of markets) market.observed = base.markets.find(item => item.id === market.id)?.observed;
+  for (const market of markets) {
+    market.observed = base.markets.find(item => item.id === market.id)?.observed;
+    if (!market.observed && market.spec.type === 'total') market.observed = Object.fromEntries(['home', 'away'].map(side => {
+      const values = base.history[side].map(game => scores(game, market.spec.period)).filter(Boolean).map(pair => pair[0] + pair[1]);
+      return [side, { n: values.length, hits: values.filter(value => market.spec.direction === 'over' ? value > market.spec.line : value < market.spec.line).length }];
+    }));
+  }
   base.markets = markets;
   base.meta.totalStandardDeviation = round(f?.totalSd); base.meta.marginStandardDeviation = round(f?.marginSd);
   base.quality = { level: 'experimental', messages: [

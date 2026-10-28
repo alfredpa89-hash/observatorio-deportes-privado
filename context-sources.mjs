@@ -23,7 +23,8 @@ export function contextSources(scope) {
   }
   if (scope.sport === 'basketball') {
     const sources = {
-      nba: [source('NBA Official', 'https://official.nba.com/', 'Buscar el parte de disponibilidad vigente de la temporada y el encuentro'), source('NBA / noticias', 'https://www.nba.com/news', 'Comunicados, previas y novedades')],
+      nba: [source('NBA Official', 'https://official.nba.com/', 'Buscar el parte de disponibilidad vigente de la temporada y el encuentro'), source('NBA / noticias', 'https://www.nba.com/news', 'Comunicados, previas y novedades'),
+        { ...source('RotoWire / alineaciones NBA', 'https://www.rotowire.com/basketball/nba-lineups.php', 'Consultar alineaciones previstas o confirmadas y dudas de participacion. Feed API independiente, sin conectar.'), status: 'Referencia externa; sin sincronizacion automatica' }],
       euroleague: [source('Euroliga / noticias', 'https://www.euroleaguebasketball.net/euroleague/news/', 'Partes de bajas, previas y comunicados')],
       endesa: [source('ACB / noticias', 'https://www.acb.com/', 'Parte medico de la jornada y novedades de Liga Endesa')],
     };
@@ -36,5 +37,5 @@ export function contextSources(scope) {
     source('ITF / Grand Slam', 'https://www.itftennis.com/en/itf-tours/grand-slam-tournaments/', 'Acceso a las fuentes de cada Grand Slam')];
 }
 export function contextNewsDomains(scope) {
-  return [...new Set(contextSources(scope).filter(row => !row.url.includes('api-sports.io')).map(row => new URL(row.url).hostname.replace(/^www\./, '')))];
+  return [...new Set(contextSources(scope).filter(row => !row.url.includes('api-sports.io') && !row.url.includes('rotowire.com')).map(row => new URL(row.url).hostname.replace(/^www\./, '')))];
 }

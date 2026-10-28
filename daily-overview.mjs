@@ -1,6 +1,6 @@
 import { SportsError } from './sports.mjs';
 import { localDay, regularNba } from './basketball-data.mjs';
-import { buildBasketballReport, availableTime } from './basketball-model.mjs';
+import { buildBasketballScenarios } from './basketball-scenarios.mjs';
 import { buildReport } from './model.mjs';
 import { combineFootballHistory } from './football-history.mjs';
 import { basketballEvidence, basketballTeamEvidence } from './public/basketball-evidence.js';
@@ -37,7 +37,8 @@ export function createDailyOverview({ getStore, basketballResearch, basketballDa
     const day = body.day || today, sport = body.sport || 'basketball';
     if (![today, tomorrow].includes(day) || !['all', 'basketball', 'football', 'tennis'].includes(sport))
       throw new SportsError(400, 'Selecciona hoy o manana, en Guayaquil, y un deporte disponible.');
-    if (cached?.store === store && cached.key === `${day}:${sport}` && time - cached.at < 30000) return cached.value;
+    const cacheKey = `${day}:${sport}:${body.period || 'ft'}:${body.line || ''}`;
+    if (cached?.store === store && cached.key === cacheKey && time - cached.at < 30000) return cached.value;
     const rows = [], coverage = [], issues = [];
     const upcoming = row => Number.isFinite(Date.parse(row.date)) && localDay(row.date) === day && Date.parse(row.date) >= time + 5 * 60000 &&
       row.timeKnown !== false && !row.finished && !row.preseason && !row.referenceOnly &&
@@ -61,8 +62,8 @@ export function createDailyOverview({ getStore, basketballResearch, basketballDa
         if (league === 'endesa') continue;
         for (const fixture of fixtures.slice(0, 16)) {
           try {
-            const report = buildBasketballReport({ matches: data.games, league, season: fixture.season, home: fixture.home, away: fixture.away,
-              date: fixture.date, cutoff, lookback: 20, neutralSite: fixture.neutralSite });
+            const report = buildBasketballScenarios({ matches: data.games, league, season: fixture.season, home: fixture.home, away: fixture.away,
+              date: fixture.date, cutoff, lookback: 20, neutralSite: fixture.neutralSite }, body);
             add({ ...fixture, competition: name }, report, report.markets,
               market => basketballTeamEvidence(report.history, market.spec, report.meta),
               { sport: 'basketball', key: league, season: fixture.season, home: fixture.home, away: fixture.away, kind: 'team', lookback: 20, cutoff });
@@ -113,7 +114,7 @@ export function createDailyOverview({ getStore, basketballResearch, basketballDa
     }
     const value = { day, today, tomorrow, sport, generatedAt: cutoff, timeZone: 'America/Guayaquil', rows, coverage, issues: [...new Set(issues)],
       notice: 'Vista exploratoria, no pronosticos nuevos sellados. No consulta proveedores ni modifica modelos. Mayor porcentaje no garantiza acierto. Lineas internas, no cuotas actuales. Disponibilidad y minutos por verificar.' };
-    cached = { store, key: `${day}:${sport}`, at: time, value }; return value;
+    cached = { store, key: cacheKey, at: time, value }; return value;
   }
   return { state, invalidate: () => { cached = null; } };
 }
