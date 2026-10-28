@@ -3,7 +3,7 @@ const node = (tag, text = '', className = '') => { const el = document.createEle
 const option = (value, label) => { const el = node('option', label); el.value = value; return el; };
 const pct = value => value == null ? 's/d' : `${value.toLocaleString('es-EC', { maximumFractionDigits: 2 })} %`;
 
-export function mountBasketballScenarioPicker(root, { onLine }) {
+export function mountBasketballScenarioPicker(root, { onLine, onSelect }) {
   const heading = node('h3', 'Condiciones y probabilidades del encuentro');
   const form = node('form', '', 'overview-filters'), fields = {};
   for (const [key, title, choices] of [
@@ -41,9 +41,10 @@ export function mountBasketballScenarioPicker(root, { onLine }) {
       if (first.observed) evidence.append(node('p', ['home', 'away'].map(side => `${side === 'home' ? 'Local' : 'Visitante'}: ${first.observed[side]?.hits ?? 0} de ${first.observed[side]?.n ?? 0} partidos cumplieron`).join(' · '), 'calendar-note'));
     }
     if (!selected.length) evidence.append(node('p', 'Sin estimacion para esta condicion o periodo. No equivale a 0 %.'));
-    if (!total) for (const market of selected) { const card = node('article', '', 'overview-card'); card.append(node('p', market.label), node('strong', pct(market.probability))); selections.append(card); }
+    if (!total) for (const market of selected) { const card = node('article', '', 'overview-card'),choose=node('button','Analizar esta opcion','button button-secondary');choose.type='button';choose.addEventListener('click',()=>onSelect?.(market));card.append(node('p', market.label), node('strong', pct(market.probability)),choose); selections.append(card); }
     tbody.replaceChildren(...lines.map(line => { const tr = node('tr'); tr.append(node('td', String(line)), ...['over', 'under'].map(direction => node('td', pct(markets.find(market => market.spec.line === line && market.spec.direction === direction)?.probability)))); return tr; }));
     message.textContent = `Total esperado: ${report.meta.expectedTotalPoints ?? 's/d'} puntos · ${report.meta.lookback} partidos por equipo. FT incluye prorroga. Lineas de analisis, sin cuotas actuales; bajas no ajustadas. Estimaciones experimentales.`;
+    onSelect?.(first);
   }
   fields.period.addEventListener('change', () => draw(true));
   for (const key of ['type', 'direction', 'line']) fields[key].addEventListener('change', () => draw());

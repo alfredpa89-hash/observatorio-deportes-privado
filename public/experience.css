@@ -326,3 +326,15 @@ body:not([data-active-sport="football"]) .quota-status { display: none; }
   .period-import-form { grid-template-columns: minmax(0, 1fr); }
   .period-import-form input[type="file"] { width: 100%; font-size: 11px; }
 }
+/* The decision card follows the existing prematch controls on desktop and phones. */
+.basket-decision { margin: 1.5rem 0; padding: 1.25rem; border: 1px solid var(--border, #e2deda); border-radius: 16px; background: var(--surface, #fffaf8); }
+.basket-decision h3 { margin-top: 0; }
+.basket-decision .overview-filters { align-items: end; }
+.basket-decision .field, .basket-decision input, .basket-decision select { min-width: 0; max-width: 100%; }
+.basket-decision-status { font-weight: 700; color: #a84933; }
+.basket-decision details { margin-top: 1rem; padding: .8rem 0; border-top: 1px solid #e9dfd8; }
+.basket-decision summary { cursor: pointer; font-weight: 600; }
+.basket-decision .analysis-quotes { grid-column: 1 / -1; width: 100%; margin-top: 0; }
+.basket-decision .overview-cards { margin: 1rem 0; }
+.basket-decision p { overflow-wrap: anywhere; }
+@media (max-width: 600px) { .basket-decision { padding: .9rem; } .basket-decision .overview-filters { grid-template-columns: 1fr; } .basket-decision .button { max-width: 100%; white-space: normal; } }
