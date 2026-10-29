@@ -41,8 +41,11 @@ export function createBasketballAnalysis({getStore,persist,read,prematch,playerA
       const reports=stored.availability.filter(row=>row.league==='nba'&&row.playerKey===spec.playerKey&&row.team===player.team&&(!row.fixtureId||row.fixtureId===fixture.id)&&Date.parse(row.publishedAt)<=Date.parse(cutoff)&&Date.parse(row.recordedAt)<=Date.parse(cutoff))
         .sort((a,b)=>a.publishedAt.localeCompare(b.publishedAt)||a.recordedAt.localeCompare(b.recordedAt));
       const latest=reports.at(-1),status=latest&&Date.parse(latest.expiresAt)>Date.parse(fixture.date)?latest.status:'unknown';
-      projection=forecastPlayer({records:playerRecords,league:'nba',season:config.season,team:player.team,player:player.name,cutoff,lookback:config.lookback,
-        projectedMinutes:status==='minutes_limit'?latest.minutesLimit:undefined,status:status==='minutes_limit'?'active':status,line:Number(spec.line),metric:spec.metric});
+      const playerOptions={records:playerRecords,league:'nba',season:config.season,team:player.team,player:player.name,cutoff,lookback:config.lookback,
+        status:status==='minutes_limit'?'active':status,line:Number(spec.line),metric:spec.metric};
+      projection=forecastPlayer(playerOptions);
+      if(status==='minutes_limit'&&finite(latest.minutesLimit)&&latest.minutesLimit<projection.projectedMinutes)
+        projection=forecastPlayer({...playerOptions,projectedMinutes:latest.minutesLimit});
       Object.assign(spec,{line:Number(spec.line),period:'ft',team:player.team,player:player.name});
       history=projection.history;
       playerRecords=history;
