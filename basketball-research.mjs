@@ -212,6 +212,8 @@ export function createBasketballResearch({ getStore, persist, basketball, extern
   }
   async function syncPlayers(body = {}) {
     const { league, season } = selection(body), team = text(body.team), lookback = Number(body.lookback ?? 20);
+    const maxGames=body.maxGames==null?4:Number(body.maxGames);
+    if(!Number.isInteger(maxGames)||maxGames<1||maxGames>4) fail('El lote individual debe contener de uno a cuatro encuentros.');
     if (!team || ![5, 10, 15, 20, 25, 30].includes(lookback)) fail('Selecciona un equipo y una ventana de historial valida.');
     if (basketball.requestPolicy?.().paid && !focusedTeams(games().filter(game => game.league === league), now()).has(team)) {
       throw new SportsError(409, 'Cuota Pro enfocada en hoy y manana de Guayaquil: este equipo no tiene un encuentro admisible guardado en esa ventana. Puedes consultar su historial ya guardado sin consumir API.');
@@ -230,7 +232,7 @@ export function createBasketballResearch({ getStore, persist, basketball, extern
         .sort((a, b) => Number(Boolean(source.details[`${league}:players:${a.apiId}`])) - Number(Boolean(source.details[`${league}:players:${b.apiId}`])) || b.date.localeCompare(a.date));
       let calls = 0, records = 0, completed = 0;
       const warnings = [];
-      for (const game of pending.slice(0, 4)) {
+      for (const game of pending.slice(0, maxGames)) {
         if ((getStore().basketball?.quota?.detailUsed || 0) >= (basketball.requestPolicy?.().detailLimit ?? 24) && getStore().basketball?.quota?.day === clock().slice(0, 10)) { warnings.push('Lote diario de estadisticas completo; se conserva el historial.'); break; }
         calls++;
         try {
