@@ -20,6 +20,9 @@ const entity = row => row.apiPlayerId ? `API-Basketball:${row.apiPlayerId}` : `$
 const dedup = rows => [...new Map(rows.map(row => [row.id, row])).values()];
 const freshAt = (record, cutoff) => record && record.publishedAt <= cutoff && record.recordedAt <= cutoff && record.expiresAt > cutoff;
 const competitionFor = (catalog, league) => catalog.find(row => league === 'nba' ? row.name === 'NBA' : league === 'euroleague' ? /^euroleague$/i.test(row.name) : row.name === 'ACB' && row.country?.name === 'Spain');
+// Some historical responses omit the exhibition stage. Team labels still
+// identify these games; they must not become regular-season observations.
+const nbaExhibition = game => game.league === 'nba' && /all[\s-]?stars?|rising[\s-]?stars?|global[\s-]?stars?|young[\s-]?stars?|\bOGs\b/i.test(`${game.phase || ''} ${game.home || ''} ${game.away || ''}`);
 
 export function eligibleNba(date, season, phase) {
   if (season === '2024/2025') return date >= '2024-10-22T05:00:00Z' && date < '2025-04-14T05:00:00Z' && localDay(date) !== '2024-12-17' && !/pre.?season|play.?in|playoff|all.?star|cup.*final|final.*cup/i.test(phase);
@@ -36,7 +39,7 @@ export function parseResearchGames(payload, { league, season, leagueId, now }) {
     const phase = typeof row.stage === 'string' ? row.stage : row.stage?.name || '';
     const finished = ['FT', 'AOT'].includes(row.status?.short);
     if (!date || !row.id || row.league?.id !== leagueId || basketballSeason(row.league?.season) !== season || !home || !away || home === away ||
-      league === 'nba' && !eligibleNba(date, season, phase) || /pre.?season|friendly/i.test(phase) || !finished && !(row.status?.short === 'NS' && date > now) || finished && date >= now) { skipped++; continue; }
+      league === 'nba' && (!eligibleNba(date, season, phase) || nbaExhibition({ league, phase, home, away })) || /pre.?season|friendly/i.test(phase) || !finished && !(row.status?.short === 'NS' && date > now) || finished && date >= now) { skipped++; continue; }
     const game = { id: `api-basketball:${row.id}`, apiId: row.id, league, season, date, home, away, homeId: row.teams.home.id, awayId: row.teams.away.id,
       finished, preseason: false, seasonType: 2, status: finished ? 'Final' : 'NS', overtime: row.status.short === 'AOT', phase, source: 'API-Basketball', fetchedAt: now, stats: {}, periods: {}, issues: [] };
     if (finished) {
@@ -88,7 +91,7 @@ export function createBasketballResearch({ getStore, persist, basketball, extern
     for (const [league, seasons] of Object.entries(store.basketball?.datasets || {})) for (const [season, dataset] of Object.entries(seasons)) old.push(...[...(dataset.matches || []), ...(dataset.fixtures || [])].map(game => ({ ...game, league, season })));
     const map = new Map();
     for (const game of [...old, ...read().games]) {
-      if (!RESEARCH_LEAGUES[game.league] || !validDate(game.date) || game.preseason || game.league === 'nba' && !eligibleNba(game.date, game.season, game.phase || 'Regular Season')) continue;
+      if (!RESEARCH_LEAGUES[game.league] || !validDate(game.date) || game.preseason || nbaExhibition(game) || game.league === 'nba' && !eligibleNba(game.date, game.season, game.phase || 'Regular Season')) continue;
       const key = identity(game);
       if (map.get(key)?.finished && !game.finished) continue;
       map.set(key, game);
@@ -99,8 +102,10 @@ export function createBasketballResearch({ getStore, persist, basketball, extern
   const playerSource = () => [...(getStore().playerLogs || []).filter(row => row.sport === 'nba').map(row => ({ ...row, league: 'nba' })), ...(getStore().basketball?.players || []), ...read().players];
   function players() {
     const source = playerSource();
+    const exhibitionIds = new Set([...Object.values(getStore().sports?.nba?.datasets || {}).flatMap(dataset => [...(dataset.matches || []), ...(dataset.fixtures || [])].map(game => ({ ...game, league: 'nba' }))),
+      ...Object.values(getStore().basketball?.datasets?.nba || {}).flatMap(dataset => [...(dataset.matches || []), ...(dataset.fixtures || [])].map(game => ({ ...game, league: 'nba' }))), ...read().games].filter(nbaExhibition).map(game => game.id));
     const map = new Map();
-    for (const record of source) if (RESEARCH_LEAGUES[record.league]) map.set(`${record.league}:${record.matchId}:${record.team}:${entity(record)}`, { ...record, playerKey: entity(record) });
+    for (const record of source) if (RESEARCH_LEAGUES[record.league] && !(record.league === 'nba' && (exhibitionIds.has(record.matchId) || nbaExhibition({ league: 'nba', home: record.team, away: record.opponent })))) map.set(`${record.league}:${record.matchId}:${record.team}:${entity(record)}`, { ...record, playerKey: entity(record) });
     return [...map.values()];
   }
   const availabilityReports = () => [...read().availability, ...externalAvailability(), ...(getStore().contextReports || []).filter(row => row.sport === 'basketball' && row.playerKey)
