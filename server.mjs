@@ -1,4 +1,5 @@
 import { createServer } from 'node:http';
+import { createCoalescedWriter } from './persistence-queue.mjs';
 import { readFile, mkdir, rename, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -150,6 +151,7 @@ function combinedFootballStore() {
 }
 let saveQueue = Promise.resolve();
 let cloudStorage = null;
+const saveCloud = createCoalescedWriter(() => cloudStorage.save(store));
 let footballRequestQueue = Promise.resolve(), activeMutations = 0, footballRequestsActive = 0, maintenance = false;
 let stopServer = null;
 const footballBudget = createRequestBudget({ getStore: () => store, getQuota: () => (store.footballQuota ||= {}), persist, name: 'football' });
@@ -559,8 +561,8 @@ async function initializeStore() {
 function persist() {
   footballReadView = null;
   dailyOverview.invalidate();
+  if (cloudStorage) return saveCloud();
   saveQueue = saveQueue.catch(() => {}).then(async () => {
-    if (cloudStorage) return cloudStorage.save(store);
     const serialized = JSON.stringify(store);
     const temporary = `${DATA_FILE}.tmp`;
     await writeFile(temporary, serialized, 'utf8');
@@ -1687,7 +1689,8 @@ async function route(request, response) {
     if (request.method !== 'GET' && request.method !== 'HEAD') throw new HttpError(405, 'Método no permitido.');
     await serveStatic(url.pathname, response);
   } catch (error) {
-    const status = error instanceof HttpError || error instanceof SportsError ? error.status : 500;
+    const status = error instanceof HttpError || error instanceof SportsError ? error.status :
+      cloudStorage && error.code === 'storage_unavailable' ? 503 : 500;
     if (status === 500) console.error(error);
     sendJson(response, status, { error: status === 500 ? 'Ocurrió un error interno.' : error.message,
       ...(error.code ? { code: error.code } : {}), ...(error.allowedSeasons ? { allowedSeasons: error.allowedSeasons } : {}) });
