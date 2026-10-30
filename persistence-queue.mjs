@@ -6,9 +6,11 @@ export function createCoalescedWriter(write) {
   return function flush() {
     generation++;
     if (!pending) pending = Promise.resolve().then(async () => {
-      let captured;
-      do { captured = generation; await write(); } while (captured !== generation);
-    }).finally(() => { pending = null; });
+      try {
+        let captured;
+        do { captured = generation; await write(); } while (captured !== generation);
+      } finally { pending = null; }
+    });
     return pending;
   };
 }
