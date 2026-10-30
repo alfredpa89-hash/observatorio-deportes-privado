@@ -3,7 +3,7 @@ import { gzipSync, gunzipSync } from 'node:zlib';
 
 const digest = value => createHash('sha256').update(value).digest('hex');
 const validHash = value => typeof value === 'string' && /^[a-f0-9]{64}$/.test(value);
-const failure = message => Object.assign(new Error(message), { status: 503 });
+const failure = message => Object.assign(new Error(message), { status: 503, code: 'storage_unavailable' });
 
 export function stateCipher(secret) {
   if (typeof secret !== 'string' || secret.length < 32) throw failure('Falta un secreto de almacenamiento fuerte.');
@@ -28,18 +28,33 @@ export function stateCipher(secret) {
 export function partitionState(value, { size = 192 * 1024, known = new Set() } = {}) {
   const blobs = new Map();
   const leaf = bytes => { const id = digest(bytes); if (!known.has(id)) blobs.set(id, bytes); return { type: 'ref', id }; };
-  const oversized = {};
+  const oversized = {}, keyCosts = new Map();
+  const keyCost = key => { if (!keyCosts.has(key)) keyCosts.set(key, Buffer.byteLength(JSON.stringify(key)) + 2); return keyCosts.get(key); };
   function boundedJson(item) {
     let remaining = size;
-    try {
-      return JSON.stringify(item, (name, child) => {
-        // A conservative byte budget stops traversal before allocating a giant
-        // serialization of a whole cache/dataset just to decide to split it.
-        if (name) remaining -= Buffer.byteLength(JSON.stringify(name)) + 2;
-        remaining -= child !== null && typeof child === 'object' ? 2 : Buffer.byteLength(JSON.stringify(child) ?? 'null');
+    const ancestors = new Set();
+    function visitBudget(child, name = '') {
+      if (child !== null && typeof child === 'object' && typeof child.toJSON === 'function') child = child.toJSON(name);
+      if (name) remaining -= keyCost(name);
+      if (child !== null && typeof child === 'object') {
+        remaining -= 2;
         if (remaining < 0) throw oversized;
-        return child;
-      });
+        if (ancestors.has(child)) throw new TypeError('Circular state cannot be stored.');
+        ancestors.add(child);
+        if (Array.isArray(child)) for (let index = 0; index < child.length; index++) visitBudget(child[index], String(index));
+        else for (const key of Object.keys(child)) visitBudget(child[key], key);
+        ancestors.delete(child);
+      } else {
+        remaining -= typeof child === 'number' ? (Number.isFinite(child) ? String(child).length : 4) :
+          typeof child === 'boolean' ? (child ? 4 : 5) : Buffer.byteLength(JSON.stringify(child) ?? 'null');
+        if (remaining < 0) throw oversized;
+      }
+    }
+    try {
+      // Keep the existing partition boundaries, but count repeated field names
+      // once and serialize a fitting piece natively, without a per-field replacer.
+      visitBudget(item);
+      return JSON.stringify(item);
     } catch (error) { if (error !== oversized) throw error; return null; }
   }
   function visit(item, forceObject = false) {
@@ -155,7 +170,12 @@ export function createCloudStorage(config, { fetch: request = globalThis.fetch }
     if (failed) throw failed.reason;
     const response = await call('/rest/v1/rpc/observatorio_checkpoint', { method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ expected_revision: revision, next_manifest: { version: 1, root: parts.root } }) });
-    if (!response.ok) { conflicted = true; throw failure('No se confirmo el historial: posible escritor simultaneo. Se detienen los guardados hasta reiniciar.'); }
+    if (!response.ok) {
+      const detail = await response.json().catch(() => null);
+      const reason = detail?.message === 'revision_conflict' || detail?.error === 'revision_conflict' ? 'conflicto de revision' : `respuesta HTTP ${response.status}`;
+      conflicted = true;
+      throw failure(`No se confirmo el historial: posible escritor simultaneo (${reason}). Se detienen los guardados hasta reiniciar.`);
+    }
     const next = await response.json();
     if (next !== revision + 1) { conflicted = true; throw failure('Revision de historial inesperada.'); }
     revision = next; committedRoot = parts.root; lastSaved = new Date().toISOString();

@@ -6,6 +6,8 @@ Estado: preparacion local y pruebas. Este documento no confirma un despliegue.
 
 - `node cloud/server.mjs` inicia una puerta HTTPS con Supabase Auth y un unico UUID autorizado.
 - El servidor de analisis existente escucha solo en un puerto interno aleatorio.
+- El analisis se ejecuta en un worker separado para que los calculos del historial no bloqueen la autenticacion ni la comprobacion HTTPS de Render. La persistencia remota sigue teniendo un unico escritor.
+- Los guardados parten el historial con serializaciones acotadas y descartan buffers de piezas ya existentes. No se borra historial ni se cambia el cifrado o la comprobacion de integridad.
 - Paginas, JSON, fuentes, exportaciones y todas las API pasan por la misma verificacion de usuario.
 - La unica ruta publica de estado es `/healthz`, sin estadisticas ni configuracion.
 - Las cookies de sesion son Secure, HttpOnly y SameSite=Lax. Cada solicitud valida al usuario con Supabase; no se confia en un UUID enviado por el navegador.
@@ -45,6 +47,8 @@ Supabase Free puede pausarse por inactividad. Se aplican sus limites de almacena
 Los respaldos del modulo local creados dentro del servidor Render son temporales; exportarlos por la interfaz autenticada para conservarlos. Las copias permanentes principales son el historial cifrado de Supabase y la copia local conservada en Windows.
 
 Un fallo de lectura nunca inicia con un historial vacio. Un conflicto de revision detiene guardados hasta reiniciar, evitando que un segundo proceso sobrescriba cambios. No usar varias instancias ni desplegar otra copia con el mismo historial sin coordinar primero el cierre de la anterior.
+
+Los guardados concurrentes comparten una escritura y una comprobacion final para conservar cambios recibidos durante la transferencia. Los fallos se comunican como almacenamiento no disponible (503), sin repetir mutaciones ni sobrescribir otra revision. La optimizacion de particiones conserva los identificadores existentes; no requiere volver a subir el historial. Si termina el proceso de analisis, la puerta HTTPS deja de anunciarse disponible y sale para que el alojamiento pueda reiniciarla. El cierre de un despliegue tiene un limite de diez segundos para evitar conexiones antiguas indefinidas.
 
 ## Pruebas
 

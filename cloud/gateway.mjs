@@ -1,11 +1,15 @@
 import { createServer, request as httpRequest } from 'node:http';
 import { createCloudAccess } from './access.mjs';
 
-export function createCloudGateway(config, { backendPort, access = createCloudAccess(config) }) {
+export function createCloudGateway(config, { backendPort, access = createCloudAccess(config), isReady = () => true }) {
   const fixedSecrets = new Set(['/api/key', '/api/basketball/key', '/api/footystats/key', '/api/credentials/forget', '/api/server/stop']);
   return createServer(async (request, response) => {
     try {
       const url = new URL(request.url, config.origin);
+      if (!isReady()) {
+        response.writeHead(503, { 'Content-Type': 'application/json; charset=utf-8', 'Connection': 'close' });
+        response.end(JSON.stringify({ ok: false, error: 'El servidor de analisis se esta reiniciando. Los datos guardados se conservan.' })); return;
+      }
       if (!await access(request, response, url)) return;
       if (request.method === 'POST' && fixedSecrets.has(url.pathname)) {
         response.writeHead(409, { 'Content-Type': 'application/json; charset=utf-8' });
