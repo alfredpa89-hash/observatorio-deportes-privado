@@ -137,7 +137,7 @@ for (const id of ['br-league', 'br-season', 'br-depth']) $(id).addEventListener(
   if (id === 'br-league') { const nba = selection().league === 'nba'; $('br-total').value = nba ? 220.5 : 160.5; $('br-quarter').value = nba ? 55.5 : 40.5; $('br-half').value = nba ? 110.5 : 80.5; }
   await load();
 }));
-$('br-sync').addEventListener('click', () => task(async () => { message('Consultando la temporada elegida con los límites gratuitos...'); const result = await api('sync', selection()); state = result.state; archivePlayerTools.reset(); render(); message(result.warning || `${result.imported ?? 'En caché:'} encuentros recibidos; ${result.details || 0} consultas de detalle. Los faltantes permanecen s/d.`, Boolean(result.warning)); }));
+$('br-sync').addEventListener('click', () => task(async () => { message('Consultando calendario y resultados de la temporada...'); const result = await api('sync', {...selection(),details:false}); state = result.state; archivePlayerTools.reset(); render(); message(result.warning || `${result.imported ?? 'En cache:'} encuentros recibidos. Los individuales se completan por equipo desde Jugadores, sin recargar el calendario. Los faltantes permanecen s/d.`, Boolean(result.warning)); }));
 $('br-access').addEventListener('click', () => task(async () => { await api('access', {}); await load(); message('Plan consultado. No se ha comprado ni cambiado la suscripción.'); }));
 $('br-known-player').addEventListener('change', () => {
   const player = state?.players[Number($('br-known-player').value)];

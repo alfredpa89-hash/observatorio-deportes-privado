@@ -157,8 +157,8 @@ export function mountBasketballPlayerTools(root) {
     } catch (error) { message(error.message, true); }
   });
   syncButton.addEventListener('click', () => task(async () => {
-    message('Consultando hasta cuatro encuentros del equipo con los limites gratuitos...');
-    const loaded = await api('research/player-sync', body());
+    message('Completando un encuentro del equipo; se conserva el avance para continuar despues...');
+    const loaded = await api('research/player-sync', {...body(),maxGames:1,resume:true});
     await loadCatalog(); if (fields.player.value) await analyze();
     message(`${loaded.cached ? 'Lote en cache. ' : ''}${loaded.calls} consultas; ${loaded.records} registros recibidos; ${loaded.pending} encuentros pendientes dentro de la ventana.${loaded.withoutApi ? ` ${loaded.withoutApi} encuentros sin identificador API no se consultaron.` : ''} ${loaded.warning || ''}`, Boolean(loaded.warning));
   }));
