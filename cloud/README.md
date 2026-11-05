@@ -1,6 +1,6 @@
 # Observatorio privado: Render Free y Supabase Free
 
-Estado: preparacion local y pruebas. Este documento no confirma un despliegue.
+Guia de configuracion y revision del alojamiento privado. Clonar el repositorio no copia los secretos ni el historial del servidor ya configurado.
 
 ## Arquitectura
 
@@ -21,7 +21,7 @@ Estado: preparacion local y pruebas. Este documento no confirma un despliegue.
 3. En Authentication, desactivar altas publicas y crear manualmente un solo usuario de la app, con correo confirmado y contrasena introducida por el propietario. La cuenta del panel de Supabase NO es el usuario de la app. Copiar su UUID como `OBSERVATORIO_OWNER_ID`.
 4. Configurar un secreto de almacenamiento aleatorio de al menos 32 caracteres. Conservar una copia segura: perderlo impide descifrar el historial, aunque se conserve en Supabase. No cambiarlo despues de cargar datos sin una migracion.
 5. Antes de subir el historial, confirmar con el propietario el destino y la cuenta. El historial no va en GitHub. `cloud/seed.mjs` recibe por stdin un JSON con `supabaseUrl`, `serviceKey`, `encryptionKey` e `input` (ruta absoluta de `data/state.json`). No enviar esas claves al chat, no usar argumentos ni guardarlas en archivos. El programa rechaza un destino que ya tiene datos.
-6. Crear la copia de codigo con `node cloud/package-source.mjs`. Publicar solamente esa carpeta en un repositorio GitHub **privado** del propietario, despues de su autorizacion. Nunca hacer `git add .` en la carpeta de trabajo con los datos.
+6. Crear la copia de codigo con `node cloud/package-source.mjs`. Incluye tambien pruebas, documentacion e inicio local; excluye el historial, secretos y carpetas privadas. Publicar solamente esa carpeta en un repositorio GitHub **privado** del propietario, despues de su autorizacion. Nunca hacer `git add .` en la carpeta de trabajo con los datos.
 7. En Render, crear un **Web Service Free**, no un Static Site ni una base Render Postgres. Usar el repositorio privado y `render.yaml`. Elegir Oregon para acercarlo al proyecto Supabase existente en us-west-2.
 8. Configurar las variables indicadas abajo antes de abrir acceso. Una direccion HTTPS equivocada deja el acceso cerrado; no habilitar comodines ni excepciones para corregirlo.
 9. Comprobar desde otro dispositivo: acceso anonimo denegado, acceso propietario correcto, otro usuario denegado, consultas protegidas y restauracion del historial tras reiniciar. No anunciar el enlace como listo hasta pasar estas pruebas.
@@ -52,6 +52,6 @@ Los guardados concurrentes comparten una escritura y una comprobacion final para
 
 ## Pruebas
 
-`node --test cloud/storage.test.mjs cloud/access.test.mjs`
+`node --test --test-concurrency=2 "*.test.mjs" "cloud/*.test.mjs" "research/*.test.mjs"` (desde la raiz).
 
 Las pruebas usan proveedores simulados y datos sinteticos. No confirman credenciales reales ni un despliegue. La instalacion de dependencias oficiales queda separada de la app local: no requiere reiniciar ni instalar dependencias para seguir usando `node server.mjs`.
