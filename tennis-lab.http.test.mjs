@@ -38,6 +38,11 @@ test('tennis lab HTTP updates free histories, preserves richer fields and isolat
     assert.equal(profile.data.lines[0].n, 30); assert.equal(profile.data.context.matches7Days, 0);
     const comparison = await post('/api/tennis/comparison', { player1Key: 'atp:1', player2Key: 'atp:2' }); assert.equal(comparison.status, 200);
     assert.ok(comparison.data.scenarios.some(row => row.group === 'handicap'));
+    assert.equal(comparison.data.setScores.rows.length, 4);
+    assert.ok(comparison.data.setScores.rows.every(row => row.probability !== null));
+    const handicap = await post('/api/tennis/comparison', { player1Key: 'atp:1', player2Key: 'atp:2', handicapLine: 12.5 });
+    assert.deepEqual(handicap.data.handicaps.filter(row => row.selected).map(row => row.line), [12.5, -12.5]);
+    assert.equal((await post('/api/tennis/comparison', { player1Key: 'atp:1', player2Key: 'atp:2', handicapLine: 0 })).status, 400);
     assert.equal((await post('/api/tennis/player', { playerKey: 'atp:1', cutoff: 'bad' })).status, 400);
     assert.equal((await post('/api/tennis/player', { playerKey: 'atp:1', lookback: 500 })).status, 400);
     const fixture = await post('/api/tennis/fixtures', { player1Key: 'atp:1', player2Key: 'atp:2', season: '2026', tournament: 'Test Open', category: 'atp-500', surface: 'Hard', bestOf: 3,

@@ -1,6 +1,7 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { SportsError } from './sports.mjs';
 import { buildTennisReport } from './tennis.mjs';
+import { buildTennisMatchMarkets } from './tennis-match-markets.mjs';
 import { TENNIS_VERSION, TENNIS_WINDOWS, playerKey, normalizeTennisIdentities, tennisValues, rates, mean } from './tennis-stats.mjs';
 
 const DAY = 86400000, CATEGORIES = ['grand-slam', 'masters-1000', 'atp-500'];
@@ -134,6 +135,10 @@ export function createTennisLab({ getStore, persist, sports, now = () => new Dat
     const gamesLine = Number(body.gamesLine ?? (c.bestOf === 5 ? 38.5 : 22.5));
     if (!Number.isFinite(gamesLine) || gamesLine < .5 || gamesLine > 99.5 || gamesLine % 1 !== .5) fail('El total de juegos debe terminar en .5, entre 0.5 y 99.5.');
     const matches = eligible(c), forecast = buildTennisReport({ ...c, gamesLine, matches, player1: a.player.name, player2: b.player.name });
+    const handicapLine = body.handicapLine === undefined || body.handicapLine === '' ? -2.5 : Number(body.handicapLine);
+    let matchMarkets;
+    try { matchMarkets = buildTennisMatchMarkets({ a, b, matches, bestOf: c.bestOf, handicapLine, winnerProbability: forecast.markets.find(row => row.id === 'player1-win')?.probability }); }
+    catch (error) { fail(error.message); }
     const scenarios = [];
     for (const [metric, label] of [['firstSetWon', 'Gana primer set'], ['anySetWon', 'Gana al menos un set'], ['tieBreak', 'Hay tie-break']]) {
       for (const player of [a, b]) scenarios.push({ group: 'sets', label: `${player.player.name}: ${label.toLowerCase()}`, ...rates(player.history.map(row => row.bestOf === c.bestOf ? row.values[metric] : null), value => value === 1) });
@@ -145,9 +150,9 @@ export function createTennisLab({ getStore, persist, sports, now = () => new Dat
     for (const player of [a, b]) for (let lost = 0; lost < (c.bestOf + 1) / 2; lost++) scenarios.push({ group: 'sets',
       label: `${player.player.name}: gana ${(c.bestOf + 1) / 2}-${lost} en sets`,
       ...rates(player.history.map(row => row.values.setsWon === null || row.values.setsAgainst === null ? null : Number(row.values.setsWon === (c.bestOf + 1) / 2 && row.values.setsAgainst === lost)), value => value === 1) });
-    return { ...c, a, b, estimates: forecast.markets, scenarios,
+    return { ...c, a, b, estimates: forecast.markets, scenarios, ...matchMarkets,
       h2h: matches.filter(match => [playerKey(match, 'player1'), playerKey(match, 'player2')].includes(a.player.key) && [playerKey(match, 'player1'), playerKey(match, 'player2')].includes(b.player.key)).sort((a, b) => b.date.localeCompare(a.date)).slice(0, c.lookback),
-      note: 'Elo y totales suavizados son experimentales, sin calibracion. Los escenarios y handicaps adicionales son frecuencias individuales frente a rivales historicos, no pronosticos del duelo.' };
+      note: 'Elo, totales y marcadores de sets son estimaciones experimentales, sin calibracion. El handicap de juegos y los demas conteos son frecuencias individuales frente a rivales historicos; no equivalen a la probabilidad del duelo. Un jugador puede ganar el partido y perder el handicap de juegos.' };
   }
   function publicUrl(value) {
     let url; try { url = new URL(value); } catch { fail('Incluye una URL publica de la fuente.'); }

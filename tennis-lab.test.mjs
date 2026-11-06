@@ -98,6 +98,14 @@ test('comparison separates descriptive handicap/first-set frequencies from exper
   assert.ok(report.scenarios.every(row => row.probability === undefined));
   assert.ok(!report.scenarios.some(row => /[+-]2.5 sets/.test(row.label)));
   assert.ok(report.scenarios.some(row => /gana 2-0/.test(row.label)));
+  const before = structuredClone(lab.coverage(selection));
+  const detailed = lab.comparison({ ...selection, player1Key: 'atp:1', player2Key: 'atp:2', handicapLine: -12.5 });
+  assert.equal(detailed.handicaps.filter(row => row.selected).length, 2);
+  assert.deepEqual(detailed.estimates, report.estimates);
+  assert.equal(detailed.setScores.rows.length, 4);
+  assert.ok(Math.abs(detailed.setScores.rows.reduce((sum, row) => sum + row.probability, 0) - 100) < 1e-8);
+  assert.deepEqual(lab.coverage(selection), before);
+  assert.throws(() => lab.comparison({ ...selection, player1Key: 'atp:1', player2Key: 'atp:2', handicapLine: 2 }), /handicap/);
   assert.equal(lab.profile({ ...selection, playerKey: 'atp:1', metric: 'setsWon' }).lines.at(-1).line, 1.5);
   assert.throws(() => lab.profile({ ...selection, playerKey: 'atp:1', metric: 'setsWon', line: 2.5 }), /formato/);
   assert.throws(() => lab.comparison({ ...selection, player1Key: 'atp:1', player2Key: 'atp:1' }), /distintos/);
