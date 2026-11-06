@@ -83,12 +83,21 @@ const historyTable = table(profileResult, 'Historial de la muestra', ['Fecha / p
 
 const compareForm = el('form', '', 'tennis-actions'), playerA = field(compareForm, 'Jugador A', [['', 'Seleccionar jugador']]), playerB = field(compareForm, 'Jugador B', [['', 'Seleccionar jugador']]);
 const gamesLine = field(compareForm, 'Total de juegos', null, 'number'); gamesLine.min = '.5'; gamesLine.max = '99.5'; gamesLine.step = '1'; gamesLine.value = '22.5';
+const handicapLine = field(compareForm, 'Handicap de juegos / jugador A', Array.from({ length: 22 }, (_, i) => i - 10.5).map(line => [line, `${line > 0 ? '+' : ''}${line}`])); handicapLine.value = '-2.5';
+const customHandicap = field(compareForm, 'Otra linea de handicap (opcional)', null, 'number'); customHandicap.min = '-30.5'; customHandicap.max = '30.5'; customHandicap.step = '1'; customHandicap.placeholder = 'Ej. -12.5 o +12.5';
 const compareButton = button('Comparar prepartido', 'git-compare-arrows', true); compareButton.type = 'submit'; compareForm.append(compareButton);
 const compareResult = el('div'); compareResult.hidden = true; panels.comparison.append(compareForm, compareResult);
 const compareTitle = el('h3'), compareNote = el('p', '', 'calendar-note'); compareResult.append(compareTitle, compareNote);
+const scoreTable = table(compareResult, 'Marcador de sets / estimacion experimental', ['Marcador final', 'Probabilidad estimada', 'Ganador: historial', 'Rival: sufrio ese marcador']);
+const scoreNote = el('p', '', 'calendar-note'), scoreMethod = el('details', '', 'method-details'), scoreMethodText = el('p', '', 'calendar-note');
+scoreMethod.append(el('summary', 'Como se estiman los marcadores de sets'), scoreMethodText); compareResult.append(scoreNote, scoreMethod);
+const handicapNote = el('p', '', 'calendar-note'); compareResult.append(el('h3', 'Handicap de juegos / linea seleccionada'), handicapNote);
+const handicapTable = table(compareResult, '', ['Escenario', 'Condicion', 'Cumplidos / con datos', 'Frecuencia historica', 'Intervalo 95 %', 'Sin datos']);
+const moreHandicaps = el('details', '', 'method-details'); moreHandicaps.append(el('summary', 'Ver todas las lineas de handicap de juegos'));
+const handicapLinesTable = table(moreHandicaps, '', ['Escenario', 'Cumplidos / con datos', 'Frecuencia historica', 'Intervalo 95 %', 'Sin datos']); compareResult.append(moreHandicaps);
 const compareStats = table(compareResult, 'Rendimiento y contexto', ['Indicador', 'Jugador A', 'Jugador B']);
 const estimatesTable = table(compareResult, 'Estimaciones experimentales / sin calibracion', ['Escenario', 'Estimacion', 'Muestra A / B', 'Contexto']);
-const scenariosTable = table(compareResult, 'Sets y handicaps / frecuencias historicas', ['Escenario', 'Cumplidos / con datos', 'Frecuencia', 'Intervalo 95 %', 'Sin datos']);
+const scenariosTable = table(compareResult, 'Primer set y handicap de sets / frecuencias historicas', ['Escenario', 'Cumplidos / con datos', 'Frecuencia', 'Intervalo 95 %', 'Sin datos']);
 const h2h = table(compareResult, 'Enfrentamientos directos', ['Fecha / precision', 'Jugador A', 'Jugador B', 'Marcador', 'Superficie']);
 
 const fixtureDetails = el('details', '', 'method-details'); fixtureDetails.append(el('summary', 'Registrar encuentro con fuente'));
@@ -182,20 +191,28 @@ async function analyzePlayer() { renderProfile(await api('player', { ...selectio
 profileForm.addEventListener('submit', event => { event.preventDefault(); task(analyzePlayer); });
 for (const control of [player, metric, customLine]) control.addEventListener('change', () => { profileResult.hidden = true; profileData = null; });
 async function compare() {
-  const result = await api('comparison', { ...selection(), gamesLine: Number(gamesLine.value), player1Key: playerA.value, player2Key: playerB.value }); compareResult.hidden = false;
+  const result = await api('comparison', { ...selection(), gamesLine: Number(gamesLine.value), handicapLine: Number(customHandicap.value || handicapLine.value), player1Key: playerA.value, player2Key: playerB.value }); compareResult.hidden = false;
   relevantMatch.show({ ...selection(), sport: 'tennis', kind: 'player', key: 'atp', playerKeys: [result.a.player.key, result.b.player.key] });
   compareTitle.textContent = `${result.a.player.name} / ${result.b.player.name}`; compareNote.textContent = result.note;
+  const scores = result.setScores;
+  scoreTable.fill(scores.rows.map(item => [item.label, pct(item.probability), `${item.playerName}: ${countLabel(item.historical.winner)}`, `${item.opponentName}: ${countLabel(item.historical.opponent)}`]));
+  scoreNote.textContent = `${scores.reason || 'Marcadores mutuamente excluyentes: suman 100 %.'} Muestra de marcadores completos: ${scores.samples.home} de ${result.a.history.length} para ${result.a.player.name}, ${scores.samples.away} de ${result.b.history.length} para ${result.b.player.name}; ${scores.samples.context} de contexto.`;
+  scoreMethodText.textContent = `${scores.method} Los marcadores de cada ganador suman su estimacion Elo. Los totales de sets de la tabla general usan otro metodo, basado en frecuencias historicas, y pueden diferir. Marcadores incompletos, retiros, match tie-breaks y formatos distintos se excluyen. Estas estimaciones no alteran los pronosticos ya guardados.`;
+  handicapNote.textContent = `La linea elegida se aplica a ${result.a.player.name}; ${result.b.player.name} lleva el signo contrario. Se cuentan los juegos de todos los sets registrados. Los conteos se comparan con rivales historicos; las frecuencias de ambos jugadores no tienen por que sumar 100 %.`;
+  const handicapRule = line => line < 0 ? `Terminar con al menos ${Math.floor(-line) + 1} juegos mas que el rival` : `Ganar en juegos, igualar o perder por hasta ${Math.floor(line)} juegos`;
+  handicapTable.fill(result.handicaps.filter(item => item.selected).map(item => [item.label, handicapRule(item.line), countLabel(item), pct(item.frequency), interval(item), item.missing]));
+  handicapLinesTable.fill(result.handicaps.map(item => [item.label, countLabel(item), pct(item.frequency), interval(item), item.missing]));
   compareStats.fill([['Partidos', result.a.record.n, result.b.record.n], ['Victorias / derrotas', `${result.a.record.wins} / ${result.a.record.losses}`, `${result.b.record.wins} / ${result.b.record.losses}`],
     ...result.a.summary.map((item, i) => [item.label, `${num(item.average)} (n=${item.n})`, `${num(result.b.summary[i].average)} (n=${result.b.summary[i].n})`]),
     ['Ranking historico', num(result.a.context.historicalRanking?.rank), num(result.b.context.historicalRanking?.rank)],
     ['Descanso / muestra de fechas exactas', num(result.a.context.daysSinceLast), num(result.b.context.daysSinceLast)],
     ['Disponibilidad reportada', result.a.context.availability?.status || 'No confirmada', result.b.context.availability?.status || 'No confirmada']]);
   estimatesTable.fill(result.estimates.map(item => [item.label, pct(item.probability), `${item.samples.home} / ${item.samples.away}`, item.samples.league]));
-  scenariosTable.fill(result.scenarios.map(item => [item.label, countLabel(item), pct(item.frequency), interval(item), item.missing]));
+  scenariosTable.fill(result.scenarios.filter(item => !/ juegos$|gana \d-\d en sets$/.test(item.label)).map(item => [item.label, countLabel(item), pct(item.frequency), interval(item), item.missing]));
   h2h.fill(result.h2h.map(row => [matchDate(row), row.player1, row.player2, row.score || 's/d', row.surface]));
 }
 compareForm.addEventListener('submit', event => { event.preventDefault(); task(compare); });
-for (const control of [playerA, playerB, gamesLine]) control.addEventListener('change', () => { compareResult.hidden = true; });
+for (const control of [playerA, playerB, gamesLine, handicapLine, customHandicap]) control.addEventListener('change', () => { compareResult.hidden = true; });
 function renderCalendar() {
   calendarNote.textContent = `${data.fixtures.length} encuentros guardados. Sin feed automatico contratado; los registros manuales no acreditan resultados ni alineaciones.`;
   calendarTable.fill(data.fixtures.map(row => {
