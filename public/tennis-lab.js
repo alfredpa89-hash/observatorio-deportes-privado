@@ -135,7 +135,7 @@ reportSource.required = reportPublished.required = reportExpires.required = true
 reportPublished.value = localInput(); reportExpires.value = localInput(new Date(Date.now() + 2 * 86400000)); reportSource.placeholder = 'https://';
 const saveReport = button('Guardar reporte', 'clipboard-plus'); saveReport.type = 'submit'; reportForm.append(saveReport); reportDetails.append(reportForm); panels.data.append(reportDetails);
 
-let data, profileData, busy = false, currentView = 'individual', active = false, dailyData, lastAutoAttempt = 0;
+let data, profileData, busy = false, currentView = 'individual', active = false, dailyData, lastAutoAttempt = 0, automaticRefresh = null;
 const selection = () => ({ season: season.value, surface: surface.value, category: category.value, indoor: indoor.value, tournament: tournament.value.trim(), lookback: Number(lookback.value), bestOf: Number(bestOf.value), cutoff: `${cutoff.value}:00-05:00` });
 function message(value = '', error = false) { status.textContent = value; status.classList.toggle('error', error); }
 function show(id) {
@@ -154,7 +154,7 @@ async function task(action) {
   if (busy) return; busy = true; root.setAttribute('aria-busy', 'true');
   const controls = [...root.querySelectorAll('button, input, select')]; controls.forEach(node => { node.dataset.tennisDisabled = String(node.disabled); node.disabled = true; }); message();
   try { await action(); } catch (error) { message(error.message, true); }
-  finally { busy = false; controls.forEach(node => { node.disabled = node.dataset.tennisDisabled === 'true'; }); root.setAttribute('aria-busy', 'false'); window.lucide?.createIcons(); }
+  finally { busy = false; controls.forEach(node => { node.disabled = node.dataset.tennisDisabled === 'true'; }); if (automaticRefresh) refresh.disabled = true; root.setAttribute('aria-busy', 'false'); window.lucide?.createIcons(); }
 }
 async function load() {
   data = await api(`state?${new URLSearchParams(selection())}`);
@@ -257,11 +257,11 @@ reportForm.addEventListener('submit', event => { event.preventDefault(); task(as
   await api('availability', { ...selection(), playerKey: reportPlayer.value, status: reportStatus.value, sourceUrl: reportSource.value, publishedAt: `${reportPublished.value}:00-05:00`, expiresAt: `${reportExpires.value}:00-05:00`, note: reportText.value });
   profileResult.hidden = true; compareResult.hidden = true; message('Reporte guardado con fuente, publicacion y vigencia.');
 }); });
-refresh.addEventListener('click', () => task(async () => {
+refresh.addEventListener('click', () => { if (automaticRefresh) return; task(async () => {
   message('Actualizando archivos gratuitos de la temporada y la anterior...');
   const result = await api('refresh', selection()); cutoff.value = currentCutoff(cutoff.type, cutoff.value, cutoff.dataset.liveManual === 'true'); await load(); profileResult.hidden = compareResult.hidden = true;
   message(result.warning || 'Historicos actualizados; cada campo conserva su cobertura real.', Boolean(result.warning));
-}));
+}); });
 for (const control of [season, surface, category, indoor, tournament, lookback, bestOf, cutoff]) control.addEventListener('change', () => task(async () => { if (control === bestOf) gamesLine.value = bestOf.value === '5' ? '38.5' : '22.5'; profileResult.hidden = compareResult.hidden = true; await load(); }));
 document.addEventListener('observatorio:sport', event => {
   active = event.detail === 'tennis'; root.hidden = !active;
@@ -273,8 +273,13 @@ async function activate() {
   const latest = data.coverage.datasets.find(row => row.season === season.value);
   if ((!latest || latest.parserVersion < 2 || Date.now() - Date.parse(latest.loadedAt) > 6 * 3600000) && Date.now() - lastAutoAttempt > 15 * 60000) {
     lastAutoAttempt = Date.now();
-    const result = await api('refresh', selection()); cutoff.value = currentCutoff(cutoff.type, cutoff.value, cutoff.dataset.liveManual === 'true'); await load();
-    if (result.warning) message(result.warning, true);
+    refresh.disabled = true;
+    // Keep the saved history usable while a provider or durable save is slow.
+    automaticRefresh = api('refresh', selection()).then(result => {
+      if (result.warning) message(result.warning, true);
+      else document.dispatchEvent(new CustomEvent('observatorio:refreshed', { detail: { sports: ['tennis'] } }));
+    }).catch(error => message(`No se completo la actualizacion; puedes analizar el historial guardado. ${error.message}`, true))
+      .finally(() => { automaticRefresh = null; if (!busy) refresh.disabled = false; });
   }
   if (currentView === 'daily') await renderDaily();
   if (currentView === 'evaluation') await renderEvaluation();
