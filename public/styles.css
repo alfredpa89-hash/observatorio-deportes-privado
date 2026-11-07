@@ -420,3 +420,7 @@ td:nth-child(2) { max-width: 140px; overflow: hidden; text-overflow: ellipsis; }
   .handicap-settlement { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .footer { padding: 16px 17px; }
 }
+.sample-trace { margin: 12px 0 18px; padding: 12px 16px; border: 1px solid #eadbd6; border-left: 3px solid #d98e7b; border-radius: 10px; background: #fffaf8; color: #51433e; font-size: 13px; line-height: 1.6; overflow-wrap: anywhere; }
+.sample-trace p { margin: 3px 0; }
+.sample-trace [data-stale="true"] { color: #8c4933; }
+.condition-method { color: #76594c; font-size: 12px; }

@@ -1,5 +1,6 @@
 import { jsonRequest } from './api-client.js';
 import { currentCutoff } from './live-refresh.js';
+import { updateStatus } from './update-status.js';
 
 const main = document.getElementById('main-content'), band = document.createElement('section');
 band.className = 'live-data-band'; band.setAttribute('aria-label', 'Estado de actualizacion de datos');
@@ -21,12 +22,10 @@ document.addEventListener('input', event => { if (cutoffs().includes(event.targe
 document.addEventListener('submit', updateCutoffs, true);
 function render(value) {
   status = value;
-  const updating = value.phase === 'updating', limited = value.missing.length || value.issues.length || value.disabledSports.length || value.phase !== 'checked';
-  band.dataset.state = updating ? 'updating' : limited ? 'partial' : 'checked';
-  title.textContent = updating ? `Actualizando fuentes / ${value.processed} de ${value.total}` : limited ? 'Revision disponible / cobertura parcial' : 'Fuentes disponibles revisadas';
-  const reason = [...value.missing, ...value.issues.map(issue => `${issue.task}: ${issue.message}`), ...value.disabledSports.map(sport => `${{ basketball: 'Baloncesto', football: 'Futbol', tennis: 'Tenis' }[sport]}: actualizacion automatica desactivada.`)];
-  detail.textContent = `${updating ? `Solicitud ${date(value.requestedAt)}.` : `Comprobacion terminada: ${date(value.finishedAt)}.`} ${reason.length ? reason.slice(0, 2).join(' ') : 'Los analisis conservan la fecha de su ultimo resultado real.'} Cache de comprobacion: hasta ${value.cacheMinutes} min.`;
-  detail.title = [...reason, value.note].join('\n'); check.disabled = updating;
+  const summary = updateStatus(value);
+  band.dataset.state = summary.state; title.textContent = summary.title;
+  detail.textContent = `${summary.timeLabel}: ${date(summary.time)}. ${summary.sports.join(' · ')}. ${summary.reasons.length ? summary.reasons.slice(0, 2).join(' ') : 'Los analisis conservan la fecha de su ultimo resultado real.'}`;
+  detail.title = [...summary.reasons, value.note, `Cache: ${value.cacheMinutes} min.`].join('\n'); check.disabled = value.running || summary.updating;
   const changed = Object.entries(value.updatedSports).filter(([sport, at]) => baseline && last[sport] !== at).map(([sport]) => sport);
   last = value.updatedSports; baseline = true;
   if (changed.length) { updateCutoffs(); document.dispatchEvent(new CustomEvent('observatorio:refreshed', { detail: { sports: changed, checkedAt: value.finishedAt || value.lastCycle } })); }

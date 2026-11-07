@@ -1,7 +1,7 @@
 import { jsonRequest } from './api-client.js';
 import { evidenceSampleLabel } from './basketball-evidence.js';
 import { mountRelevantContext } from './relevant-context.js';
-import { selectOverviewMarkets } from './basketball-scenario-options.js';
+import { selectConditionMarkets, marketGroupLabel } from './market-catalog.js';
 import { mountBasketballAvailabilityLinks } from './basketball-availability-links.js';
 
 const node = (tag, text = '', className = '') => { const el = document.createElement(tag); el.textContent = text; el.className = className; return el; };
@@ -30,6 +30,9 @@ const period = () => ({ 'q1-total': 'q1', 'ht-total': 'ht' }[group.value] || 'ft
 function lineControls() { lineField.hidden = direction.parentElement.hidden = !isTotal(); line.required = isTotal(); }
 lineControls();
 const reload = node('button', 'Leer datos guardados', 'button button-primary'); reload.type = 'submit'; filters.append(reload);
+const searchField = node('label', '', 'field'), search = node('input'); search.type = 'search'; search.id = 'overview-search'; search.placeholder = 'Equipo, jugador o condicion';
+searchField.append(node('span', 'Buscar en los resultados'), search); filters.append(searchField);
+const minimum = select('overview-minimum', 'Muestra minima por lado', [['0', 'Todas las muestras'], ['5', '5 partidos'], ['10', '10 partidos'], ['15', '15 partidos'], ['20', '20 partidos']]);
 const status = node('p', '', 'overview-status'); status.setAttribute('role', 'status'); status.setAttribute('aria-live', 'polite');
 const cards = node('div', '', 'overview-cards'), notice = node('p', '', 'overview-notice');
 const coverage = node('details'), coverageList = node('ul', '', 'overview-coverage'); coverage.append(node('summary', 'Cobertura, fechas y pendientes'), coverageList);
@@ -43,14 +46,21 @@ evaluation.append(node('summary', 'Comprobar si los porcentajes funcionan'), eva
 evaluation.append(node('p', 'Guardar sella NBA o Euroliga de la fecha seleccionada antes del inicio, con ventana 20 y lineas internas fijas. No consulta APIs ni cambia registros anteriores. Tenis conserva su preparacion en su propio apartado.', 'overview-notice'));
 const contextRoot = node('div', '', 'overview-context'), context = mountRelevantContext(contextRoot);
 const availabilityRoot = node('div'), availabilityLinks = mountBasketballAvailabilityLinks(availabilityRoot);
-body.append(filters, status, cards, notice, availabilityRoot, coverage, evaluation, contextRoot); dialog.append(header, body); document.body.append(dialog);
-let state, busy = false, revision = 0, manualGroup = false;
+const count = node('p', '', 'calendar-note'), more = node('button', 'Mostrar 36 condiciones mas', 'button button-secondary'); more.type = 'button'; more.hidden = true;
+body.append(filters, status, count, cards, more, notice, availabilityRoot, coverage, evaluation, contextRoot); dialog.append(header, body); document.body.append(dialog);
+let state, busy = false, revision = 0, manualGroup = false, limit = 36;
 function show() {
   if (!state) return;
   const selected = state.rows.flatMap(row => {
-    return selectOverviewMarkets(row.markets, { group: group.value, direction: direction.value, line: line.value }).map(market => ({ row, market }));
+    return selectConditionMarkets(row.markets, { group: group.value, ...(isTotal() ? { direction: direction.value, line: line.value } : {}) }).map(market => ({ row, market }));
+  }).filter(({ row, market }) => {
+    const n = market.evidence?.n ?? Math.min(market.samples?.home ?? 0, market.samples?.away ?? 0);
+    const text = `${row.fixture.home} ${row.fixture.away} ${market.label}`.toLocaleLowerCase('es');
+    return n >= Number(minimum.value) && text.includes(search.value.trim().toLocaleLowerCase('es'));
   }).sort((a, b) => (a.market.evidence?.level ?? 4) - (b.market.evidence?.level ?? 4) || b.market.probability - a.market.probability);
-  cards.replaceChildren(...selected.slice(0, 36).map(({ row, market }) => {
+  count.textContent = `${Math.min(limit, selected.length)} de ${selected.length} condiciones coincidentes. Ordenadas por respaldo de datos y porcentaje; no son apuestas garantizadas.`;
+  more.hidden = selected.length <= limit;
+  cards.replaceChildren(...selected.slice(0, limit).map(({ row, market }) => {
     const card = node('article', '', 'overview-card'), evidence = market.evidence; card.dataset.level = String(evidence?.level ?? 4);
     card.append(node('small', `${row.fixture.competition} · ${date(row.fixture.date)}`), node('h3', `${row.fixture.home} – ${row.fixture.away}`), node('p', market.label));
     card.append(node('div', evidence?.level >= 3 ? 'Sin estimacion actual utilizable' : `${num(market.probability)} %`, 'overview-probability'), node('span', evidence?.label || 'Datos pendientes', 'overview-quality'));
@@ -58,7 +68,7 @@ function show() {
     const observed = market.observed;
     if (observed) card.append(node('p', ['home', 'away'].map(side => observed[side]?.n ? `${side === 'home' ? 'Local' : 'Visitante'}: ${observed[side].hits} de ${observed[side].n} partidos cumplieron` : '').filter(Boolean).join(' · ')));
     if (row.expectedTotal != null) card.append(node('p', `Total esperado: ${num(row.expectedTotal)} puntos.`));
-    card.append(node('p', market.calibrated ? `Calibracion historica n=${market.calibrationN}; no acredita eficacia futura.` : 'Experimental; sin calibracion suficiente.'));
+    card.append(node('p', market.calibrated ? `Calibracion historica n=${market.calibrationN}; no acredita eficacia futura.` : 'Experimental; sin calibracion suficiente.', 'condition-method'));
     card.append(node('p', `${row.mode === 'sealed' ? 'Pronostico sellado' : 'Vista actual sin sellar'} · Corte ${date(row.cutoff)}. ${row.availability?.note || 'Disponibilidad actual por verificar.'}`));
     const details = node('details'), list = node('ul'); details.append(node('summary', 'Fuentes y limites'));
     list.append(...(evidence?.reasons || []).map(reason => node('li', reason)), node('li', `Fuentes: ${row.sources.join(', ') || 'Identificadas en el historial guardado'}.`));
@@ -80,15 +90,14 @@ async function load() {
     state = result; const previous = group.value; group.replaceChildren();
     availabilityLinks.setLeague(state.rows.some(row => row.scope.key === 'nba') ? 'nba' : '');
     const all = node('option', 'Todas las condiciones'); all.value = 'all'; group.append(all);
-    const names = { winner: 'Ganador', total: 'Total de puntos', spread: 'Handicap', 'q1-total': 'Total primer cuarto', 'ht-total': 'Total al descanso', resultado: 'Ganador', 'doble-oportunidad': 'Doble oportunidad', goles: 'Goles', corners: 'Corners', tarjetas: 'Tarjetas', 'ambos-marcan': 'Ambos marcan' };
-    for (const value of [...new Set(state.rows.flatMap(row => row.markets.map(market => market.group)))].filter(Boolean)) { const option = node('option', names[value] || value); option.value = value; group.append(option); }
+    for (const value of [...new Set(state.rows.flatMap(row => row.markets.map(market => market.group)))].filter(Boolean)) { const option = node('option', marketGroupLabel(value)); option.value = value; group.append(option); }
     if ([...group.options].some(option => option.value === previous)) group.value = previous;
     if (!manualGroup) group.value = ['total', 'resultado'].find(value => [...group.options].some(option => option.value === value)) || 'all';
     updateLines(false); lineControls();
     status.textContent = `Lectura ${date(state.generatedAt)} · ${state.rows.length} encuentros o escenarios individuales. No se consultaron las APIs deportivas.`;
     notice.textContent = state.notice;
     coverageList.replaceChildren(...state.coverage.map(row => node('li', `${row.name}: ${row.fixtures} encuentros; ultimo resultado ${date(row.latest)}. ${row.note}`)), ...state.issues.map(text => node('li', text)));
-    show();
+    limit = 36; show();
   } catch (error) {
     status.dataset.error = 'true'; status.textContent = `${error.message}${state ? ` Se muestra la seleccion anterior (${state.day}, ${state.sport}), leida ${date(state.generatedAt)}.` : ''}`;
   } finally { busy = false; filters.querySelectorAll('input, select, button').forEach(el => { el.disabled = false; }); }
@@ -106,6 +115,8 @@ function updateLines(reset) {
 day.addEventListener('change', load); sport.addEventListener('change', load);
 group.addEventListener('change', () => { manualGroup = true; updateLines(true); lineControls(); show(); });
 direction.addEventListener('change', show);
+search.addEventListener('input', () => { limit = 36; show(); }); minimum.addEventListener('change', () => { limit = 36; show(); });
+more.addEventListener('click', () => { limit += 36; show(); });
 line.addEventListener('change', () => { if (!line.checkValidity()) { line.reportValidity(); return; }
   const exists = state?.rows.some(row => row.markets.some(market => market.group === group.value && market.spec?.line === Number(line.value)));
   if (exists) show(); else void load(); });

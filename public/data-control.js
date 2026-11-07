@@ -1,4 +1,5 @@
 import { jsonRequest } from './api-client.js';
+import { updateStatus, jobStatus, quotaLabel } from './update-status.js';
 const $ = id => document.getElementById(id);
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
 const icon = name => `<i data-lucide="${name}" aria-hidden="true"></i>`;
@@ -24,15 +25,28 @@ for (const [name, label] of [['basketball', 'API-Basketball'], ['football', 'API
 $('dc-settings').prepend(quotaOptions);
 const readinessPanel = document.createElement('div'); readinessPanel.id = 'dc-basketball-readiness';
 $('dc-checks').prepend(readinessPanel);
+const progressPanel = document.createElement('p'); progressPanel.id = 'dc-progress'; progressPanel.className = 'dc-note'; progressPanel.setAttribute('aria-live', 'polite');
+$('dc-updates').prepend(progressPanel);
+function renderProgress(value) {
+  const summary = updateStatus(value);
+  progressPanel.textContent = `${summary.title}. ${summary.sports.join(' · ')}. Los datos guardados siguen disponibles.`;
+  $('dc-running').textContent = value.pauseRequested && value.running ? 'Pausa solicitada; terminando consultas en curso' : value.running ? 'Actualizando fuentes' : 'Sin lote en curso';
+  $('dc-run').disabled = busy || Boolean(value.running); $('dc-stop').disabled = !value.running || value.pauseRequested;
+  for (const check of value.checks || []) {
+    const cell = [...$('dc-jobs').querySelectorAll('[data-job-status]')].find(element => element.dataset.jobStatus === check.id);
+    if (cell) cell.textContent = jobStatus(check);
+  }
+}
 const icons = () => window.lucide?.createIcons();
 async function api(path, body) {
   return jsonRequest(`/api/data/${path}`, body);
 }
 function message(text, error = false) { $('dc-message').textContent = text; $('dc-message').dataset.error = String(error); }
 async function action(fn) {
-  if (busy) return; busy = true; dialog.setAttribute('aria-busy', 'true');
+  if (busy) return; busy = true; dialog.setAttribute('aria-busy', 'true'); message('');
+  for (const id of ['dc-run', 'dc-reload']) $(id).disabled = true;
   try { await fn(); } catch (error) { message(error.message, true); }
-  finally { busy = false; dialog.setAttribute('aria-busy', 'false'); icons(); }
+  finally { busy = false; dialog.setAttribute('aria-busy', 'false'); $('dc-reload').disabled = false; $('dc-run').disabled = !state || Boolean(state.running); icons(); }
 }
 const table = fields => `<table><thead><tr><th>Dato</th><th>Con datos / muestra</th><th>Estado</th></tr></thead><tbody>${fields.map(field => `<tr><td>${esc(field.label)}</td><td>${number(field.n)} / ${number(field.total)}</td><td class="${field.status === 'completo' ? 'dc-good' : field.n ? 'dc-warn' : 'dc-missing'}">${esc(field.status.replaceAll('_', ' '))}</td></tr>`).join('')}</tbody></table>`;
 function coverage() {
@@ -80,13 +94,13 @@ function render() {
   for (const name of ['basketball', 'football']) $('dc-maximize-' + name).checked = state.budgets[name].maximizeFree === true;
   $('dc-providers').innerHTML = ['basketball', 'football'].map(name => {
     const policy = state.policies[name], connected = state.connections[name + 'Connected'];
-    return `<div class="dc-provider"><div class="dc-actions"><strong>API-${name === 'basketball' ? 'Basketball' : 'Football'} / ${esc(policy.plan)}</strong><button class="button button-secondary" data-verify="${name}" ${connected ? '' : 'disabled'}>${icon('badge-check')}Verificar plan</button></div><p>${connected ? 'Clave conectada en memoria' : 'Clave no conectada'} / presupuesto ${number(policy.dailyBudget)} / reserva ${number(policy.reserve)} / utilizable ${number(policy.usable)}</p><p>Consultas locales: ${number(policy.quota.used || 0)} / detalles: ${number(policy.quota.detailUsed || 0)} de ${number(policy.detailLimit)} / remanente informado: ${number(policy.quota.remaining)}</p>${name === 'basketball' && policy.paid ? `<p>Detalles de jugadores: hasta ${number(policy.playerLimit)} / equipos: hasta ${number(policy.teamLimit)}. No es necesario agotar la cuota.</p>` : ''}<p class="dc-note">Verificado: ${esc(date(policy.verifiedAt))} / reinicio de cuota: ${esc(date(policy.resetsAt))}</p></div>`;
+    return `<div class="dc-provider"><div class="dc-actions"><strong>API-${name === 'basketball' ? 'Basketball' : 'Football'} / ${esc(policy.plan)}</strong><button class="button button-secondary" data-verify="${name}" ${connected ? '' : 'disabled'}>${icon('badge-check')}Verificar plan</button></div><p>${connected ? 'Clave conectada en el servidor' : 'Clave no conectada'} / presupuesto ${number(policy.dailyBudget)} / reserva ${number(policy.reserve)} / utilizable ${number(policy.usable)}</p><p>${esc(quotaLabel(policy.quota))}: ${number(policy.quota.used || 0)} / detalles: ${number(policy.quota.detailUsed || 0)} de ${number(policy.detailLimit)} / remanente registrado: ${number(policy.quota.remaining)}</p>${name === 'basketball' && policy.paid ? `<p>Detalles de jugadores: hasta ${number(policy.playerLimit)} / equipos: hasta ${number(policy.teamLimit)}. No es necesario agotar la cuota.</p>` : ''}<p class="dc-note">Verificado: ${esc(date(policy.verifiedAt))} / reinicio de cuota: ${esc(date(policy.resetsAt))}</p></div>`;
   }).join('');
   const fs = state.policies.footystats;
   if (fs) {
     const section = document.createElement('div'); section.className = 'dc-provider';
     section.append(Object.assign(document.createElement('strong'), { textContent: 'FootyStats / cuota independiente' }),
-      Object.assign(document.createElement('p'), { textContent: `${state.connections.footystatsConnected ? 'Clave conectada' : 'Clave no conectada'} / consultas locales de hoy: ${number(fs.quota.used)} / limite informado del periodo: ${number(fs.providerLimit)} / remanente: ${number(fs.quota.remaining)}` }),
+      Object.assign(document.createElement('p'), { textContent: `${state.connections.footystatsConnected ? 'Clave conectada' : 'Clave no conectada'} / ${quotaLabel(fs.quota)}: ${number(fs.quota.used)} / limite informado del periodo: ${number(fs.providerLimit)} / remanente registrado: ${number(fs.quota.remaining)}` }),
       Object.assign(document.createElement('p'), { className: 'dc-note', textContent: `Reinicio informado: ${date(fs.resetsAt)} / pausa: ${date(fs.quota.cooldownUntil)}` }));
     $('dc-providers').append(section);
   }
@@ -96,8 +110,8 @@ function render() {
     note.textContent = `Enfoque Pro: hoy ${focus.today} y manana ${focus.tomorrow} / Guayaquil. Historial solo de los equipos participantes. Calendario y verificacion necesarios incluidos; sin objetivo de agotar las consultas. El archivo gratuito sigue disponible.`;
     $('dc-providers').append(note);
   }
-  const status = { pending: 'Pendiente', running: 'En curso', partial: 'Parcial', complete: 'Completa', blocked: 'Acceso bloqueado', quota: 'Cuota / reserva', retry: 'Reintento programado' };
-  $('dc-jobs').innerHTML = state.jobs.map(job => `<tr><td>${esc(job.label)}</td><td>${esc(status[job.status] || job.status)}</td><td>${number(job.result?.pending)}</td><td>${job.status === 'blocked' ? 'Requiere cambio de acceso y reconexion' : esc(date(job.nextAt))}</td><td>${esc(job.issue?.message || job.result?.warning || '')}</td></tr>`).join('') || '<tr><td colspan="5">La cola se prepara en la siguiente actualizacion.</td></tr>';
+  $('dc-jobs').innerHTML = state.jobs.map(job => `<tr><td>${esc(job.label)}<small>Inicio: ${esc(date(job.startedAt))} / Fin: ${esc(date(job.finishedAt))}<br>Ultimo exito: ${esc(date(job.lastSuccessAt || job.freshAt))}</small></td><td data-job-status="${esc(job.id)}">${esc(jobStatus(job))}</td><td>${number(job.result?.pending)}</td><td>${job.status === 'blocked' ? 'Requiere cambio de acceso y reconexion' : esc(date(job.nextAt))}</td><td>${esc(job.issue?.message || job.result?.warning || '')}${job.attempt ? `<small>Intento ${esc(job.attempt.id.slice(0, 8))}</small>` : ''}</td></tr>`).join('') || '<tr><td colspan="5">La cola se prepara en la siguiente actualizacion.</td></tr>';
+  renderProgress(state.freshness);
   $('dc-backup-select').innerHTML = state.backups.map(backup => `<option value="${esc(backup.id)}">${esc(date(backup.createdAt))} / ${esc(backup.reason)} / ${number(Math.round(backup.bytes / 1024 / 1024))} MB originales</option>`).join('') || '<option value="">Sin respaldos</option>';
   if (state.backups.some(backup => backup.id === selectedBackup)) $('dc-backup-select').value = selectedBackup;
   for (const id of ['dc-backup-verify', 'dc-backup-restore']) $(id).disabled = !state.backups.length || state.running;
@@ -180,8 +194,13 @@ $('dc-settings').addEventListener('submit', event => { event.preventDefault(); a
     maximizeFree: Object.fromEntries(['basketball', 'football'].map(name => [name, $('dc-maximize-' + name).checked])) });
   await reload(); message('Limites y actualizacion automatica guardados. No se ha cambiado ninguna suscripcion.');
 }); });
-$('dc-run').addEventListener('click', () => action(async () => { await api('refresh', {}); await reload(); message('Lote solicitado. El historial completo no se vuelve a descargar.'); }));
-$('dc-stop').addEventListener('click', () => action(async () => { await api('pause', {}); await reload(); message('Lote detenido al terminar la consulta en curso.'); }));
+$('dc-run').addEventListener('click', () => action(async () => {
+  if (state) state.running = true; // Keep the button blocked if acknowledgement and progress both fail.
+  try { await api('refresh', {}); message('Lote solicitado. El avance se comprueba por tarea.'); }
+  catch { message('No se pudo confirmar la solicitud. Consultando el avance antes de permitir otra carga.', true); }
+  const progress = await api('progress'); if (state) state.running = progress.running; renderProgress(progress);
+}));
+$('dc-stop').addEventListener('click', () => action(async () => { await api('pause', {}); renderProgress(await api('progress')); message('Pausa solicitada. Las consultas ya iniciadas terminaran antes de detener el lote.'); }));
 $('dc-backup-create').addEventListener('click', () => action(async () => { await api('backup', {}); await reload(); message('Respaldo local creado.'); }));
 $('dc-backup-verify').addEventListener('click', () => action(async () => { const result = await api('backup/verify', { id: $('dc-backup-select').value }); message(`Integridad SHA-256 correcta. ${result.frozenCompatible ? 'Compatible con la prueba congelada actual.' : 'No restaurable sobre los nuevos registros congelados.'}`); }));
 $('dc-backup-restore').addEventListener('click', () => action(async () => {
@@ -212,5 +231,18 @@ dialog.addEventListener('submit', event => {
     const saved = selected; await reload(); detail(saved); message('Reporte guardado con fuente y vigencia. No cambia automaticamente los pronosticos.');
   });
 });
-setInterval(() => { if (dialog.open && !busy && !dialog.querySelector('form:focus-within')) action(reload); }, 15000);
+let pollingProgress = false, lastFullRead = 0;
+setInterval(async () => {
+  if (!dialog.open || busy || pollingProgress || document.hidden) return;
+  pollingProgress = true;
+  try {
+    const value = await api('progress'), wasRunning = state?.running;
+    if (state) state.running = value.running;
+    renderProgress(value);
+    if (!value.running && (wasRunning || Date.now() - lastFullRead > 60000) && !dialog.querySelector('form:focus-within')) {
+      lastFullRead = Date.now(); await action(reload);
+    }
+  } catch { progressPanel.textContent = 'Avance sin confirmar. Los datos mostrados conservan su ultima lectura; no se repite la carga automaticamente.'; }
+  finally { pollingProgress = false; }
+}, 5000);
 icons();

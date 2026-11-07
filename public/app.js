@@ -1,27 +1,16 @@
 import { jsonRequest } from './api-client.js';
+import { FOOTBALL_FT_GROUPS, FOOTBALL_HT_GROUPS } from './market-catalog.js';
+import { mountSampleTrace } from './sample-trace.js';
 import { footballSourceMode, filterFootballSources, footballFieldLabel } from './football-source.js';
 import { onDataRefresh } from './live-refresh.js';
 import { mountRelevantContext } from './relevant-context.js';
 import { HANDICAP_GROUPS, SETTLEMENTS, handicapDefinitions, handicapLabel, validHandicap, configureHandicapInput } from './football-handicap.js';
 const $ = (id) => document.getElementById(id);
 const relevantContext = mountRelevantContext($('report'));
-const GROUPS = {
-  resultado: 'Resultado',
-  'doble-oportunidad': 'Doble oportunidad',
-  'ambos-marcan': 'Ambos marcan',
-  handicap: 'Handicap europeo',
-  'asian-handicap': 'Handicap asiatico',
-  goles: 'Goles',
-  corners: 'Córners',
-  tarjetas: 'Tarjetas',
-  'tarjetas-amarillas': 'Amarillas',
-  'tarjetas-rojas': 'Tarjetas rojas',
-  'fuera-de-juego': 'Fuera de juego',
-  faltas: 'Faltas',
-  'tiros-al-arco': 'Tiros al arco',
-};
+const GROUPS = FOOTBALL_FT_GROUPS;
 const METRICS = { goles: 'goals', corners: 'corners', tarjetas: 'cards', 'tarjetas-amarillas': 'yellow', 'tarjetas-rojas': 'red', 'fuera-de-juego': 'offsides', faltas: 'fouls', 'tiros-al-arco': 'shotsOnTarget' };
-const HALF_GROUPS = { 'resultado-1t': 'Resultado 1T', 'goles-1t': 'Goles 1T', 'corners-1t': 'Córners 1T', 'handicap-1t': 'Handicap europeo 1T', 'asian-handicap-1t': 'Handicap asiatico 1T' };
+const HALF_GROUPS = FOOTBALL_HT_GROUPS;
+const sampleTrace = mountSampleTrace($('report'));
 const handicapSelections = {};
 let catalog = [];
 let freeLeagues = [];
@@ -395,6 +384,7 @@ function renderMarketRows(target, group) {
     const row = make('div', 'market-row');
     const title = make('div');
     title.append(make('div', 'market-title', market.label));
+    title.append(make('div', 'market-detail', 'Estimacion experimental / sin calibracion independiente'));
     title.append(make('div', 'market-detail', `${market.samples?.league ?? 0} partidos de referencia · ${market.quality === 'adequate' ? 'muestra disponible' : market.quality === 'unavailable' ? 'datos insuficientes' : 'muestra reducida'}`));
     const track = make('div', 'prob-track');
     const fill = make('div', 'prob-fill'); fill.style.width = `${market.probability ?? 0}%`; track.append(fill);
@@ -402,7 +392,8 @@ function renderMarketRows(target, group) {
     const observed = make('div', 'observed');
     for (const side of ['home', 'away']) {
       const sample = market.observed?.[side];
-      const line = make('div', '', `${side === 'home' ? 'Local' : 'Visitante'}: ${sample?.n ? `${sample.hits}/${sample.n} en historial` : 's/d'}`);
+      const missing = Math.max(0, report.history[side].length - (sample?.n || 0));
+      const line = make('div', '', `${side === 'home' ? 'Local' : 'Visitante'}: ${sample?.n ? `${sample.hits} de ${sample.n} cumplieron` : 'Sin datos'}${missing ? `; ${missing} sin este dato` : ''}`);
       if (sample?.interval95) line.title = `Intervalo 95% de la frecuencia observada: ${sample.interval95.low}% a ${sample.interval95.high}%`;
       observed.append(line);
     }
@@ -486,6 +477,7 @@ function renderHistory(side) {
 
 function renderReport(value) {
   report = value;
+  sampleTrace.show(['home', 'away'].map(side => ({ history: value.history[side], requested: value.meta.lookback || lookback, cutoff: value.meta.cutoff, label: side === 'home' ? 'Local' : 'Visitante' })));
   relevantContext.show({ sport: 'football', kind: 'team', key: value.meta.leagueKey || $('league-select').value,
     season: String(value.meta.season), names: [value.meta.home, value.meta.away], lookback: value.meta.lookback || lookback, cutoff: value.meta.cutoff });
   $('empty-state').hidden = true; $('report').hidden = false;

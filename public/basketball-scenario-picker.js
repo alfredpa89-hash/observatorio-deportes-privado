@@ -1,4 +1,5 @@
 import { basketballTeamEvidence, renderBasketballEvidence } from './basketball-evidence.js';
+import { mountSampleTrace } from './sample-trace.js';
 const node = (tag, text = '', className = '') => { const el = document.createElement(tag); el.textContent = text; el.className = className; return el; };
 const option = (value, label) => { const el = node('option', label); el.value = value; return el; };
 const pct = value => value == null ? 's/d' : `${value.toLocaleString('es-EC', { maximumFractionDigits: 2 })} %`;
@@ -20,6 +21,7 @@ export function mountBasketballScenarioPicker(root, { onLine, onSelect }) {
   const compare = node('details'), summary = node('summary', 'Comparar todas las lineas del periodo'), scroll = node('div', '', 'table-scroll'), table = node('table', '', 'basket-table'), tbody = node('tbody');
   const head = node('thead'), row = node('tr'); row.append(...['Linea', 'Over', 'Under'].map(text => node('th', text))); head.append(row); table.append(head, tbody); scroll.append(table); compare.append(summary, scroll);
   root.append(heading, form, message, evidence, selections, compare);
+  const sampleTrace = mountSampleTrace(root);
   let report;
   const totalGroup = () => fields.period.value === 'ft' ? 'total' : `${fields.period.value}-total`;
   function draw(resetLine = false) {
@@ -58,6 +60,7 @@ export function mountBasketballScenarioPicker(root, { onLine, onSelect }) {
   });
   return { setReport(value) {
     report = value; form.hidden = evidence.hidden = selections.hidden = compare.hidden = !value;
+    sampleTrace.show(value ? ['home', 'away'].map(side => ({ history: value.history[side], requested: value.meta.lookback, cutoff: value.meta.cutoff, label: side === 'home' ? 'Local' : 'Visitante' })) : []);
     if (!value) { message.textContent = 'Selecciona un encuentro futuro con datos. Endesa conserva el analisis descriptivo mientras su modelo queda pendiente.'; return; }
     draw();
   } };

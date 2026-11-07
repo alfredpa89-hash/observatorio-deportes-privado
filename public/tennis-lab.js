@@ -1,6 +1,7 @@
 import { jsonRequest } from './api-client.js';
 import { onDataRefresh, currentCutoff } from './live-refresh.js';
 import { mountRelevantContext } from './relevant-context.js';
+import { mountSampleTrace } from './sample-trace.js';
 const root = document.getElementById('tennis-workspace');
 const el = (tag, text = '', className = '') => { const node = document.createElement(tag); node.textContent = text; node.className = className; return node; };
 const num = value => value === null || value === undefined ? 's/d' : Number(value).toLocaleString('es-EC', { maximumFractionDigits: 2 });
@@ -171,7 +172,9 @@ async function load() {
   renderCalendar();
 }
 const relevantPlayer = mountRelevantContext(profileResult), relevantMatch = mountRelevantContext(compareResult);
+const playerTrace = mountSampleTrace(profileResult), matchTrace = mountSampleTrace(compareResult);
 function renderProfile(result) {
+  playerTrace.show([{ history: result.history, requested: result.lookback, cutoff: result.cutoff, approximate: true, label: result.player.name }]);
   profileData = result; profileResult.hidden = false; profileTitle.textContent = `${result.player.name} / ${data.metrics[result.metric]}`;
   relevantPlayer.show({ ...selection(), sport: 'tennis', kind: 'player', key: 'atp', playerKey: result.player.key });
   kpis(profileKpis, [['Partidos de la muestra', result.record.n], ['Victorias', result.record.wins], ['Derrotas', result.record.losses], ['Ventana solicitada', result.lookback]]);
@@ -192,6 +195,7 @@ profileForm.addEventListener('submit', event => { event.preventDefault(); task(a
 for (const control of [player, metric, customLine]) control.addEventListener('change', () => { profileResult.hidden = true; profileData = null; });
 async function compare() {
   const result = await api('comparison', { ...selection(), gamesLine: Number(gamesLine.value), handicapLine: Number(customHandicap.value || handicapLine.value), player1Key: playerA.value, player2Key: playerB.value }); compareResult.hidden = false;
+  matchTrace.show([result.a, result.b].map(item => ({ history: item.history, requested: item.lookback, cutoff: item.cutoff, approximate: true, label: item.player.name })));
   relevantMatch.show({ ...selection(), sport: 'tennis', kind: 'player', key: 'atp', playerKeys: [result.a.player.key, result.b.player.key] });
   compareTitle.textContent = `${result.a.player.name} / ${result.b.player.name}`; compareNote.textContent = result.note;
   const scores = result.setScores;

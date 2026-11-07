@@ -1,4 +1,6 @@
 import { mountPlayerMarkets } from './player-markets.js';
+import { FOOTBALL_GROUPS } from './market-catalog.js';
+import { mountSampleTrace } from './sample-trace.js';
 import { mountRelevantContext } from './relevant-context.js';
 import { footballSourceMode, filterFootballSources, footballFieldLabel } from './football-source.js';
 import { createProfileRefresh } from './profile-refresh.js';
@@ -36,9 +38,8 @@ const dataRefresh = createProfileRefresh({
   load: item => api('/api/profiles/report', item.body), apply: render,
   onError: () => message('No se completo la actualizacion del analisis. Se conserva el resultado anterior.', true),
 });
-const SCENARIO_GROUPS = { ...Object.fromEntries(Object.entries(HANDICAP_GROUPS).map(([key, config]) => [key, config.label])), resultado: 'Resultado: gana, empata o pierde', 'doble-oportunidad': 'Doble oportunidad', 'ambos-marcan': 'Ambos marcan',
-  goles: 'Goles', corners: 'Córners', tarjetas: 'Tarjetas (amarillas + rojas)', 'tarjetas-amarillas': 'Amarillas', 'tarjetas-rojas': 'Tarjetas rojas', 'fuera-de-juego': 'Fuera de juego', faltas: 'Faltas', tiros: 'Tiros', 'tiros-al-arco': 'Tiros al arco',
-  'resultado-1t': 'Resultado al descanso', 'goles-1t': 'Goles del primer tiempo', 'corners-1t': 'Córners del primer tiempo' };
+const SCENARIO_GROUPS = FOOTBALL_GROUPS;
+const sampleTrace = mountSampleTrace($('profile-report'));
 
 async function api(path, body) {
   const response = await fetch(path, body === undefined ? {} : { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
@@ -177,6 +178,7 @@ function renderScenarios(prefix, period) {
     }
     const interval = item.interval95 ? `${number(item.interval95.low)}–${number(item.interval95.high)} %` : 's/d';
     const entry = row([item.label, item.n ? `${item.hits} / ${item.n}` : 's/d', item.probability === null ? 's/d' : `${number(item.probability)} %`, interval]);
+    entry.children[1].append(node('small', ` · ${item.missing} sin este dato`));
     entry.children[1].title = `${item.missing} partidos sin datos para este escenario.`;
     entry.children[2].title = item.n < 3 ? 'Menos de 3 partidos con datos; no se muestra un porcentaje.' : 'Frecuencia histórica del equipo, sin ajuste por rival.';
     if (item.probability === null) entry.children[2].classList.add('profile-missing');
@@ -205,6 +207,7 @@ function renderFootballScenarios(result) {
   }
 }
 function render(result) {
+  sampleTrace.show([{ history: result.history, requested: result.meta.lookback, cutoff: result.meta.cutoff, approximate: result.meta.sport === 'tennis', label: 'Historial individual' }]);
   report = result; $('profile-report').hidden = false; $('profile-empty').hidden = true;
   if (result.meta.kind === 'team') relevantContext.show({ ...result.meta, key: result.meta.leagueKey || 'nba', names: [result.meta.name] });
   else relevantContext.hide();
