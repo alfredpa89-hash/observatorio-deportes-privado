@@ -27,7 +27,7 @@ export const FOOTBALL_HT_GROUPS = { 'resultado-1t': 'Resultado 1T', 'goles-1t': 
 export const FOOTBALL_GROUPS = { ...FOOTBALL_FT_GROUPS, tiros: 'Tiros', ...FOOTBALL_HT_GROUPS };
 export function marketGroupLabel(group, sport) {
   if (sport === 'football' || group in FOOTBALL_GROUPS) return FOOTBALL_GROUPS[group] || group;
-  return ({ winner: 'Ganador', total: 'Total de puntos', spread: 'Handicap', 'q1-total': 'Total primer cuarto', 'ht-total': 'Total al descanso',
+  return ({ winner: 'Ganador', total: 'Total de puntos', spread: 'Handicap', 'q1-winner': 'Ganador del primer cuarto', 'ht-winner': 'Ganador al descanso', 'q1-total': 'Total primer cuarto', 'ht-total': 'Total al descanso',
     'team-total': 'Total por equipo', games: 'Juegos', sets: 'Sets', aces: 'Aces', breaks: 'Quiebres' })[group] || group;
 }
 export function selectConditionMarkets(markets, { group = 'all', direction = 'both', line } = {}) {
