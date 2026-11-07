@@ -17,7 +17,7 @@ export class SportsError extends Error {
   constructor(status, message) { super(message); this.status = status; }
 }
 
-export function createSportsService({ getStore, persist, parseCsvRows, parseCsvDateTime }) {
+export function createSportsService({ getStore, persist, parseCsvRows, parseCsvDateTime, now = () => new Date() }) {
   function data(sport) {
     if (!['nba', 'tennis'].includes(sport)) throw new SportsError(400, 'Deporte no válido.');
     const store = getStore();
@@ -82,12 +82,27 @@ export function createSportsService({ getStore, persist, parseCsvRows, parseCsvD
 
   async function downloadNba(season, freshness = false) {
     const previous = data('nba').datasets[season];
-    if (previous?.source === 'ESPN' && previous.parserVersion === NBA_SOURCE.parserVersion && Date.now() - new Date(previous.loadedAt).valueOf() < (freshness ? 15 * 60000 : TTL)) return previous;
+    if (previous?.source === 'ESPN' && previous.parserVersion === NBA_SOURCE.parserVersion && now().getTime() - new Date(previous.loadedAt).valueOf() < (freshness ? 15 * 60000 : TTL)) return previous;
     const first = Number(season.slice(0, 4));
     const months = [10, 11, 12, 1, 2, 3, 4].map(month => `${month >= 10 ? first : first + 1}${String(month).padStart(2, '0')}`);
     const matches = []; const fixtures = []; const warnings = [];
-    let validMonths = 0;
+    const compatible = previous?.source === 'ESPN' && previous.parserVersion === NBA_SOURCE.parserVersion;
+    const monthChecks = compatible ? { ...previous.monthChecks } : {};
+    const savedMatches = new Map((previous?.matches || []).map(row => [String(row.id), row]));
+    const savedFixtures = new Map((previous?.fixtures || []).map(row => [String(row.id), row]));
+    const today = now(), currentMonth = today.toISOString().slice(0, 7).replace('-', '');
+    const monthIndex = month => Number(month.slice(0, 4)) * 12 + Number(month.slice(4)) - 1;
+    let validMonths = 0, fetchedMonths = 0;
     for (const month of months) {
+      const cached = monthChecks[month], distance = monthIndex(month) - monthIndex(currentMonth);
+      // Recheck recent results and near fixtures often; still revisit closed months for corrections.
+      const monthTTL = distance >= -1 && distance <= 1 ? freshness ? 15 * 60000 : TTL : distance < -1 ? 7 * 86400000 : 86400000;
+      if (cached && now().getTime() - Date.parse(cached.checkedAt) < monthTTL &&
+        Array.isArray(cached.matchIds) && Array.isArray(cached.fixtureIds) &&
+        cached.matchIds.every(id => savedMatches.has(id)) && cached.fixtureIds.every(id => savedFixtures.has(id))) {
+        matches.push(...cached.matchIds.map(id => savedMatches.get(id))); fixtures.push(...cached.fixtureIds.map(id => savedFixtures.get(id))); validMonths++;
+        continue;
+      }
       try {
         const text = await fetchText(`${NBA_URL}?dates=${month}&limit=400`);
         let payload;
@@ -95,11 +110,13 @@ export function createSportsService({ getStore, persist, parseCsvRows, parseCsvD
         if (!Array.isArray(payload.events) || payload.events.length >= 400) throw new SportsError(502, `El calendario de ${month} no está completo.`);
         const parsed = parseNbaSchedule(payload, { season });
         matches.push(...parsed.matches); fixtures.push(...parsed.fixtures); validMonths += 1;
+        fetchedMonths++;
+        monthChecks[month] = { checkedAt: now().toISOString(), matchIds: parsed.matches.map(row => String(row.id)), fixtureIds: parsed.fixtures.map(row => String(row.id)) };
       } catch (error) { warnings.push(`${month}: ${error.message}`); }
     }
     if (!validMonths || (!matches.length && !fixtures.length)) throw new SportsError(502, 'No se encontraron partidos de temporada regular en la fuente. Se conserva el historial anterior.');
     const result = {
-      matches: unique(matches), fixtures: unique(fixtures), loadedAt: new Date().toISOString(), source: 'ESPN',
+      matches: unique(matches), fixtures: unique(fixtures), loadedAt: fetchedMonths ? now().toISOString() : previous?.loadedAt, source: 'ESPN', monthChecks,
       parserVersion: NBA_SOURCE.parserVersion,
       sourcePage: 'https://www.espn.com/nba/scoreboard',
       note: `Temporada regular NBA. Puntos finales y estadísticas FT incluyen prórroga; 1Q y descanso usan solo sus periodos. Sin pretemporada, playoffs, All-Star ni final de NBA Cup.${warnings.length ? ` Descarga parcial (${validMonths}/7 meses). ${warnings.join(' ')}` : ''}`,
@@ -109,6 +126,9 @@ export function createSportsService({ getStore, persist, parseCsvRows, parseCsvD
       const completed = new Set(result.matches.map(match => match.id));
       result.fixtures = unique([...(previous.fixtures || []), ...result.fixtures]).filter(match => !completed.has(match.id));
     }
+    const completedIds = new Set(result.matches.map(match => String(match.id)));
+    result.fixtures = result.fixtures.filter(match => !completedIds.has(String(match.id)));
+    result.warning = warnings.length ? `Descarga parcial NBA: ${warnings.join(' ')}` : null;
     data('nba').datasets[season] = result; await persist();
     return result;
   }
@@ -134,7 +154,7 @@ export function createSportsService({ getStore, persist, parseCsvRows, parseCsvD
     const seasons = [season, allowed(sport)[allowed(sport).indexOf(season) + 1]].filter(Boolean);
     const warnings = [];
     for (const selected of seasons) {
-      try { await (sport === 'nba' ? downloadNba(selected, freshness && selected === season) : downloadTennis(selected, freshness && selected === season)); }
+      try { const result = await (sport === 'nba' ? downloadNba(selected, freshness && selected === season) : downloadTennis(selected, freshness && selected === season)); if (result.warning) warnings.push(`${selected}: ${result.warning}`); }
       catch (error) { warnings.push(`${selected}: ${error.message}`); }
     }
     if (!data(sport).datasets[season]) throw new SportsError(502, warnings.join(' '));

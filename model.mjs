@@ -1,34 +1,6 @@
 import { handicapDefinitions, settleHandicap, settlementSummary, SETTLEMENTS, roundedShares } from './public/football-handicap.js';
 
-const DEFAULT_LINES = {
-  goals: [1.5, 2.5, 3.5, 4.5],
-  corners: [7.5, 8.5, 9.5, 10.5, 11.5, 12.5],
-  fouls: [21.5, 24.5, 27.5],
-  cards: [2.5, 3.5, 4.5, 5.5, 6.5],
-  yellow: [2.5, 3.5, 4.5, 5.5, 6.5],
-  red: [0.5, 1.5, 2.5],
-  offsides: [1.5, 2.5, 3.5, 4.5],
-  shotsOnTarget: [5.5, 6.5, 7.5, 8.5, 9.5, 10.5, 11.5, 12.5],
-  halfTimeGoals: [0.5, 1.5, 2.5],
-  halfTimeCorners: [1.5, 2.5, 3.5, 4.5],
-};
-
-const MARKET_GROUPS = {
-  goals: { group: 'goles', id: 'goals', label: 'goles' },
-  corners: { group: 'corners', id: 'corners', label: 'córners' },
-  halfTimeGoals: { group: 'goles-1t', id: 'half-time-goals', label: 'goles en el primer tiempo' },
-  halfTimeCorners: { group: 'corners-1t', id: 'half-time-corners', label: 'córners en el primer tiempo' },
-  fouls: { group: 'faltas', id: 'fouls', label: 'faltas' },
-  cards: { group: 'tarjetas', id: 'cards', label: 'tarjetas' },
-  yellow: { group: 'tarjetas-amarillas', id: 'yellow-cards', label: 'tarjetas amarillas' },
-  red: { group: 'tarjetas-rojas', id: 'red-cards', label: 'tarjetas rojas', overOnly: true },
-  offsides: { group: 'fuera-de-juego', id: 'offsides', label: 'fueras de juego' },
-  shotsOnTarget: {
-    group: 'tiros-al-arco',
-    id: 'shots-on-target',
-    label: 'tiros al arco',
-  },
-};
+import { FOOTBALL_LINES as DEFAULT_LINES, FOOTBALL_METRICS as MARKET_GROUPS } from './public/market-catalog.js';
 
 const PRIOR_MATCHES = 8;
 const MIN_LEAGUE_MATCHES = 10;

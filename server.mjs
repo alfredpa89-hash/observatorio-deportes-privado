@@ -1559,10 +1559,10 @@ async function route(request, response) {
       void dataControl.cycle({ automatic: body.automatic === true }).catch(error => console.error('Centro de datos:', error.status || 'update_failed'));
       return sendJson(response, 202, { started: true });
     }
-    if (request.method === 'POST' && url.pathname === '/api/data/pause') { await readBody(request); await dataControl.pause(); return sendJson(response, 200, { paused: true }); }
+    if (request.method === 'POST' && url.pathname === '/api/data/pause') { await readBody(request); return sendJson(response, 202, dataControl.pause()); }
     if (request.method === 'POST' && url.pathname === '/api/data/verify') {
       const body = await readBody(request);
-      if (body.provider === 'basketball') { const access = await verifyBasketballAccess(); await dataControl.reconnect('basketball'); return sendJson(response, 200, { access, policy: basketball.requestPolicy() }); }
+      if (body.provider === 'basketball') { const access = await verifyBasketballAccess(); return sendJson(response, 200, { access, policy: basketball.requestPolicy() }); }
       if (body.provider === 'football') { await connectFootballKey(apiKey); return sendJson(response, 200, { access: footballConnection, policy: footballBudget.policy() }); }
       throw new HttpError(400, 'Selecciona un proveedor verificable conectado.');
     }

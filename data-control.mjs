@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { SportsError } from './sports.mjs';
 import { buildDataCoverage, dataIntegrity } from './data-coverage.mjs';
 import { basketballFocus } from './basketball-focus.mjs';
@@ -48,12 +48,26 @@ export function planDataJobs(store, { basketballConnected, footballConnected, fo
 }
 
 export function createDataControl({ getStore, persist, connections, policies, basketballData, handlers, backups, contextReports = () => [], trialAudit = () => null, basketballReadiness = () => null, now = () => new Date() }) {
-  let running = null, visiting = null, pauseRequested = false;
+  let running = null, visiting = null, pauseRequested = false, recoveredControl;
   const clock = () => now().toISOString();
   const data = () => {
     const store = getStore();
     if (store.dataControl && store.dataControl.schema !== 1) throw new SportsError(409, 'Version del Centro de datos no compatible. No se sobrescribe; conserva el respaldo.');
-    return (store.dataControl ||= initial());
+    const control = (store.dataControl ||= initial());
+    if (recoveredControl !== control) {
+      recoveredControl = control;
+      // A persisted running flag is not an executor. Never resume an in-flight request blindly.
+      for (const job of control.jobs) if (job.status === 'running') {
+        job.status = 'interrupted'; job.finishedAt = clock();
+        job.issue = { code: 'update_interrupted', message: 'La tarea se interrumpio. Se conserva lo guardado; la siguiente comprobacion revisara la fuente.' };
+        if (job.attempt) Object.assign(job.attempt, { finishedAt: clock(), outcome: 'interrupted' });
+        job.nextAt = new Date(now().getTime() + 5 * 60000).toISOString();
+      }
+      if (control.visit?.phase === 'updating') {
+        control.visit.phase = 'interrupted'; control.visit.interruptedAt = clock();
+      }
+    }
+    return control;
   };
   function event(type, message, job = null) { data().events.push({ at: clock(), type, message, job }); data().events = data().events.slice(-100); }
   function plan() {
@@ -108,24 +122,27 @@ export function createDataControl({ getStore, persist, connections, policies, ba
       for (const row of jobs) if (selected.length < maxJobs && !selected.includes(row)) selected.push(row);
       if (selected.length) await backups.ensure();
       let completed = 0; const processedIds = [];
-      for (const job of selected.slice(0, maxJobs)) {
-        if (pauseRequested) break;
-        processedIds.push(job.id);
-        job.status = 'running'; job.attempts++; await persist();
+      async function execute(job) {
+        if (pauseRequested) return;
+        job.status = 'running'; job.attempts++; job.startedAt = clock(); job.finishedAt = null;
+        job.attempt = { id: randomUUID(), startedAt: job.startedAt, finishedAt: null, outcome: 'running' };
+        await persist();
         try {
           const result = await handlers[job.kind]({ ...job.params, ...(freshness ? { freshness: true } : {}) });
           job.result = { imported: result?.imported ?? null, completed: result?.completed ?? result?.processed ?? null,
-            pending: result?.pending ?? result?.remainingGames ?? null, warning: result?.warning || null };
+            pending: result?.pending ?? result?.remainingGames ?? null, warning: result?.warning || null,
+            added: result?.added ?? null, corrected: result?.corrected ?? null };
           if (job.result.warning && !job.result.completed && !job.result.imported && /quota|limite|presupuesto|no permite|no.*access|free plan|subscription|conexi[oó]n|no se pudo|no se encontr|temporada no encontrada/i.test(job.result.warning)) {
             const status = /limite|quota|presupuesto/i.test(job.result.warning) ? 429 : /no permite|no.*access|free plan|subscription|temporada no encontrada/i.test(job.result.warning) ? 403 : 502;
             throw Object.assign(new SportsError(status, job.result.warning), { code: 'source_unavailable' });
           }
           job.status = job.result.pending > 0 ? 'partial' : 'complete'; job.issue = null; job.lastAt = clock();
+          job.lastSuccessAt = clock();
           if (freshness) job.freshAt = clock();
           (data().updatedSports ||= {})[job.sport] = clock();
           const expanded = data().budgets[job.sport]?.maximizeFree || policies().basketball.paid && job.sport === 'basketball';
           job.nextAt = new Date(now().getTime() + (job.result.pending > 0 ? expanded ? 5 * 60000 : 3600000 : job.ttl)).toISOString();
-          completed++; event('updated', `${job.label}: ${job.status === 'partial' ? 'lote parcial guardado' : 'tarea completada'}`, job.id);
+          completed++; event('updated', `${job.label}: ${job.status === 'partial' ? 'lote parcial guardado' : 'comprobacion completada'}`, job.id);
         } catch (error) {
           job.issue = sanitize(error); job.status = [401, 403].includes(error.status) ? 'blocked' : error.status === 429 ? 'quota' : 'retry';
           const policy = policies()[job.kind.startsWith('footystats') ? 'footystats' : job.sport], reset = new Date(Date.parse(clock().slice(0, 10)) + DAY).toISOString();
@@ -134,8 +151,22 @@ export function createDataControl({ getStore, persist, connections, policies, ba
           job.nextAt = retryAt || new Date(now().getTime() + delay).toISOString(); job.lastAt = clock();
           event('attention', `${job.label}: ${job.issue.message}`, job.id);
         }
+        job.finishedAt = clock();
+        const changed = [job.result?.added, job.result?.corrected].some(value => Number.isInteger(value) && value > 0);
+        Object.assign(job.attempt, { finishedAt: job.finishedAt, outcome: job.status === 'complete' ? changed ? 'updated' : 'checked' : job.status,
+          result: structuredClone(job.result), issue: job.issue || null });
+        processedIds.push(job.id);
+        // Checkpoint each finished task, including failures, before starting another one.
+        const record = data().visit;
+        if (freshness && record?.jobIds.includes(job.id) && !record.processedIds.includes(job.id)) record.processedIds.push(job.id);
         await persist();
       }
+      // One serial lane per sport avoids competing requests to a provider. Independent
+      // sports can finish even while another source is waiting for its response.
+      const lanes = ['basketball', 'football', 'tennis'].map(sport => selected.slice(0, maxJobs).filter(job => job.sport === sport));
+      const results = await Promise.allSettled(lanes.map(async lane => { for (const job of lane) await execute(job); }));
+      const failed = results.find(result => result.status === 'rejected');
+      if (failed) throw failed.reason;
       data().lastCycle = clock(); await persist(); return { completed, processed: processedIds.length, processedIds, paused: pauseRequested };
     });
     try { return await running; } finally { running = null; }
@@ -146,13 +177,20 @@ export function createDataControl({ getStore, persist, connections, policies, ba
     if (control.automatic.basketball && !source.basketballConnected) missing.push('API-Basketball sin conectar: Euroliga y Endesa actuales pendientes.');
     if (control.automatic.football && !source.footballConnected && Object.values(getStore().leagues || {}).some(row => row.source === 'api-football')) missing.push('API-Football sin conectar: individuales y ligas API conservan su historial.');
     const tasks = (visit?.jobIds || []).map(id => control.jobs.find(job => job.id === id)).filter(Boolean);
-    return { requestedAt: visit?.requestedAt || null, finishedAt: visit?.finishedAt || null,
+    return { requestedAt: visit?.requestedAt || null, finishedAt: visit?.finishedAt || null, interruptedAt: visit?.interruptedAt || null,
+      running: Boolean(running || visiting), pauseRequested,
       phase: visiting ? 'updating' : visit?.phase === 'updating' ? 'interrupted' : visit?.phase || 'pending',
       total: tasks.length, processed: (visit?.processedIds || []).length,
-      issues: [...tasks.filter(job => job.issue || job.result?.warning || job.result?.pending > 0).map(job => ({ task: job.label, message: job.issue?.message || job.result?.warning || `${job.result.pending} detalles pendientes`, pending: job.result?.pending || 0 })),
+      issues: [...tasks.filter(job => job.issue || job.result?.warning || job.result?.pending > 0).map(job => ({ task: job.label, message: job.issue?.message || job.result?.warning || (job.result?.pending ? `${job.result.pending} detalles pendientes` : 'Comprobacion pendiente; se conserva el historial.'), pending: job.result?.pending || 0 })),
         ...(visit?.failure ? [{ task: 'Actualizacion', message: visit.failure.message, pending: 0 }] : [])],
       missing, disabledSports: Object.keys(control.automatic).filter(sport => !control.automatic[sport]), updatedSports: control.updatedSports || {}, lastCycle: control.lastCycle || null, cacheMinutes: VISIT_TTL / 60000,
-      checks: tasks.map(job => ({ task: job.label, sport: job.sport, checkedAt: job.freshAt || null, status: job.status })),
+      sports: Object.fromEntries(['basketball', 'football', 'tennis'].map(sport => {
+        const rows = tasks.filter(job => job.sport === sport);
+        return [sport, { total: rows.length, processed: rows.filter(job => visit?.processedIds.includes(job.id)).length,
+          running: rows.filter(job => job.status === 'running').map(job => job.label), issues: rows.filter(job => job.issue || job.result?.warning).length }];
+      })),
+      checks: control.jobs.map(job => ({ id: job.id, task: job.label, sport: job.sport, checkedAt: job.freshAt || null, status: job.status,
+        startedAt: job.startedAt || null, finishedAt: job.finishedAt || null, lastSuccessAt: job.lastSuccessAt || null, attempt: job.attempt || null })),
       note: 'Comprobacion de las fuentes disponibles, no garantia de cobertura completa ni datos en tiempo real. La hora de descarga no es la fecha del ultimo resultado.' };
   }
   async function visit() {
@@ -172,18 +210,18 @@ export function createDataControl({ getStore, persist, connections, policies, ba
       const record = data().visit; record.jobIds = required.map(job => job.id);
       // Fresh checks bypass long archive caches, but never override access/quota cooldowns.
       for (const job of required) if (!job.issue && (!job.freshAt || now().getTime() - Date.parse(job.freshAt) >= VISIT_TTL)) job.nextAt = clock();
-      record.processedIds = required.filter(job => job.freshAt && Date.parse(job.freshAt) >= now().getTime() - VISIT_TTL || job.issue && Date.parse(job.nextAt) > now().getTime()).map(job => job.id);
+      record.processedIds = required.filter(job => job.status === 'blocked' || job.freshAt && Date.parse(job.freshAt) >= now().getTime() - VISIT_TTL || job.issue && Date.parse(job.nextAt) > now().getTime()).map(job => job.id);
       await persist();
       for (const stage of [primary, details]) {
         let remaining = stage.map(job => job.id).filter(id => !record.processedIds.includes(id));
         while (remaining.length && !pauseRequested) {
           const result = await cycle({ automatic: true, maxJobs: 4, jobIds: remaining, freshness: true });
           if (!result.processedIds?.length) break;
-          record.processedIds.push(...result.processedIds); await persist();
+          record.processedIds = [...new Set([...record.processedIds, ...result.processedIds])]; await persist();
           remaining = remaining.filter(id => !record.processedIds.includes(id));
         }
       }
-      record.finishedAt = clock(); record.phase = pauseRequested ? 'paused' : record.processedIds.length < record.jobIds.length ? 'partial' : 'checked'; await persist();
+      record.finishedAt = clock(); record.phase = pauseRequested ? 'paused' : record.processedIds.length < record.jobIds.length || required.some(job => job.issue || job.result?.warning || job.result?.pending > 0) ? 'partial' : 'checked'; await persist();
     }).catch(async error => {
       data().visit.phase = 'error'; data().visit.finishedAt = clock(); data().visit.failure = sanitize(error);
       event('attention', sanitize(error).message); await persist().catch(() => {});
@@ -201,7 +239,7 @@ export function createDataControl({ getStore, persist, connections, policies, ba
       backups: await backups.list(), reports: contextReports(), trialAudit: trialAudit(), basketballReadiness: basketballReadiness(), priority: ['basketball', 'football', 'tennis'],
       notice: 'Cuotas y suscripciones independientes. Datos historicos no confirman plantilla actual. La actualizacion requiere equipo y servidor encendidos. No altera el protocolo congelado de octubre.' };
   }
-  return { state, settings, cycle, visit, progress, running: () => Boolean(running || visiting), pause: async () => { pauseRequested = true; if (visiting) await visiting; else if (running) await running; },
+  return { state, settings, cycle, visit, progress, running: () => Boolean(running || visiting), pause: () => { pauseRequested = true; return { requested: true, running: Boolean(running || visiting) }; },
     reconnect: async sport => {
       if (!visiting) data().visit = null;
       for (const [key, block] of Object.entries(data().accessBlocks || {})) if (block.sport === sport) delete data().accessBlocks[key];

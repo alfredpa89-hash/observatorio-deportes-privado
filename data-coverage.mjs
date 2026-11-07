@@ -52,10 +52,12 @@ export function buildDataCoverage(store, basketballData = { games: [], players: 
       if (calendar.length && !games.length) row.accessStatus = 'calendario_guardado_sin_resultados';
       row.fields = fields(games, {
         points: ['Puntos y ganador', game => pair(game.homePoints, game.awayPoints)],
+        ...Object.fromEntries(['q1', 'q2', 'q3', 'q4'].map(q => [q, [`Puntos equipos ${q.toUpperCase()}`, game => ['home', 'away'].every(side => finite(game.periods?.[side]?.[q] ?? (q === 'q1' ? game.stats?.[side]?.firstQuarterPoints : null)))]])),
         quarters: ['Cuartos de equipos', game => ['home', 'away'].every(side => ['q1', 'q2', 'q3', 'q4'].every(q => finite(game.periods?.[side]?.[q])))],
         halfTime: ['Puntos al descanso', game => ['home', 'away'].every(side => finite(game.periods?.[side]?.ht ?? game.stats?.[side]?.halfTimePoints))] });
       row.playerFields = fields(logs, Object.fromEntries(['points', 'rebounds', 'assists', 'pra', 'threes'].map(id => [id, [{ points: 'Puntos', rebounds: 'Rebotes', assists: 'Asistencias', pra: 'PRA', threes: 'Triples' }[id], log => finite(log.values?.[id])]])));
       row.playerFields.push(...fields(logs, { minutes: ['Minutos', log => finite(log.minutes)], quarters: ['Individuales por cuarto', log => ['q1', 'q2', 'q3', 'q4'].every(q => finite(log.periods?.[q]?.points))] }));
+      row.playerFields.push(...fields(logs, Object.fromEntries(['q1', 'q2', 'q3', 'q4', 'ht'].map(q => [q, [`Puntos individuales ${q.toUpperCase()}`, log => finite(log.periods?.[q]?.points)]]))));
       row.teams = teamDepth(games, logs, log => log.playerKey || `${log.source}:${log.apiPlayerId || log.playerId || log.name}`);
       row.reports = (basketballData.availability || []).filter(report => report.league === league && report.publishedAt <= now.toISOString() && report.expiresAt > now.toISOString()).length;
       result.push(row);
